@@ -1,0 +1,1027 @@
+<title>Saeimas Jira apmācība</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 16:9 slaidi (1280×720), mērogoti skatlogā; runātāja piezīmes sānu panelī (N), pārskats (O).
+   Identitāte: Saeimas klareta sarkanā + smilšakmens neitrālie + Jira zilā tikai produkta ekrānu maketiem. */
+:root{
+  --paper:#F5F4F1; --card:#FFFFFF; --ink:#1A1D24; --muted:#5A6070; --line:#DEDAD3;
+  --claret:#8C1D2F; --claret-soft:#F4E4E6; --forest:#2E5C45; --forest-soft:#E2EFE7;
+  --jira:#0C66E4; --jira-soft:#E9F2FF; --amber:#9A5B00; --amber-soft:#FFF4DC;
+  --stage:#E7E4DE; --shadow:0 1px 2px rgb(26 29 36 / .06),0 8px 24px rgb(26 29 36 / .07);
+  --f-display:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#15171C; --card:#1D2027; --ink:#ECEAE6; --muted:#A2A7B2; --line:#30343D;
+  --claret:#E8788A; --claret-soft:#3A1F25; --forest:#86C7A3; --forest-soft:#1E3329;
+  --jira:#6AA6FF; --jira-soft:#1B2A44; --amber:#F2B65A; --amber-soft:#3A2D16;
+  --stage:#0E0F13; --shadow:0 1px 2px rgb(0 0 0 / .4),0 8px 24px rgb(0 0 0 / .35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#15171C; --card:#1D2027; --ink:#ECEAE6; --muted:#A2A7B2; --line:#30343D;
+  --claret:#E8788A; --claret-soft:#3A1F25; --forest:#86C7A3; --forest-soft:#1E3329;
+  --jira:#6AA6FF; --jira-soft:#1B2A44; --amber:#F2B65A; --amber-soft:#3A2D16;
+  --stage:#0E0F13; --shadow:0 1px 2px rgb(0 0 0 / .4),0 8px 24px rgb(0 0 0 / .35); color-scheme:dark}
+
+html,body{height:100%}
+body{margin:0;background:var(--stage);color:var(--ink);font-family:var(--f-body);overflow:hidden;padding-inline:0}
+*{box-sizing:border-box}
+#app{position:fixed;inset:0;display:grid;grid-template-columns:1fr auto;grid-template-rows:1fr auto}
+#viewport{position:relative;overflow:hidden;min-width:0}
+#deck{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center center}
+.slide{position:absolute;inset:0;background:var(--paper);border-radius:6px;box-shadow:var(--shadow);
+  padding:56px 72px 64px;display:none;flex-direction:column;overflow:hidden}
+.slide.active{display:flex}
+@media (prefers-reduced-motion:no-preference){.slide.active{animation:in .28s ease-out}}
+@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+aside.notes{display:none}
+
+/* Typography scale: 64 / 44 / 30 / 22 / 18 / 15 / 13 */
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.015em}
+h1{font-size:64px;line-height:1.05;font-weight:800}
+h2{font-size:44px;line-height:1.1;font-weight:800}
+h3{font-size:22px;line-height:1.25;font-weight:700}
+p,li{font-size:20px;line-height:1.5}
+.lead{font-size:24px;line-height:1.45;color:var(--muted);max-width:60ch}
+.eyebrow{font-family:var(--f-display);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--claret)}
+.small{font-size:15px;line-height:1.45;color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+.head{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:20px}
+ul.clean{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+ul.clean li{padding-left:26px;position:relative}
+ul.clean li::before{content:"";position:absolute;left:4px;top:.62em;width:8px;height:8px;border-radius:2px;background:var(--claret)}
+b,strong{font-weight:600}
+.cols{display:grid;gap:28px;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.cols.c3{grid-template-columns:repeat(3,1fr)}
+.cols.c64{grid-template-columns:1.5fr 1fr}
+.cols.c46{grid-template-columns:1fr 1.4fr}
+.cols{align-items:start}
+.cols>*{min-width:0}
+.nin{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--claret);color:#fff;font:700 11px/20px var(--f-display);text-align:center;margin-right:6px;vertical-align:middle;flex:none}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.panel p,.panel li{font-size:17px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:999px;width:max-content}
+.tag.demo{background:var(--forest-soft);color:var(--forest)}
+.tag.teorija{background:var(--claret-soft);color:var(--claret)}
+.tag.pauze{background:var(--amber-soft);color:var(--amber)}
+.kbd{font-family:var(--f-mono);font-size:.85em;background:var(--card);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 7px}
+.ui{font-family:var(--f-body);font-weight:600;color:var(--jira);background:var(--jira-soft);border-radius:4px;padding:0 6px;white-space:nowrap}
+.warn{border-left:4px solid var(--amber);background:var(--amber-soft);padding:14px 18px;border-radius:0 8px 8px 0;font-size:17px;line-height:1.45}
+.note-src{font-size:12px;color:var(--muted);letter-spacing:.02em}
+
+/* Slide chrome (footer) */
+.foot{position:absolute;left:72px;right:72px;bottom:22px;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.foot .sp{flex:1}
+.foot .brand{font-family:var(--f-display);font-weight:800;letter-spacing:.18em;color:var(--claret);font-size:12px}
+
+/* Title slide */
+.s-title{padding:0;flex-direction:row}
+.s-title .left{flex:1.05;padding:64px 64px 56px 72px;display:flex;flex-direction:column;gap:22px}
+.s-title .right{flex:1;position:relative;background:var(--claret);overflow:hidden}
+.s-title .right{display:flex;flex-direction:column;justify-content:center;padding:48px 40px 120px}
+.s-title .right img{display:block;width:100%;height:auto;border-radius:8px;box-shadow:0 20px 50px rgb(0 0 0 / .35);background:#fff}
+.s-title .right .ov{position:absolute;inset:auto 0 0 0;padding:28px 36px;color:#fff;background:linear-gradient(transparent,rgb(60 8 18 / .88) 55%)}
+.s-title .meta{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:17px;margin-top:auto}
+.s-title .meta dt{color:var(--muted)} .s-title .meta dd{margin:0;font-weight:600}
+
+/* Section slides */
+.s-section{justify-content:center;gap:22px;background:var(--ink);color:var(--paper)}
+.s-section .num{font-family:var(--f-display);font-weight:800;font-size:150px;line-height:.9;color:var(--claret);letter-spacing:-.04em}
+.s-section h2{font-size:56px;color:var(--paper)}
+.s-section .lead{color:color-mix(in srgb,var(--paper) 72%,transparent)}
+.s-section .foot{color:color-mix(in srgb,var(--paper) 60%,transparent)}
+.s-section .demo-plan{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.s-section .demo-plan span{border:1px solid color-mix(in srgb,var(--paper) 30%,transparent);border-radius:999px;padding:6px 14px;font-size:16px}
+
+/* Agenda */
+.agenda{display:grid;grid-template-columns:96px 1fr 120px 70px;gap:0;font-variant-numeric:tabular-nums}
+.agenda>div{padding:9px 0;border-bottom:1px solid var(--line);font-size:17px;display:flex;align-items:center}
+.agenda .t{font-family:var(--f-mono);font-size:15px;color:var(--muted)}
+.agenda .m{justify-content:flex-end;color:var(--muted);font-family:var(--f-mono);font-size:14px}
+.agenda .brk{color:var(--amber);font-weight:600}
+.ratio{display:flex;height:14px;border-radius:7px;overflow:hidden;margin-top:6px}
+.ratio i{display:block}
+
+/* Screenshot frame */
+.shot{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.shot .bar{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.shot .bar i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.shot .bar span{margin-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shot img{display:block;width:100%;height:auto;max-height:400px;object-fit:contain;background:#fff;min-height:0}
+.shot figcaption{padding:8px 12px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
+
+/* Jira mockups (stylised, tokens) */
+.jm{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:14px;display:flex;flex-direction:column;min-height:0}
+.jm .top{background:var(--jira);color:#fff;display:flex;gap:18px;align-items:center;padding:9px 14px;font-weight:600;font-size:13px}
+.jm .top .sp{flex:1}
+.jm .top .btn{background:rgb(255 255 255 / .2);padding:3px 10px;border-radius:4px}
+.jm .wrap{display:flex;flex:1;min-height:0}
+.jm .side{width:190px;border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:3px;font-size:13px}
+.jm .side .h{font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 8px 4px}
+.jm .side a{padding:6px 8px;border-radius:5px;color:var(--ink);text-decoration:none;display:flex;justify-content:space-between}
+.jm .side a.on{background:var(--jira-soft);color:var(--jira);font-weight:600}
+.jm .main{flex:1;padding:14px 16px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.jm table{border-collapse:collapse;width:100%;font-size:13px}
+.jm th{text-align:left;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--line)}
+.jm td{padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.jm .key{color:var(--jira);font-weight:600;font-family:var(--f-mono);font-size:12px}
+.lz{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:3px;background:var(--line);color:var(--ink)}
+.lz.b{background:var(--jira-soft);color:var(--jira)} .lz.g{background:var(--forest-soft);color:var(--forest)} .lz.a{background:var(--amber-soft);color:var(--amber)}
+.sla{font-family:var(--f-mono);font-size:12px} .sla.bad{color:var(--claret);font-weight:600}
+.callout{position:absolute;width:26px;height:26px;border-radius:50%;background:var(--claret);color:#fff;font:700 13px/26px var(--f-display);text-align:center;box-shadow:0 0 0 3px var(--paper)}
+.legend{display:flex;flex-direction:column;gap:10px}
+.legend div{display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:start;font-size:16px;line-height:1.4}
+.legend b.n{width:26px;height:26px;border-radius:50%;background:var(--claret);color:#fff;font:700 13px/26px var(--f-display);text-align:center}
+
+/* Flow / lifecycle */
+.flow{display:flex;align-items:stretch;gap:0}
+.flow .st{flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:6px;position:relative}
+.flow .st h3{font-size:18px}
+.flow .st p{font-size:14px;color:var(--muted);line-height:1.4;margin:0}
+.flow .ar{width:34px;display:grid;place-items:center;color:var(--muted);font-size:22px;flex:none}
+.flow .st.end{border-color:var(--forest);background:var(--forest-soft)}
+
+/* Comment tabs mockup */
+.ctabs{display:flex;gap:0;border-bottom:1px solid var(--line)}
+.ctabs span{padding:8px 14px;font-weight:600;font-size:14px;color:var(--muted);border-bottom:3px solid transparent}
+.ctabs .nin{padding:0;border:0;color:#fff}
+.ctabs span.on-ext{color:var(--jira);border-color:var(--jira)}
+.ctabs span.on-int{color:var(--amber);border-color:var(--amber)}
+.cbox{border:1px solid var(--line);border-radius:6px;padding:12px;min-height:84px;font-size:15px;line-height:1.45}
+.cbox.int{background:var(--amber-soft);border-color:color-mix(in srgb,var(--amber) 40%,transparent)}
+
+/* Code / JQL */
+pre.jql{margin:0;background:var(--ink);color:var(--paper);border-radius:8px;padding:14px 16px;font:500 15px/1.5 var(--f-mono);white-space:pre-wrap;overflow-x:auto}
+pre.jql .c{color:color-mix(in srgb,var(--paper) 55%,transparent)}
+pre.jql .k{color:#9CC3FF}
+.jqlrow{display:grid;grid-template-columns:1fr 1.25fr;gap:14px;align-items:center}
+.jqlrow p{font-size:16px;margin:0}
+
+/* Dashboard mockup */
+.dash{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex:1;min-height:0}
+.gad{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden}
+.gad .gh{font-weight:700;font-size:13px;display:flex;justify-content:space-between}
+.gad .gh small{color:var(--muted);font-weight:500}
+.bars{display:flex;flex-direction:column;gap:6px;font-size:12px}
+.bars div{display:grid;grid-template-columns:90px 1fr 26px;gap:8px;align-items:center}
+.bars i{height:10px;border-radius:3px;background:var(--jira);display:block}
+.bars span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+
+/* Big quote / Q&A */
+.qa{display:flex;flex-direction:column;justify-content:center;gap:26px;flex:1}
+.check{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 28px}
+.check div{display:flex;gap:12px;font-size:19px;line-height:1.4;align-items:flex-start}
+.check svg{flex:none;margin-top:3px}
+
+/* Pause */
+.s-pause{background:var(--amber-soft);justify-content:center;align-items:flex-start;gap:18px}
+.s-pause .clock{font-family:var(--f-display);font-weight:800;font-size:150px;line-height:1;color:var(--amber);font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+
+/* Presenter chrome */
+#notes{width:0;overflow:hidden;background:var(--card);border-left:1px solid var(--line);transition:width .2s ease}
+#app.show-notes #notes{width:min(440px,38vw)}
+#notes .in{width:min(440px,38vw);height:100%;overflow-y:auto;padding:18px 20px 40px;display:flex;flex-direction:column;gap:12px}
+#notes h4{margin:0;font-family:var(--f-display);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--claret)}
+#notes .nt{font-size:15px;line-height:1.55}
+#notes .nt p,#notes .nt li{font-size:15px;line-height:1.55;margin:0 0 8px}
+#notes .nt ul,#notes .nt ol{margin:0 0 8px;padding-left:20px}
+#notes .nt .say{border-left:3px solid var(--claret);padding-left:10px}
+#notes .nt .do{border-left:3px solid var(--forest);padding-left:10px}
+#notes .nt .ex{border-left:3px solid var(--jira);padding-left:10px}
+#notes .nt b.lb{display:block;font-family:var(--f-display);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+#notes .next{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+#bar{grid-column:1 / -1;display:flex;align-items:center;gap:8px;padding:8px 14px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;flex-wrap:wrap}
+#bar button{font:600 13px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;min-height:36px}
+#bar button:hover{border-color:var(--muted)}
+#bar button:focus-visible,.ov-item:focus-visible{outline:3px solid var(--jira);outline-offset:2px}
+#bar button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+#bar .sp{flex:1}
+#pos{font-family:var(--f-mono)}
+#sched{font-family:var(--f-mono)}
+#sched.late{color:var(--claret);font-weight:600} #sched.ok{color:var(--forest)}
+#overview{position:absolute;inset:0;background:var(--stage);overflow-y:auto;padding:24px;display:none;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;align-content:start;z-index:5}
+#app.show-ov #overview{display:grid}
+.ov-item{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:inherit}
+.ov-item.cur{border-color:var(--claret);box-shadow:0 0 0 2px var(--claret)}
+.ov-item b{font-family:var(--f-display);font-size:15px;line-height:1.3}
+.ov-item small{color:var(--muted);font-family:var(--f-mono);font-size:12px}
+@media (max-width:700px){#bar .hide-s{display:none} #app.show-notes #notes{position:absolute;inset:0 0 52px 0;width:auto;z-index:6} #notes .in{width:auto}}
+
+@media print{
+  body{overflow:visible;background:#fff}
+  #app{position:static;display:block}
+  #bar,#notes,#overview{display:none!important}
+  #viewport{overflow:visible}
+  #deck{position:static;transform:none!important;width:1280px;height:auto}
+  .slide{display:flex!important;position:relative;width:1280px;height:720px;page-break-after:always;break-after:page;box-shadow:none;border-radius:0;animation:none!important}
+  @page{size:1280px 720px;margin:0}
+}
+</style>
+
+<div id="app">
+<div id="viewport">
+<div id="deck">
+
+<!-- ============ 1. TITULS ============ -->
+<section class="slide s-title" data-time="10:00" data-kind="teorija" data-title="Titulslaids">
+  <div class="left">
+    <span class="eyebrow">Apmācības · 1. modulis</span>
+    <h1>Pakalpojumu pārvaldības iespējas Jira Service Management</h1>
+    <p class="lead">Pieteikumu izveide, izsekošana, apstrāde un saziņa Saeimas pakalpojumu portālā un Jira vidē.</p>
+    <dl class="meta">
+      <dt>Laiks</dt><dd>10:00–11:40 · 2 akadēmiskās stundas</dd>
+      <dt>Pauze</dt><dd>10:45–10:55</dd>
+      <dt>Formāts</dt><dd>≥ 70 % demonstrācija Jira vidē</dd>
+      <dt>Auditorija</dt><dd>Pakalpojumu pieteikumu apstrādātāji</dd>
+    </dl>
+  </div>
+  <div class="right">
+    <img src="{{IMG_portal}}" alt="Saeimas pakalpojumu portāla galvene ar Saeimas nama ilustrāciju">
+    <div class="ov"><div class="eyebrow" style="color:#fff;opacity:.85">Jira Service Management Data Center</div><div style="font:700 22px var(--f-display);margin-top:6px">Saeimas pakalpojumu portāls</div></div>
+  </div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (1 min)</b><p>Labrīt! Šodien 90 minūtes strādāsim tieši Jira vidē. Lielāko daļu laika es rādīšu ekrānā, jūs sekojat līdzi. Teorijas būs maz, tikai tik, cik vajag, lai saprastu, kāpēc sistēma uzvedas tā, kā uzvedas.</p></div>
+    <div class="say"><b class="lb">Iepazīšanās (2 min)</b><p>Ātra roku pacelšana: kurš jau ir iesniedzis pieteikumu portālā? Kurš ir apstrādājis pieteikumu Jira? Tas palīdz saprast, cik ātri iet cauri pamatiem.</p></div>
+    <div class="do"><b class="lb">Sagatavo pirms sākuma</b><ul><li>Pārlūkā atvērtas 2 cilnes: <b>Klientu portāls</b> (klienta lietotājs) un <b>Jira</b> (aģenta lietotājs). Ideāli: divi dažādi pārlūki vai viens inkognito režīmā.</li><li>Testa projektā sagatavoti 5–8 pieteikumi dažādos statusos (skat. DEMO-SCENARIJS.md).</li><li>Ekrāna mērogs 125–150 %, lai zālē var izlasīt.</li></ul></div>
+  </aside>
+</section>
+
+<!-- ============ 2. DIENAS PLĀNS ============ -->
+<section class="slide" data-time="10:01" data-kind="teorija" data-title="Dienas plāns">
+  <div class="head"><span class="eyebrow">Dienas plāns</span><h2>90 minūtes darba + 10 minūtes pauze</h2></div>
+  <div class="cols c64">
+    <div class="agenda">
+      <div class="t">10:00</div><div>Ievads un mērķi</div><div><span class="tag teorija">Teorija</span></div><div class="m">4′</div>
+      <div class="t">10:04</div><div>1.2.1 Jira Service Management pamatprincipi</div><div><span class="tag teorija">Teorija</span></div><div class="m">8′</div>
+      <div class="t">10:12</div><div>1.2.2 Darbs ar Project</div><div><span class="tag demo">Demo</span></div><div class="m">8′</div>
+      <div class="t">10:20</div><div>1.2.3 Pieteikuma izveide un iesniegšana</div><div><span class="tag demo">Demo</span></div><div class="m">15′</div>
+      <div class="t">10:35</div><div>1.2.4 Darbs ar iesniegtiem pieteikumiem</div><div><span class="tag demo">Demo</span></div><div class="m">10′</div>
+      <div class="t brk">10:45</div><div class="brk">Pauze</div><div><span class="tag pauze">Pauze</span></div><div class="m">10′</div>
+      <div class="t">10:55</div><div>1.2.5 Darbs apstrādātāja lomā</div><div><span class="tag demo">Demo</span></div><div class="m">15′</div>
+      <div class="t">11:10</div><div>1.2.6 Saziņa un sadarbība</div><div><span class="tag demo">Demo</span></div><div class="m">10′</div>
+      <div class="t">11:20</div><div>1.2.7 Pārskati, filtri un dashboard</div><div><span class="tag demo">Demo</span></div><div class="m">13′</div>
+      <div class="t">11:33</div><div>Kopsavilkums, jautājumi un atbildes</div><div><span class="tag teorija">Q&amp;A</span></div><div class="m">7′</div>
+    </div>
+    <div class="panel" style="justify-content:center">
+      <span class="eyebrow">Laika sadalījums</span>
+      <div style="font:800 56px/1 var(--f-display);color:var(--forest)">71′ <span style="font-size:22px;color:var(--muted);font-weight:600">demo · 79 %</span></div>
+      <div style="font:800 34px/1 var(--f-display);color:var(--claret)">19′ <span style="font-size:18px;color:var(--muted);font-weight:600">teorija + Q&amp;A · 21 %</span></div>
+      <div class="ratio" role="img" aria-label="79 procenti demonstrācija, 21 procents teorija"><i style="width:79%;background:var(--forest)"></i><i style="width:21%;background:var(--claret)"></i></div>
+      <p class="small">Prasība: demonstrācija ≥ 70 %, teorija ≤ 30 %. Rezerve: 9 procentpunkti, ja jautājumi ievelkas.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (1 min)</b><p>Plāns ir sadalīts divās daļās pa 45 minūtēm. Pirmajā daļā skatāmies no <b>klienta</b> puses: kur atrast projektu, kā iesniegt, kā sekot. Otrajā daļā no <b>apstrādātāja</b> puses: rindas, piešķiršana, statusi, saziņa, filtri un dashboard.</p><p>Jautājumus droši uzdodiet uzreiz, bet garākus atstāsim beigām (11:33).</p></div>
+    <div class="do"><b class="lb">Tavs pulkstenis</b><p>Apakšējā joslā redzi “Plāns / Tagad”. Ja esi > 3 min aizkavējies, saīsini 1.2.4 (portāla daļu var rādīt ātrāk, jo to redzēja 1.2.3).</p></div>
+  </aside>
+</section>
+
+<!-- ============ 3. MĒRĶIS ============ -->
+<section class="slide" data-time="10:02" data-kind="teorija" data-title="Moduļa mērķis">
+  <div class="head"><span class="eyebrow">1.1 Moduļa mērķis</span><h2>Pēc šīm 90 minūtēm jūs protat</h2></div>
+  <div class="check">
+    <div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--forest-soft)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--forest)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Atrast savu Project</b>: IKT pakalpojumu atbalsts, Saimnieciskā nodrošinājuma pakalpojumi u. c.</span></div>
+    <div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--forest-soft)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--forest)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Izvēlēties pareizo pieteikuma tipu</b> konkrētai darba situācijai.</span></div>
+    <div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--forest-soft)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--forest)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Iesniegt, papildināt un izsekot</b> pieteikumu portālā un Jira.</span></div>
+    <div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--forest-soft)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--forest)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Apstrādāt pieteikumu</b>: piešķirt, mainīt statusu, atrisināt.</span></div>
+    <div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--forest-soft)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--forest)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Sazināties</b>: komentāri klientam, iekšējās piezīmes, @pieminēšana, pielikumi.</span></div>
+    <div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="var(--forest-soft)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--forest)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Pārraudzīt</b> ar filtriem, pārskatiem un savu dashboard.</span></div>
+  </div>
+  <div class="warn" style="margin-top:auto">Ārpus šī moduļa: sistēmas administrēšana (darbplūsmu, lauku, SLA un atļauju konfigurēšana).</div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (1 min)</b><p>Šie seši punkti ir mūsu “pieņemšanas kritēriji”. Beigās (11:33) atgriezīsimies pie šī saraksta un pārbaudīsim, vai katru punktu esam redzējuši.</p><p>Ja jums vajag mainīt formu laukus, statusus vai tiesības, tas ir administratora darbs un šodien to neaplūkojam. Jūs uzzināsiet, <b>kam</b> to pieprasīt.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 4. SEKCIJA 1.2.1 ============ -->
+<section class="slide s-section" data-time="10:04" data-kind="teorija" data-title="1.2.1 Pamatprincipi">
+  <div class="num">1.2.1</div>
+  <h2>Jira Service Management pamatprincipi</h2>
+  <p class="lead">Divas puses vienai sistēmai, lomas, Project, pieteikumu tipi un dzīves cikls.</p>
+  <span class="tag teorija">Teorija · 8 min</span>
+  <aside class="notes"><div class="say"><b class="lb">Pāreja</b><p>Pirms ejam sistēmā, 8 minūtes par to, kā tā ir uzbūvēta. Tas atbild uz 80 % no jautājumiem “kāpēc es to neredzu?”.</p></div></aside>
+</section>
+
+<!-- ============ 5. DIVAS PUSES ============ -->
+<section class="slide" data-time="10:05" data-kind="teorija" data-title="Divas puses: portāls un Jira">
+  <div class="head"><span class="eyebrow">1.2.1 Pamatprincipi</span><h2>Viens pieteikums, divi skati</h2></div>
+  <div class="cols" style="grid-template-columns:1fr 90px 1fr;gap:0">
+    <div class="panel">
+      <span class="tag teorija">Klients</span>
+      <h3>Klientu portāls</h3>
+      <p class="small mono">…/servicedesk/customer/portals</p>
+      <ul class="clean"><li>Izvēlas pakalpojumu un aizpilda formu</li><li>Redz savu pieteikumu statusu</li><li>Atbild uz jautājumiem, pievieno pielikumus</li><li><b>Neredz</b> iekšējos komentārus un apstrādes laukus</li></ul>
+    </div>
+    <div style="display:grid;place-items:center">
+      <svg width="70" height="120" viewBox="0 0 70 120" aria-hidden="true"><path d="M6 40h52" stroke="var(--muted)" stroke-width="2"/><path d="M50 32l10 8-10 8" fill="none" stroke="var(--muted)" stroke-width="2"/><path d="M64 80H12" stroke="var(--muted)" stroke-width="2"/><path d="M20 72l-10 8 10 8" fill="none" stroke="var(--muted)" stroke-width="2"/></svg>
+    </div>
+    <div class="panel" style="border-color:var(--jira)">
+      <span class="tag" style="background:var(--jira-soft);color:var(--jira)">Aģents / apstrādātājs</span>
+      <h3>Jira (aģenta skats)</h3>
+      <p class="small mono">…/projects/&lt;KEY&gt;/queues</p>
+      <ul class="clean"><li>Rindas (queues), piešķiršana, statusi</li><li>Atbilde klientam <b>vai</b> iekšējā piezīme</li><li>SLA laiki, filtri, pārskati, dashboard</li><li>Var izveidot pieteikumu klienta vārdā</li></ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (2 min)</b><p>Svarīgākā doma visai dienai: <b>tas pats pieteikums</b> izskatās citādi atkarībā no tā, kurš skatās. Klients portālā redz vienkāršu skatu: savu tekstu, statusu un publiskos komentārus. Aģents Jira redz visu: iekšējās piezīmes, SLA, vēsturi, saistītos pieteikumus.</p><p>Tāpēc, rakstot komentāru, vienmēr jāpadomā: <b>vai to drīkst lasīt klients?</b></p></div>
+    <div class="do"><b class="lb">Rādi (30 s)</b><p>Ātri parādi abas cilnes blakus: portāla sākumlapu un projekta rindu Jira. Neko vēl nespied.</p></div>
+    <div class="ex"><b class="lb">Piemērs</b><p>Kolēģis no komisijas biroja portālā raksta “nestrādā printeris”. IKT speciālists Jira redz to pašu pieteikumu, iekšēji atzīmē “jāpasūta toneris, piegādātājs X”, bet klientam atbild “toneris pasūtīts, nomaiņa līdz ceturtdienai”.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 6. LOMAS ============ -->
+<section class="slide" data-time="10:07" data-kind="teorija" data-title="Lietotāju lomas">
+  <div class="head"><span class="eyebrow">1.2.1 Pamatprincipi</span><h2>Kurš ko var izdarīt</h2></div>
+  <div class="cols c3" style="grid-template-columns:repeat(4,1fr);gap:16px">
+    <div class="panel"><span class="tag teorija">Klients</span><h3>Customer</h3><p>Iesniedz un seko saviem pieteikumiem portālā. Atbild uz jautājumiem.</p><p class="small">Piem.: jebkurš Saeimas darbinieks</p></div>
+    <div class="panel" style="border-color:var(--jira)"><span class="tag" style="background:var(--jira-soft);color:var(--jira)">Šodienas fokuss</span><h3>Agent</h3><p>Apstrādā pieteikumus: piešķir, maina statusu, atbild klientam, raksta iekšējas piezīmes.</p><p class="small">Piem.: IKT atbalsta speciālists, saimniecības dienesta darbinieks</p></div>
+    <div class="panel"><span class="tag teorija">Sadarbība</span><h3>Collaborator</h3><p>Jira lietotājs bez aģenta lomas. Var skatīt pieteikumu un rakstīt <b>iekšējos</b> komentārus.</p><p class="small">Piem.: struktūrvienības vadītājs, kas jāiesaista saskaņošanā</p></div>
+    <div class="panel"><span class="tag teorija">Dalībnieks</span><h3>Request participant</h3><p>Klients, ar kuru pieteikums ir “kopīgots” (Share). Saņem paziņojumus, var komentēt.</p><p class="small">Piem.: kolēģis, kura darba vieta arī tiek pārvietota</p></div>
+  </div>
+  <p class="small">Project administrator un Jira administrator konfigurē projektu. Tas nav šī moduļa tvērumā. Lomu nosaukumi Jira saskarnē ir angliski.</p>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (2 min)</b><p>Jūs šodien esat <b>aģenti</b>. Bet bieži esat arī klienti: pats sev pieteicat jaunu datoru. Tāpēc rādīsim abas puses.</p><p><b>Collaborator</b> ir noderīgs, ja kādam jāredz pieteikums un jāpasaka viedoklis, bet viņš neapstrādā pieteikumus. Klients viņa komentārus neredz.</p><p><b>Request participant</b> ir “kopija”. Klients var pievienot kolēģi, un tas redzēs pieteikumu savā portālā sadaļā “Requests”.</p></div>
+    <div class="ex"><b class="lb">Jautājums zālei</b><p>“Kurš no jums apstrādā tikai IKT pieteikumus? Kurš arī saimnieciskos?” Tas norāda, kuras rindas viņi redzēs.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 7. PROJECT → REQUEST TYPE ============ -->
+<section class="slide" data-time="10:09" data-kind="teorija" data-title="Project un pieteikumu tipi">
+  <div class="head"><span class="eyebrow">1.2.1 Pamatprincipi</span><h2>No portāla līdz formas laukam</h2></div>
+  <div class="flow">
+    <div class="st"><span class="eyebrow">Līmenis 1</span><h3>Portāls</h3><p>Saeimas pakalpojumu portāls: viena ieeja visiem pakalpojumiem.</p></div>
+    <div class="ar">→</div>
+    <div class="st"><span class="eyebrow">Līmenis 2</span><h3>Project (servisa projekts)</h3><p>IKT pakalpojumu atbalsts · Saimnieciskā nodrošinājuma pakalpojumi · …<br>Katram sava atslēga, piem. <span class="mono">IKT-123</span>.</p></div>
+    <div class="ar">→</div>
+    <div class="st"><span class="eyebrow">Līmenis 3</span><h3>Pieteikuma tips</h3><p>Request type: “Datortehnikas darbības traucējumi”, “Darba vietas pārvietošana”.</p></div>
+    <div class="ar">→</div>
+    <div class="st end"><span class="eyebrow" style="color:var(--forest)">Līmenis 4</span><h3>Forma un plūsma</h3><p>Katram tipam savi obligātie lauki un savs apstrādes ceļš (workflow).</p></div>
+  </div>
+  <div class="cols" style="margin-top:6px">
+    <div class="panel"><h3>Request type ≠ Issue type</h3><p><b>Request type</b> ir tas, ko klients izvēlas portālā (cilvēku valodā). <b>Issue type</b> ir tehniskais Jira tips aiz tā, piem. Incident, Service request. Vairāki pieteikuma tipi var izmantot vienu Issue type.</p></div>
+    <div class="panel"><h3>Kāpēc tas svarīgi</h3><p>No tipa ir atkarīgs: kura komanda saņem, kādi lauki jāaizpilda, kāds SLA termiņš un kāda darbplūsma. <b>Nepareizs tips = pieteikums nonāk nepareizā rindā.</b></p></div>
+  </div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (2 min)</b><p>Iedomājieties četrus stāvus. Portāls ir ieeja. Project ir nodaļa, kas atbild par pakalpojumu grupu. Pieteikuma tips ir konkrēts pakalpojums. Forma ir tas, ko klients aizpilda.</p><p>Pieteikuma atslēga (piem. IKT-123) sastāv no projekta atslēgas un kārtas numura. Pēc tās vienmēr var atrast pieteikumu, gan zvanot, gan meklējot.</p></div>
+    <div class="do"><b class="lb">Pārbaudi pirms apmācības</b><p>Precīzas projektu atslēgas (IKT? SAIM?) jūsu vidē. Šajā prezentācijā tās ir piemēri.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 8. DZĪVES CIKLS ============ -->
+<section class="slide" data-time="10:11" data-kind="teorija" data-title="Pieteikuma dzīves cikls">
+  <div class="head"><span class="eyebrow">1.2.1 Pamatprincipi</span><h2>Pieteikuma dzīves cikls</h2></div>
+  <div class="cols c64">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="flow">
+        <div class="st"><span class="lz">Reģistrēts</span><p>Klients iesniedz. Nonāk rindā “nepiešķirtie”.</p></div><div class="ar">→</div>
+        <div class="st"><span class="lz b">Darbā</span><p>Aģents piešķir sev un sāk darbu.</p></div><div class="ar">→</div>
+        <div class="st"><span class="lz a">Gaida klientu</span><p>Vajag papildu info. SLA pulkstenis parasti apstājas.</p></div><div class="ar">→</div>
+        <div class="st end"><span class="lz g">Atrisināts</span><p>Rezultāts paziņots klientam. Tiek aizpildīts Resolution.</p></div>
+      </div>
+      <div class="panel"><p style="margin:0"><b>Statuss</b> parāda, kur pieteikums ir tagad. <b>Pāreja</b> (transition) ir poga, ar kuru to pārvieto tālāk. Pieejamās pogas ir atkarīgas no esošā statusa un jūsu lomas.</p></div>
+      <p class="small">Statusu nosaukumi ir ilustratīvi. Precīzos nosaukumus redzēsiet savā projektā, un tie var atšķirties starp IKT un Saimnieciskā nodrošinājuma projektu.</p>
+    </div>
+    <figure class="shot" style="margin:0"><div class="bar"><i></i><i></i><i></i><span>Darbplūsma no Saeimas JIRA dokumentācijas</span></div><img src="{{IMG_workflow}}" alt="Saeimas JIRA IKT incidenta darbplūsmas shēma ar statusiem un pārejas pogām"><figcaption>Avots: dokuments “JIRA pakalpojumu portāls”, sadaļa “Plūsma”</figcaption></figure>
+  </div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (2 min)</b><p>Katram pieteikumam ir dzīves cikls. Labajā pusē ir mūsu IKT incidentu plūsma no dokumentācijas: sākuma punkts, reģistrēšana, darbs, atrisināšana. Apakšā redzat pogu sarakstu, kas aģentam parādās pie pieteikuma.</p><p>Divas lietas, ko atcerēties: (1) <b>“Gaida klientu”</b> nozīmē, ka bumba ir klienta pusē. Kad klients atbild portālā, pieteikums parasti automātiski atgriežas pie jums. (2) <b>Atrisināts ≠ aizvērts.</b> Klientam bieži ir laiks iebilst vai atkārtoti atvērt.</p></div>
+    <div class="do"><b class="lb">Pārbaudi pirms apmācības</b><p>Atver projektā jebkuru pieteikumu un pieraksti precīzos statusu un pogu nosaukumus. Ja vēlies, aizstāj slaidā lz-zīmītes ar tiem.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 9. SEKCIJA 1.2.2 ============ -->
+<section class="slide s-section" data-time="10:12" data-kind="demo" data-title="1.2.2 Darbs ar Project">
+  <div class="num">1.2.2</div>
+  <h2>Darbs ar Project</h2>
+  <p class="lead">Kur atrast savus projektus, kādi pieteikumu tipi tajos ir un kā izvēlēties pareizo.</p>
+  <div class="demo-plan"><span>Portāla sākumlapa</span><span>Meklēšana portālā</span><span>Jira → Projects</span><span>Project sidebar</span></div>
+  <span class="tag demo">Demo · 8 min</span>
+  <aside class="notes"><div class="do"><b class="lb">Pārslēdzies uz Jira</b><p>No šī brīža prezentāciju samazini. Atgriezies tikai uz kopsavilkuma slaidiem.</p></div></aside>
+</section>
+
+<!-- ============ 10. PORTĀLA SĀKUMLAPA ============ -->
+<section class="slide" data-time="10:13" data-kind="demo" data-title="Portāla sākumlapa">
+  <div class="head"><span class="eyebrow">1.2.2 Darbs ar Project · Klienta skats</span><h2>Saeimas pakalpojumu portāls</h2></div>
+  <div class="cols c64">
+    <figure class="shot" style="margin:0"><div class="bar"><i></i><i></i><i></i><span>…/servicedesk/customer/portals</span></div><img src="{{IMG_portal}}" alt="Saeimas pakalpojumu portāla sākumlapa ar meklēšanas lauku un pakalpojumu kartītēm"><figcaption>Avots: Saeimas JIRA dokumentācija</figcaption></figure>
+    <div class="legend">
+      <div><b class="n">1</b><span><b>Meklēšana</b> galvenes vidū. Ieraksti “printeris” vai “pārvietošana”, un portāls piedāvā atbilstošo pieteikuma tipu no visiem projektiem.</span></div>
+      <div><b class="n">2</b><span><b>Pakalpojumu kartītes</b>: katra kartīte ir viens Project, piem. Saimnieciskā nodrošinājuma pakalpojumi, IKT pakalpojumu atbalsts.</span></div>
+      <div><b class="n">3</b><span><b>Requests</b> augšējā labajā stūrī: “My requests” ar visiem jūsu iesniegtajiem pieteikumiem.</span></div>
+      <div><b class="n">4</b><span><b>Paziņojumi / jaunumi</b> zem kartītēm: plānoti darbi, traucējumi.</span></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (3 min) · klienta cilnē</b><ol><li>Atver portāla sākumlapu. Parādi galveni ar Saeimas logo.</li><li>Meklēšanā ieraksti <b>“dators”</b>. Parādi, ka rezultāti nāk no IKT projekta. Tad ieraksti <b>“pārvietošana”</b>: rezultāts no Saimnieciskā nodrošinājuma.</li><li>Notīri meklēšanu, uzklikšķini kartītei <b>“IKT pakalpojumu atbalsts”</b>.</li><li>Ar breadcrumb (“Saeimas pakalpojumu port…”) atgriezies uz sākumu.</li><li>Augšā labajā stūrī parādi <span class="ui">Requests</span> izvēlni (tikai parādi, detalizēti 1.2.4).</li></ol></div>
+    <div class="say"><b class="lb">Saki</b><p>Klientiem jāatceras tikai viena adrese. Ja nezina, kurā projektā meklēt, lai izmanto meklēšanu: tā meklē pieteikumu tipu nosaukumos un aprakstos.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 11. PIETEIKUMU TIPI ============ -->
+<section class="slide" data-time="10:15" data-kind="demo" data-title="Pieejamie pieteikumu tipi">
+  <div class="head"><span class="eyebrow">1.2.2 Darbs ar Project</span><h2>Kas pieejams katrā projektā</h2></div>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1.1fr">
+    <figure class="shot" style="margin:0"><div class="bar"><i></i><i></i><i></i><span>IKT pakalpojumu atbalsts</span></div><img src="{{IMG_ikt_list}}" alt="IKT pakalpojumu atbalsta pieteikumu tipu saraksts"><figcaption>IKT pakalpojumu atbalsts</figcaption></figure>
+    <figure class="shot" style="margin:0"><div class="bar"><i></i><i></i><i></i><span>Saimnieciskā nodrošinājuma pakalpojumi</span></div><img src="{{IMG_saim_list}}" alt="Saimnieciskā nodrošinājuma pakalpojumu pieteikumu tipu saraksts"><figcaption>Saimnieciskā nodrošinājuma pakalpojumi</figcaption></figure>
+    <div class="panel">
+      <span class="eyebrow">IKT tipi (no dokumentācijas)</span>
+      <ul class="clean" style="gap:7px"><li style="font-size:15px">Jaunas datortehnikas pieteikums</li><li style="font-size:15px">Datortehnikas darbības traucējumi</li><li style="font-size:15px">Programmatūras nodrošinājuma pieteikums</li><li style="font-size:15px">Programmatūras nodrošinājuma darbības traucējumi</li><li style="font-size:15px">Jaunas grupas e-pasta adreses izveide</li><li style="font-size:15px">Lietotāja pievienošana grupas pastkastītei</li><li style="font-size:15px">Kopīgotās mapes izveide, piekļuves tiesības</li></ul>
+      <p class="small">Saimnieciskajā projektā redzams, piem., “Darba vietas pārvietošana”.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (2 min)</b><ol><li>IKT projektā parādi, ka katram tipam ir <b>ikona, nosaukums un īss apraksts</b>. Nolasi vienu aprakstu skaļi.</li><li>Atver Saimnieciskā nodrošinājuma projektu un parādi tā sarakstu.</li><li><b>Aģenta cilnē</b> (Jira): augšējā izvēlnē <span class="ui">Projects</span> → <span class="ui">View all projects</span>. Parādi, ka projekta tips ir “Service management”. Ieklikšķini savā projektā.</li><li>Parādi kreiso sānjoslu: <span class="ui">Queues</span>, <span class="ui">Raise a request</span>, <span class="ui">Reports</span>, <span class="ui">Customers</span>, <span class="ui">Knowledge base</span> (ja ir).</li><li>Iesaki: projektu atzīmē ar zvaigznīti, lai tas būtu <span class="ui">Projects</span> izvēlnes augšā.</li></ol></div>
+    <div class="say"><b class="lb">Saki</b><p>Tipu nosaukumi slaidā nolasīti no dokumentācijas ekrānuzņēmuma. Ekrānā redzēsiet precīzos.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 12. KĀ IZVĒLĒTIES TIPU ============ -->
+<section class="slide" data-time="10:17" data-kind="demo" data-title="Kā izvēlēties tipu">
+  <div class="head"><span class="eyebrow">1.2.2 Darbs ar Project</span><h2>Situācija → pieteikuma tips</h2></div>
+  <div class="jm">
+    <table>
+      <thead><tr><th>Darba situācija</th><th>Project</th><th>Pieteikuma tips</th><th>Kāpēc tieši šis</th></tr></thead>
+      <tbody>
+        <tr><td>Dators neieslēdzas, monitors mirgo</td><td>IKT</td><td><b>Datortehnikas darbības traucējumi</b></td><td>Kaut kas strādāja un pārstāja</td></tr>
+        <tr><td>Jaunam darbiniekam vajag klēpjdatoru</td><td>IKT</td><td><b>Jaunas datortehnikas pieteikums</b></td><td>Jauna vajadzība, nevis bojājums</td></tr>
+        <tr><td>Word/Excel avarē, programma neatveras</td><td>IKT</td><td><b>Programmatūras … darbības traucējumi</b></td><td>Traucējums programmatūrā</td></tr>
+        <tr><td>Komisijai vajag kopēju e-pastu</td><td>IKT</td><td><b>Jaunas grupas e-pasta adreses izveide</b></td><td>Jauns resurss</td></tr>
+        <tr><td>Kolēģim jāpiekļūst nodaļas kopīgotajai mapei</td><td>IKT</td><td><b>Piekļuves tiesību piešķiršana … mapēm</b></td><td>Tiesības esošam resursam</td></tr>
+        <tr><td>Nodaļa pārceļas uz citu kabinetu</td><td>Saimnieciskais</td><td><b>Darba vietas pārvietošana</b></td><td>Fiziska pārvietošana</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn">Īkšķa likums: <b>“strādāja un pārstāja”</b> ir traucējums (incidents). <b>“Gribu kaut ko jaunu vai citādāku”</b> ir pieprasījums. Ja šaubāties, izmantojiet portāla meklēšanu vai vispārīgo tipu un aprakstā uzrakstiet situāciju.</div>
+  <aside class="notes">
+    <div class="ex"><b class="lb">Interaktīvi (3 min)</b><p>Nosauc situāciju un ļauj zālei atbildēt, kuru tipu izvēlēties, pirms parādi atbildi. Ieteiktās situācijas:</p><ul><li>“Printeris drukā svītrainas lapas” → Datortehnikas darbības traucējumi</li><li>“Jaunajam padomniekam no pirmdienas vajag datoru un e-pastu” → divi atsevišķi pieteikumi (datortehnika + konts/e-pasts). Paskaidro: <b>viens pieteikums = viena vajadzība</b>, citādi to nevar sadalīt starp komandām.</li><li>“Vajag pārvietot galdu un datoru uz citu kabinetu” → Darba vietas pārvietošana (Saimnieciskais), un, ja vajag pārslēgt tīkla vadus, IKT var tikt iesaistīts iekšēji.</li></ul></div>
+    <div class="do"><b class="lb">Piezīme</b><p>Tabulas tipu nosaukumi ir saīsināti ar “…”. Saki pilnos nosaukumus no ekrāna.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 13. SEKCIJA 1.2.3 ============ -->
+<section class="slide s-section" data-time="10:20" data-kind="demo" data-title="1.2.3 Pieteikuma izveide">
+  <div class="num">1.2.3</div>
+  <h2>Pieteikuma izveide un iesniegšana</h2>
+  <p class="lead">Project un tipa izvēle, obligātie lauki, labs apraksts, pielikumi un iesniegšana.</p>
+  <div class="demo-plan"><span>Portāls: Darba vietas pārvietošana</span><span>Portāls: Datortehnikas traucējumi</span><span>Jira: Raise a request</span><span>Jira: Create</span></div>
+  <span class="tag demo">Demo · 15 min</span>
+  <aside class="notes"><div class="say"><b class="lb">Pāreja</b><p>Tagad izveidosim trīs pieteikumus. Tos pašus pieteikumus izmantosim visu atlikušo dienu, tāpēc pierakstiet to atslēgas.</p></div></aside>
+</section>
+
+<!-- ============ 14. DIVI CEĻI ============ -->
+<section class="slide" data-time="10:21" data-kind="demo" data-title="Trīs veidi, kā izveidot pieteikumu">
+  <div class="head"><span class="eyebrow">1.2.3 Izveide</span><h2>Trīs ceļi uz vienu pieteikumu</h2></div>
+  <div class="cols c3">
+    <div class="panel"><span class="tag teorija">Klients</span><h3>Klientu portāls</h3><p>Portāls → projekts → tips → forma → <span class="ui">Create</span>.</p><p class="small">Ieteicamais ceļš visiem darbiniekiem. Pieteikumam vienmēr ir pieteikuma tips, un klients to redz portālā.</p></div>
+    <div class="panel" style="border-color:var(--jira)"><span class="tag" style="background:var(--jira-soft);color:var(--jira)">Aģents</span><h3>Raise a request</h3><p>Projekta sānjosla → <span class="ui">Raise a request</span> → lauks <b>“Raise this request on behalf of”</b>.</p><p class="small">Kad kolēģis zvana vai atnāk klātienē. Pieteikums tiek reģistrēts klienta vārdā, un klients to redz savā portālā.</p></div>
+    <div class="panel"><span class="tag teorija">Jira lietotājs</span><h3>Create poga</h3><p>Augšējā joslā <span class="ui">Create</span> → Project → Issue type → lauki.</p><p class="small">Iekšējiem darba uzdevumiem. Ja nav aizpildīts <b>Request type</b>, klients pieteikumu portālā <b>neredzēs</b>.</p></div>
+  </div>
+  <div class="warn">Ja pieteikums ir paredzēts klientam, izmantojiet portālu vai <b>Raise a request</b>. Ar <b>Create</b> izveidotam pieteikumam bez Request type nav saiknes ar portālu, un klients nesaņem paziņojumus.</div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (1 min)</b><p>Ir trīs ceļi. Pirmie divi rada “pilnvērtīgu” klienta pieteikumu. Trešais ir parasta Jira problēma (issue). To aģenti izmanto iekšējiem darbiem, piem., “sagatavot 10 datorus jaunajai komisijai”.</p></div>
+    <div class="ex"><b class="lb">Piemērs</b><p>Deputāta palīgs piezvana: “Nestrādā projektors Sarkanajā zālē.” Aģents neprasa viņam pašam rakstīt portālā, bet Jira atver <span class="ui">Raise a request</span>, izvēlas “Datortehnikas darbības traucējumi” un “on behalf of” norāda zvanītāju. Zvanītājs saņem e-pastu ar pieteikuma numuru.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 15. FORMA ============ -->
+<section class="slide" data-time="10:23" data-kind="demo" data-title="Forma: Darba vietas pārvietošana">
+  <div class="head"><span class="eyebrow">1.2.3 Izveide · Demo 1</span><h2>Forma “Darba vietas pārvietošana”</h2></div>
+  <div class="cols c46">
+    <figure class="shot" style="margin:0"><div class="bar"><i></i><i></i><i></i><span>Saimnieciskā nodrošinājuma pakalpojumi › Darba vietas pārvietošana</span></div><img src="{{IMG_saim_form}}" alt="Darba vietas pārvietošanas pieteikuma forma ar obligātajiem laukiem"><figcaption>Avots: Saeimas JIRA dokumentācija</figcaption></figure>
+    <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+      <div class="jm"><table>
+        <thead><tr><th>Lauks</th><th>Ko ierakstīt (piemērs)</th></tr></thead>
+        <tbody>
+          <tr><td>Raise this request on behalf of *</td><td>Pēc noklusējuma jūs paši</td></tr>
+          <tr><td>Apraksts *</td><td>Kas, kāpēc, cik vietas</td></tr>
+          <tr><td>Pārvietot no ēkas adreses *</td><td>Izvēle no saraksta</td></tr>
+          <tr><td>Pārvietot no kabineta *</td><td>piem., 214</td></tr>
+          <tr><td>Pārvietot uz ēkas adresi *</td><td>Izvēle no saraksta</td></tr>
+          <tr><td>Pārvietot uz kabinetu *</td><td>piem., 305</td></tr>
+          <tr><td>Vēlamais izpildes termiņš *</td><td>Datums kalendārā</td></tr>
+        </tbody></table></div>
+      <p class="small">* obligāts lauks. Bez tā poga <span class="ui">Create</span> parāda kļūdu pie lauka. Lauku nosaukumi nolasīti no ekrānuzņēmuma; precīzos redzēsiet formā.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (4 min) · klienta cilnē</b><ol><li>Portāls → <b>Saimnieciskā nodrošinājuma pakalpojumi</b> → <b>Darba vietas pārvietošana</b>.</li><li>Speciāli spied <span class="ui">Create</span> ar tukšu formu. Parādi sarkanās kļūdas pie obligātajiem laukiem.</li><li>Aizpildi: Apraksts “Juridiskā biroja 2 darbinieku darba vietu pārvietošana sakarā ar nodaļas reorganizāciju. Pārvietot galdus, krēslus un 2 datorus.” No kab. 214 uz kab. 305, termiņš nākamā piektdiena.</li><li>Pievieno pielikumu: kabineta plānu (PDF/attēlu) ar vilkšanu (drag &amp; drop) apraksta laukā.</li><li>Spied <span class="ui">Create</span>. Parādi apstiprinājuma lapu un <b>pieteikuma atslēgu</b>. Liec zālei to pierakstīt.</li></ol></div>
+    <div class="say"><b class="lb">Saki</b><p>Lauks “Raise this request on behalf of” ļauj iesniegt kolēģa vārdā, piem., nodaļas vadītājam par savu darbinieku.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 16. LABS APRAKSTS ============ -->
+<section class="slide" data-time="10:28" data-kind="demo" data-title="Labs apraksts un pielikumi">
+  <div class="head"><span class="eyebrow">1.2.3 Izveide · Demo 2</span><h2>Apraksts, ko nevajag precizēt</h2></div>
+  <div class="cols">
+    <div class="panel" style="border-color:color-mix(in srgb,var(--claret) 45%,transparent)">
+      <span class="tag teorija">Pārāk īss</span>
+      <div class="cbox">Nestrādā dators. Lūdzu salabot.</div>
+      <p class="small">Sekos 2–3 precizējoši jautājumi. Pieteikums nonāk statusā “Gaida klientu”, un katrs jautājums pagarina izpildi.</p>
+    </div>
+    <div class="panel" style="border-color:color-mix(in srgb,var(--forest) 55%,transparent)">
+      <span class="tag demo">Pietiekami</span>
+      <div class="cbox">Kopš šī rīta dators kab. 412 (inv. nr. uz uzlīmes) ieslēdzas, bet ekrāns paliek melns. Mēģināju pārstartēt un pārbaudīt kabeli. Darbam vajadzīgs līdz 14:00 komisijas sēdei. Pielikumā foto ar ekrānu.</div>
+      <p class="small">Kas? Kur? Kopš kad? Ko jau mēģinājāt? Cik steidzami? + ekrānuzņēmums.</p>
+    </div>
+  </div>
+  <div class="cols c3" style="flex:none">
+    <div class="panel"><h3>Ekrānuzņēmums</h3><p><span class="kbd">Win</span> + <span class="kbd">Shift</span> + <span class="kbd">S</span>, tad <span class="kbd">Ctrl</span> + <span class="kbd">V</span> tieši apraksta laukā.</p></div>
+    <div class="panel"><h3>Pielikumi</h3><p>Ievelciet failu laukā vai spiediet saspraudes ikonu. Var pievienot vairākus.</p></div>
+    <div class="panel"><h3>Nekad</h3><p>Paroles, PIN kodi un personas kodi aprakstā vai pielikumā.</p></div>
+  </div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (5 min) · klienta cilnē</b><ol><li>Portāls → <b>IKT pakalpojumu atbalsts</b> → <b>Datortehnikas darbības traucējumi</b>.</li><li>Formā parādi lauku <b>Lietotājs</b> (Search for a user) un nolaižamo sarakstu apakšā.</li><li>Aprakstā ielīmē ekrānuzņēmumu ar <span class="kbd">Ctrl+V</span>. Parādi, ka attēls kļūst par pielikumu un parādās tekstā.</li><li>Parādi apraksta redaktora rīkjoslu: treknraksts, saraksts, saite.</li><li><span class="ui">Create</span>. Pieraksti atslēgu (būs vajadzīga 1.2.5, piešķiršanai).</li></ol></div>
+    <div class="say"><b class="lb">Saki</b><p>Labs apraksts ietaupa vairāk laika nekā jebkura sistēmas funkcija. Apstrādātāji: ja saņemat sliktu aprakstu, paprasiet visu trūkstošo vienā komentārā, nevis pa vienam jautājumam.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 17. RAISE A REQUEST (AĢENTS) ============ -->
+<section class="slide" data-time="10:33" data-kind="demo" data-title="Raise a request klienta vārdā">
+  <div class="head"><span class="eyebrow">1.2.3 Izveide · Demo 3 · Aģenta skats</span><h2>Pieteikums klienta vārdā</h2></div>
+  <div class="jm" style="flex:1">
+    <div class="top"><span>Jira</span><span>Dashboards ▾</span><span>Projects ▾</span><span>Issues ▾</span><span class="btn">Create</span><span class="sp"></span><span>Search</span></div>
+    <div class="wrap">
+      <div class="side"><div class="h">IKT pakalpojumu atbalsts</div><a>Queues</a><a class="on">Raise a request</a><a>Customers</a><a>Reports</a><a>Knowledge base</a></div>
+      <div class="main">
+        <div style="font:700 18px var(--f-display)">Datortehnikas darbības traucējumi</div>
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:10px 16px;align-items:center;font-size:14px">
+          <span style="color:var(--muted)">Raise this request on behalf of *</span><span class="cbox" style="min-height:0;padding:7px 10px;border-color:var(--jira)">Anna Bērziņa (zvanītāja)</span>
+          <span style="color:var(--muted)">Apraksts *</span><span class="cbox" style="min-height:52px;padding:7px 10px">Sarkanajā zālē projektors nerāda attēlu no klēpjdatora. Sēde 15:00.</span>
+          <span style="color:var(--muted)">Request type</span><span><span class="lz b">Datortehnikas darbības traucējumi</span></span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px"><span class="lz b" style="background:var(--jira);color:#fff;padding:6px 12px">Create</span><span class="lz" style="padding:6px 12px">Cancel</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="small">Ilustratīvs makets. Īstajā Jira saskarnē izkārtojums un krāsas var nedaudz atšķirties atkarībā no versijas.</p>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (2 min) · aģenta cilnē</b><ol><li>IKT projekts → sānjosla <span class="ui">Raise a request</span>.</li><li>Izvēlies tipu, laukā <b>Raise this request on behalf of</b> sāc rakstīt klienta vārdu, izvēlies no saraksta.</li><li><span class="ui">Create</span> → pieteikums atveras aģenta skatā. Parādi, ka <b>Reporter</b> ir klients, nevis tu.</li><li>Pārslēdzies uz klienta cilni (ja demo klients ir tas pats) → <span class="ui">Requests</span> → pieteikums ir redzams.</li></ol></div>
+    <div class="do"><b class="lb">Ja paliek laiks (1 min)</b><p>Parādi augšējo <span class="ui">Create</span> pogu: Project + Issue type. Parādi lauku <b>Customer Request Type</b>. Ja to atstāj tukšu, portālā pieteikums neparādās.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 18. SEKCIJA 1.2.4 ============ -->
+<section class="slide s-section" data-time="10:35" data-kind="demo" data-title="1.2.4 Darbs ar iesniegtiem">
+  <div class="num">1.2.4</div>
+  <h2>Darbs ar iesniegtiem pieteikumiem</h2>
+  <p class="lead">Kur tos atrast, kā pārbaudīt statusu, papildināt, atbildēt uz jautājumu un sekot virzībai.</p>
+  <div class="demo-plan"><span>Portāls: Requests</span><span>Pieteikuma skats</span><span>Share / paziņojumi</span><span>Jira: rinda</span></div>
+  <span class="tag demo">Demo · 10 min</span>
+  <aside class="notes"><div class="say"><b class="lb">Pāreja</b><p>Pieteikums ir iesniegts. Ko tālāk dara klients, un kur šo pieteikumu redz aģents?</p></div></aside>
+</section>
+
+<!-- ============ 19. PORTĀLS: MANI PIETEIKUMI ============ -->
+<section class="slide" data-time="10:36" data-kind="demo" data-title="Portālā: Requests">
+  <div class="head"><span class="eyebrow">1.2.4 · Klienta skats</span><h2>Requests → My requests</h2></div>
+  <div class="cols c64">
+    <div class="jm">
+      <div class="top" style="background:var(--claret)"><span>SAEIMA · Pakalpojumu portāls</span><span class="sp"></span><span class="btn">Requests ▾</span></div>
+      <div class="main">
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="lz b">Open requests</span><span class="lz">Closed requests</span><span class="lz">All requests</span><span class="lz">Created by me</span></div>
+        <table>
+          <thead><tr><th>Ref</th><th>Summary</th><th>Status</th><th>Service project</th></tr></thead>
+          <tbody>
+            <tr><td class="key">SAIM-48</td><td>Darba vietas pārvietošana: 214 → 305</td><td><span class="lz b">Darbā</span></td><td>Saimnieciskais</td></tr>
+            <tr><td class="key">IKT-311</td><td>Melns ekrāns, kab. 412</td><td><span class="lz a">Gaida klientu</span></td><td>IKT</td></tr>
+            <tr><td class="key">IKT-305</td><td>Piekļuve nodaļas mapei</td><td><span class="lz g">Atrisināts</span></td><td>IKT</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="legend">
+      <div><b class="n">1</b><span><b>Filtri</b>: atvērtie, slēgtie, visi; arī tie, kur esat dalībnieks.</span></div>
+      <div><b class="n">2</b><span><b>Statuss</b> klientam saprotamā valodā. Klikšķis atver pieteikumu.</span></div>
+      <div><b class="n">3</b><span>Pieteikumā: <b>Add comment</b>, pielikums, <b>Share</b> (pievienot kolēģi), <b>Don’t notify me</b>.</span></div>
+      <div><b class="n">4</b><span>Atbilde uz e-pasta paziņojumu arī kļūst par komentāru, ja jūsu vidē ir ieslēgts e-pasta kanāls.</span></div>
+    </div>
+  </div>
+  <p class="small">Atslēgas un statusi ir piemēri.</p>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (5 min) · klienta cilnē</b><ol><li><span class="ui">Requests</span> → <span class="ui">My requests</span>. Parādi filtru nolaižamo sarakstu un meklēšanu pēc teksta.</li><li>Atver 1.2.3 izveidoto “Darba vietas pārvietošana”. Parādi: statuss augšā labajā pusē, aktivitāšu vēsture, sākotnējā forma.</li><li><span class="ui">Add comment</span> → “Papildinu: pārvietot arī 1 printeri.” + pievieno pielikumu.</li><li><span class="ui">Share</span> → pievieno kolēģi (demo lietotāju). Paskaidro: tagad viņš redz pieteikumu un saņem paziņojumus.</li><li>Parādi <span class="ui">Don’t notify me</span> / <span class="ui">Notify me</span> pārslēdzēju.</li></ol></div>
+    <div class="say"><b class="lb">Saki</b><p>Klientam nekad nav jāzvana, lai uzzinātu statusu. Viss ir šeit.</p></div>
+    <div class="do"><b class="lb">Pārbaudi pirms apmācības</b><p>Vai jūsu instancē ir ieslēgts e-pasta kanāls (atbilde uz e-pastu → komentārs)? Ja nav, 4. punktu nesaki.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 20. AĢENTS: RINDA ============ -->
+<section class="slide" data-time="10:41" data-kind="demo" data-title="Rindas (queues)">
+  <div class="head"><span class="eyebrow">1.2.4 · Aģenta skats</span><h2>Tas pats pieteikums rindā</h2></div>
+  <div class="jm" style="flex:1">
+    <div class="top"><span>Jira</span><span>Dashboards ▾</span><span>Projects ▾</span><span>Issues ▾</span><span class="btn">Create</span><span class="sp"></span><span>Search</span></div>
+    <div class="wrap">
+      <div class="side"><div class="h">Queues</div><a class="on">All open <span>14</span></a><a>Assigned to me <span>3</span></a><a>Unassigned issues <span>5</span></a><a>Waiting on customer <span>2</span></a><a>Recently resolved <span>9</span></a></div>
+      <div class="main">
+        <div style="display:flex;justify-content:space-between;align-items:center"><b style="font:700 17px var(--f-display)">All open</b><span class="small">Kārtots pēc SLA</span></div>
+        <table>
+          <thead><tr><th>T</th><th>Key</th><th>Summary</th><th>Reporter</th><th>Assignee</th><th>Status</th><th>Time to resolution</th></tr></thead>
+          <tbody>
+            <tr><td><span class="lz a">INC</span></td><td class="key">IKT-314</td><td>Projektors Sarkanajā zālē</td><td>A. Bērziņa</td><td>Unassigned</td><td><span class="lz">Reģistrēts</span></td><td class="sla bad">−0h 20m</td></tr>
+            <tr><td><span class="lz a">INC</span></td><td class="key">IKT-311</td><td>Melns ekrāns, kab. 412</td><td>J. Ozols</td><td>Es</td><td><span class="lz a">Gaida klientu</span></td><td class="sla">pauzēts</td></tr>
+            <tr><td><span class="lz b">REQ</span></td><td class="key">IKT-309</td><td>Jauns klēpjdators padomniekam</td><td>L. Kalniņa</td><td>M. Liepa</td><td><span class="lz b">Darbā</span></td><td class="sla">2d 4h</td></tr>
+            <tr><td><span class="lz b">REQ</span></td><td class="key">IKT-306</td><td>Grupas e-pasts komisijai</td><td>E. Jansons</td><td>Unassigned</td><td><span class="lz">Reģistrēts</span></td><td class="sla">3d 1h</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <p class="small">Rindu nosaukumi ir Jira noklusējuma piemēri. Jūsu projektā administrators tās var būt nosaucis citādi.</p>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (4 min) · aģenta cilnē</b><ol><li>Projekts → <span class="ui">Queues</span>. Parādi skaitītājus pie katras rindas.</li><li>Atrodi 1.2.3 izveidoto pieteikumu rindā “nepiešķirtie”.</li><li>Paskaidro kolonnas: <b>Time to resolution</b> / <b>Time to first response</b> ir SLA. Sarkans = termiņš pārsniegts, “pauzēts” = gaida klientu.</li><li>Atver pieteikumu un parādi klienta 1.2.4 pievienoto komentāru un pielikumu aktivitātēs.</li><li>Parādi meklēšanu pēc atslēgas: augšējā Search ieraksti <span class="mono">IKT-311</span> un spied Enter.</li></ol></div>
+    <div class="say"><b class="lb">Saki pirms pauzes</b><p>Pēc pauzes paliekam tieši šeit, aģenta skatā, un apstrādājam šos pieteikumus.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 21. PAUZE ============ -->
+<section class="slide s-pause" data-time="10:45" data-kind="pauze" data-title="Pauze">
+  <span class="tag pauze">Pauze</span>
+  <div class="clock">10:55</div>
+  <h2>Turpinām apstrādātāja lomā</h2>
+  <p class="lead">Kamēr gaidāt: atveriet savu projektu Jira un apskatiet, kuras rindas redzat.</p>
+  <aside class="notes">
+    <div class="do"><b class="lb">Pauzes laikā</b><ul><li>Pārbaudi, vai testa pieteikumi ir vietā (vismaz viens nepiešķirts, viens “Gaida klientu”, viens ar pārsniegtu SLA).</li><li>Sagatavo saglabātu filtru “Mani atvērtie” rezervei, ja dzīvajā demo kaut kas aizķeras.</li><li>Atver Dashboards → Manage dashboards, lai pēc tam nebūtu jāmeklē.</li></ul></div>
+  </aside>
+</section>
+
+<!-- ============ 22. SEKCIJA 1.2.5 ============ -->
+<section class="slide s-section" data-time="10:55" data-kind="demo" data-title="1.2.5 Apstrādātāja lomā">
+  <div class="num">1.2.5</div>
+  <h2>Darbs ar pieteikumiem apstrādātāja lomā</h2>
+  <p class="lead">Saraksti, pārskatīšana, piešķiršana, statusa maiņa, komentēšana un slēgšana.</p>
+  <div class="demo-plan"><span>Pieteikuma anatomija</span><span>Assign</span><span>Pārejas</span><span>Resolve</span><span>Īsinājumtaustiņi</span></div>
+  <span class="tag demo">Demo · 15 min</span>
+  <aside class="notes"><div class="say"><b class="lb">Pāreja</b><p>Labdien atkal! Tagad esam apstrādātāji. Paņemsim pieteikumu no rindas un aizvedīsim līdz atrisināšanai.</p></div></aside>
+</section>
+
+<!-- ============ 23. ANATOMIJA ============ -->
+<section class="slide" data-time="10:56" data-kind="demo" data-title="Pieteikuma skats aģentam">
+  <div class="head"><span class="eyebrow">1.2.5 · Aģenta skats</span><h2>Pieteikuma anatomija</h2></div>
+  <div class="cols c64">
+    <div class="jm">
+      <div class="top"><span>IKT pakalpojumu atbalsts / IKT-314</span></div>
+      <div class="main" style="display:grid;grid-template-columns:1fr 200px;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+          <b style="font:700 17px var(--f-display);display:flex;align-items:center"><span class="nin">1</span>Projektors Sarkanajā zālē</b>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="nin">2</span><span class="lz">Assign</span><span class="lz">Comment</span><span class="lz b">Sākt darbu</span><span class="lz">Gaidīt klientu</span><span class="lz g">Atrisināt</span><span class="lz">More ▾</span></div>
+          <div class="small" style="font-size:12px">Request type: Datortehnikas darbības traucējumi · Status: <span class="lz">Reģistrēts</span></div>
+          <div class="cbox" style="min-height:44px;font-size:13px">Sarkanajā zālē projektors nerāda attēlu no klēpjdatora. Sēde 15:00.</div>
+          <div class="ctabs" style="align-items:center"><span class="nin">3</span><span class="on-ext">Respond to customer</span><span>Internal comment</span></div>
+          <div class="small" style="font-size:12px">Activity: All · Comments · History</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;border-left:1px solid var(--line);padding-left:12px">
+          <b><span class="nin">4</span>SLAs</b><span class="sla bad">Time to first response −20m</span><span class="sla">Time to resolution 3h 40m</span>
+          <b style="margin-top:6px"><span class="nin">5</span>People</b><span>Assignee: Unassigned</span><span style="color:var(--jira)">Assign to me</span><span>Reporter: A. Bērziņa</span><span>Request participants</span>
+          <b style="margin-top:6px">Dates</b><span>Created: šodien 10:33</span>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <div><b class="n">1</b><span><b>Kopsavilkums un atslēga.</b> Ar atslēgu pieteikumu vienmēr var atrast.</span></div>
+      <div><b class="n">2</b><span><b>Darbību pogas</b>: Assign, Comment un darbplūsmas pārejas. Pogas mainās atkarībā no statusa.</span></div>
+      <div><b class="n">3</b><span><b>Komentāri</b>: “Respond to customer” vai “Internal comment”. Sīkāk 1.2.6. Publiskā komentārā @pieminēto vārdu redz arī klients.</span></div>
+      <div><b class="n">4</b><span><b>SLA</b>: cik laika atlicis līdz pirmajai atbildei un atrisināšanai.</span></div>
+      <div><b class="n">5</b><span><b>Cilvēki</b>: Assignee, Reporter, Request participants, saite <b>Assign to me</b>.</span></div>
+    </div>
+  </div>
+  <p class="small">Ilustratīvs makets ar piemēra pāreju nosaukumiem. Īstās pogas ir atkarīgas no jūsu projekta darbplūsmas.</p>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (3 min) · aģenta cilnē</b><p>Atver pieteikumu no rindas. Ej no augšas uz leju tādā pašā secībā kā slaidā: atslēga → pogas → apraksts un lauki → komentāru zona → labā kolonna (SLA, People, Dates).</p><p>Parādi <span class="ui">Activity</span> cilnes: <b>Comments</b>, <b>History</b> (kurš ko mainīja un kad). History ir labākais rīks, ja jānoskaidro “kas notika”.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 24. APSTRĀDES SOĻI ============ -->
+<section class="slide" data-time="10:59" data-kind="demo" data-title="Apstrādes soļi">
+  <div class="head"><span class="eyebrow">1.2.5 Demo scenārijs</span><h2>No rindas līdz atrisināšanai</h2></div>
+  <div class="flow">
+    <div class="st"><span class="eyebrow">Solis 1</span><h3>Pārskatīt</h3><p>Vai tips un projekts ir pareizi? Vai informācijas pietiek? Ja tips ir nepareizs, mainiet <b>Request type</b> vai pārvietojiet (<b>Move</b>), ja jums ir tiesības.</p></div><div class="ar">→</div>
+    <div class="st"><span class="eyebrow">Solis 2</span><h3>Piešķirt</h3><p><span class="ui">Assign to me</span> vai <span class="ui">Assign</span> kolēģim. Taustiņš <span class="kbd">i</span> (sev) vai <span class="kbd">a</span>.</p></div><div class="ar">→</div>
+    <div class="st"><span class="eyebrow">Solis 3</span><h3>Sākt darbu</h3><p>Pāreja uz “Darbā”. Klients portālā redz, ka pie pieteikuma strādā.</p></div><div class="ar">→</div>
+    <div class="st"><span class="eyebrow">Solis 4</span><h3>Komunicēt</h3><p>Jautājums klientam → “Gaida klientu”. Kolēģim → iekšējā piezīme ar @.</p></div><div class="ar">→</div>
+    <div class="st end"><span class="eyebrow" style="color:var(--forest)">Solis 5</span><h3>Atrisināt</h3><p>Pāreja “Atrisināt”, <b>Resolution</b> un atbilde klientam, kas izdarīts.</p></div>
+  </div>
+  <div class="warn">Atrisinot vienmēr uzrakstiet klientam <b>kas tika izdarīts</b>, nevis tikai “izdarīts”. Tas būs vienīgais, ko klients izlasīs.</div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (9 min) · ar IKT-pieteikumu no 1.2.3</b><ol><li><b>Pārskatīt:</b> atver pieteikumu. Parādi, kā mainīt Request type (lauka rediģēšana vai <span class="ui">More</span> → ja pieejams). Ja nav tiesību, saki: “prasiet projekta administratoram vai pārsūtiet kolēģim ar iekšēju komentāru”.</li><li><b>Piešķirt:</b> <span class="ui">Assign to me</span>. Tad parādi <span class="ui">Assign</span> dialogu un piešķir kolēģim, tad atpakaļ sev.</li><li><b>Sākt darbu:</b> spied pārejas pogu. Ja atveras ekrāns ar laukiem, aizpildi.</li><li><b>Gaida klientu:</b> “Respond to customer”: “Lūdzu, norādiet, kurš klēpjdators (inv. nr.) tiek pievienots.” Pārej uz “Gaida klientu”.</li><li>Klienta cilnē atbildi uz jautājumu. Atgriezies aģenta cilnē un parādi, ka statuss pats ir mainījies (ja tā konfigurēts).</li><li><b>Atrisināt:</b> pāreja uz “Atrisināts”, izvēlies Resolution (piem., Done), komentārs klientam.</li><li>Klienta cilnē parādi, kā izskatās atrisināts pieteikums un, ja ir, apmierinātības vērtējums.</li></ol></div>
+    <div class="ex"><b class="lb">Piemērs komentāram atrisinot</b><p>“Projektoram bija atvienots HDMI pārveidotājs. Pievienojām no jauna un pārbaudījām ar jūsu klēpjdatoru. Ja problēma atkārtojas, atbildiet uz šo pieteikumu 3 darba dienu laikā.”</p></div>
+  </aside>
+</section>
+
+<!-- ============ 25. ĪSINĀJUMTAUSTIŅI ============ -->
+<section class="slide" data-time="11:08" data-kind="demo" data-title="Īsinājumtaustiņi">
+  <div class="head"><span class="eyebrow">1.2.5 · Ātrāk ar tastatūru</span><h2>Īsinājumtaustiņi, kas ietaupa klikšķus</h2></div>
+  <div class="cols c3" style="flex:none">
+    <div class="panel"><h3>Pieteikumā</h3><p><span class="kbd">i</span> piešķirt sev</p><p><span class="kbd">a</span> piešķirt citam</p><p><span class="kbd">m</span> komentēt</p><p><span class="kbd">.</span> darbību izvēlne</p></div>
+    <div class="panel"><h3>Navigācija</h3><p><span class="kbd">/</span> meklēšana</p><p><span class="kbd">g</span> <span class="kbd">d</span> uz Dashboard</p><p><span class="kbd">g</span> <span class="kbd">i</span> uz meklēšanu (Issues)</p><p><span class="kbd">c</span> Create</p></div>
+    <div class="panel"><h3>Sarakstā</h3><p><span class="kbd">j</span> / <span class="kbd">k</span> nākamais / iepriekšējais</p><p><span class="kbd">o</span> vai <span class="kbd">Enter</span> atvērt</p><p><span class="kbd">?</span> visi taustiņi</p></div>
+  </div>
+  <p class="small">Pilnais saraksts: Jira lietotāja izvēlnē (profila ikona vai “?”) → Keyboard shortcuts, vai taustiņš <span class="kbd">?</span>. Īsinājumtaustiņi nestrādā, kamēr kursors ir teksta laukā.</p>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (2 min)</b><p>Atver pieteikumu un nospied <span class="kbd">i</span> (piešķirts tev), <span class="kbd">m</span> (atveras komentārs), <span class="kbd">Esc</span>, tad <span class="kbd">.</span> un ieraksti “resolve”. Tad <span class="kbd">?</span>, lai parādītu pilno sarakstu.</p></div>
+    <div class="do"><b class="lb">Pārbaudi</b><p>Pirms apmācības pārbaudi taustiņus savā Jira versijā un pārlūkā. Ja kāds nestrādā, izņem to no slaida.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 26. SEKCIJA 1.2.6 ============ -->
+<section class="slide s-section" data-time="11:10" data-kind="demo" data-title="1.2.6 Saziņa un sadarbība">
+  <div class="num">1.2.6</div>
+  <h2>Saziņa un sadarbība pieteikuma ietvaros</h2>
+  <p class="lead">Komentāri klientam, iekšējās piezīmes, pielikumi, paziņojumi un @pieminēšana.</p>
+  <div class="demo-plan"><span>Publisks vs iekšējs</span><span>@pieminēšana</span><span>Pielikumi</span><span>Watch / dalībnieki</span></div>
+  <span class="tag demo">Demo · 10 min</span>
+  <aside class="notes"><div class="say"><b class="lb">Pāreja</b><p>Šī ir vissvarīgākā drošības tēma visā modulī: kurš ko lasa.</p></div></aside>
+</section>
+
+<!-- ============ 27. PUBLISKS VS IEKŠĒJS ============ -->
+<section class="slide" data-time="11:11" data-kind="demo" data-title="Atbilde klientam vai iekšēja piezīme">
+  <div class="head"><span class="eyebrow">1.2.6 Saziņa</span><h2>Divas cilnes, divas auditorijas</h2></div>
+  <div class="cols">
+    <div class="panel" style="border-color:var(--jira)">
+      <div class="ctabs"><span class="on-ext">Respond to customer</span><span>Internal comment</span></div>
+      <div class="cbox">Labdien! Projektora pārveidotājs ir nomainīts. Lūdzu, pārbaudiet pirms sēdes un atbildiet, ja kas nav kārtībā.</div>
+      <ul class="clean"><li>Redz <b>klients</b> un dalībnieki portālā</li><li>Klients saņem e-pastu</li><li>Raksta pieklājīgi, bez iekšējiem terminiem</li></ul>
+    </div>
+    <div class="panel" style="border-color:var(--amber)">
+      <div class="ctabs"><span>Respond to customer</span><span class="on-int">Internal comment</span></div>
+      <div class="cbox int">@Māris Liepa, vai noliktavā ir vēl viens HDMI–USB-C pārveidotājs? Ja nav, jāpasūta caur iepirkumu.</div>
+      <ul class="clean"><li>Redz <b>tikai aģenti un collaborators</b></li><li>Klients neredz un nesaņem paziņojumu</li><li>Jira to iezīmē ar atšķirīgu fonu un “Internal”</li></ul>
+    </div>
+  </div>
+  <div class="warn">Pirms <span class="ui">Save</span> pārbaudiet, kura cilne ir aktīva. Publisku komentāru pēc nosūtīšanas klients jau ir saņēmis e-pastā; to vairs nevar atsaukt.</div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (4 min)</b><ol><li>Uzraksti publisku komentāru. Klienta cilnē parādi, ka tas redzams.</li><li>Uzraksti iekšēju komentāru. Klienta cilnē parādi, ka tā <b>nav</b>. Šis ir “aha” moments, rādi to lēnām.</li><li>Parādi, kā Jira aģentam vizuāli atšķir iekšējo komentāru.</li></ol></div>
+    <div class="ex"><b class="lb">Ko nekad nerakstīt publiski</b><p>Piegādātāju cenas, kolēģu vērtējumus, paroles, citu darbinieku personas datus, iekšējo sistēmu nosaukumus vai IP adreses.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 28. @MENTION, PIELIKUMI, PAZIŅOJUMI ============ -->
+<section class="slide" data-time="11:15" data-kind="demo" data-title="Pieminēšana, pielikumi, paziņojumi">
+  <div class="head"><span class="eyebrow">1.2.6 Sadarbība</span><h2>Iesaistīt, pievienot, sekot</h2></div>
+  <div class="cols" style="grid-template-columns:repeat(4,1fr);gap:16px;flex:none">
+    <div class="panel"><h3>@pieminēšana</h3><p>Komentārā ierakstiet <span class="mono">@</span> un vārdu. Kolēģis saņem e-pastu ar saiti.</p></div>
+    <div class="panel"><h3>Pielikumi</h3><p>Ievelciet failu vai <span class="kbd">Ctrl+V</span> ekrānuzņēmumam. Pielikums pie publiska komentāra ir redzams klientam.</p></div>
+    <div class="panel"><h3>Watch</h3><p>Aģents spiež <b>Watch</b> (acs ikona), lai saņemtu paziņojumus par pieteikumu, kas nav piešķirts viņam.</p></div>
+    <div class="panel"><h3>Dalībnieki</h3><p><b>Request participants</b>: klienti, kas saņem paziņojumus. Aģents var pievienot labajā kolonnā.</p></div>
+  </div>
+  <div class="panel" style="gap:6px;padding:16px 24px">
+    <span class="eyebrow">Kurš saņem paziņojumu (tipiski)</span>
+    <div class="jm" style="border:0"><table>
+      <thead><tr><th>Notikums</th><th>Klients / dalībnieki</th><th>Assignee</th><th>Watchers / @pieminētie</th></tr></thead>
+      <tbody>
+        <tr><td>Publisks komentārs</td><td>Jā</td><td>Jā</td><td>Jā</td></tr>
+        <tr><td>Iekšējs komentārs</td><td><b>Nē</b></td><td>Jā</td><td>Jā</td></tr>
+        <tr><td>Pieteikums atrisināts</td><td>Jā</td><td>—</td><td>Jā</td></tr>
+      </tbody></table></div>
+    <p class="small">Precīzi noteikumi ir atkarīgi no projekta paziņojumu iestatījumiem, ko konfigurē administrators.</p>
+  </div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (5 min)</b><ol><li>Iekšējā komentārā ieraksti <span class="mono">@</span> + kolēģa vārdu. Parādi ieteikumu sarakstu.</li><li>Pievieno pielikumu ar vilkšanu. Parādi, ka tas parādās <span class="ui">Attachments</span> sadaļā.</li><li>Parādi <span class="ui">Watch</span> ikonu un skaitītāju.</li><li>Labajā kolonnā pievieno <b>Request participant</b>.</li><li>Ja vari: parādi e-pastu, ko saņēma pieminētais kolēģis (sagatavo iepriekš ekrānuzņēmumu, ja dzīvais e-pasts nav pieejams).</li></ol></div>
+    <div class="say"><b class="lb">Saki</b><p>@pieminēšana aizstāj “uzrakstīšu kolēģim e-pastu”. Visa sarakste paliek pie pieteikuma, un pēc gada var redzēt, kāpēc lēmums tika pieņemts.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 29. SEKCIJA 1.2.7 ============ -->
+<section class="slide s-section" data-time="11:20" data-kind="demo" data-title="1.2.7 Filtri un dashboard">
+  <div class="num">1.2.7</div>
+  <h2>Pārskati, filtri un dashboard</h2>
+  <p class="lead">Atrast, filtrēt, saglabāt skatus un izveidot struktūrvienības vadības paneli.</p>
+  <div class="demo-plan"><span>Issues → Search</span><span>Basic → JQL</span><span>Save as filtrs</span><span>Dashboard + gadgets</span><span>Reports</span></div>
+  <span class="tag demo">Demo · 13 min</span>
+  <aside class="notes"><div class="say"><b class="lb">Pāreja</b><p>Rindas ir labas ikdienai. Bet ja vadītājs jautā “cik pieteikumu šomēnes atrisinājām?” vai “kas ir aizķēries?”, vajag filtrus un dashboard.</p></div></aside>
+</section>
+
+<!-- ============ 30. MEKLĒŠANA UN JQL ============ -->
+<section class="slide" data-time="11:21" data-kind="demo" data-title="Meklēšana un JQL">
+  <div class="head"><span class="eyebrow">1.2.7 Filtri</span><h2>Issues → Search for issues</h2></div>
+  <div class="body" style="gap:12px">
+    <div class="jqlrow"><p><b>Mani atvērtie</b><br><span class="small">Kas man jādara</span></p><pre class="jql">assignee = <span class="k">currentUser()</span> AND resolution = Unresolved ORDER BY updated DESC</pre></div>
+    <div class="jqlrow"><p><b>Nepiešķirtie IKT</b><br><span class="small">Kas vēl nav paņemts</span></p><pre class="jql">project = IKT AND assignee is EMPTY AND resolution = Unresolved</pre></div>
+    <div class="jqlrow"><p><b>Mani iesniegtie</b><br><span class="small">Klienta skats Jira pusē</span></p><pre class="jql">reporter = <span class="k">currentUser()</span> ORDER BY created DESC</pre></div>
+    <div class="jqlrow"><p><b>Aizķērušies</b><br><span class="small">7 dienas bez izmaiņām</span></p><pre class="jql">project in (IKT, SAIM) AND resolution = Unresolved AND updated &lt;= -7d</pre></div>
+    <div class="jqlrow"><p><b>SLA pārsniegts</b><br><span class="small">Vadītājam</span></p><pre class="jql">project = IKT AND "Time to resolution" = <span class="k">breached()</span></pre></div>
+    <div class="jqlrow"><p><b>Pēc tipa, šomēnes</b><br><span class="small">Atskaitei</span></p><pre class="jql">"Customer Request Type" = "…" AND created &gt;= <span class="k">startOfMonth()</span></pre></div>
+  </div>
+  <p class="small">Projektu atslēgas IKT un SAIM ir piemēri; aizstājiet ar savām. Laukam “Customer Request Type” vērtību izvēlieties no JQL automātiskajiem ieteikumiem.</p>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (4 min)</b><ol><li><span class="ui">Issues</span> → <span class="ui">Search for issues</span>.</li><li>Sāc ar <b>Basic</b>: Project = IKT, Status, Assignee = Current user. Parādi, ka rezultāts atjaunojas.</li><li>Spied <span class="ui">Advanced</span> (JQL): parādi, ka Basic izvēle pārvērtās tekstā. Paskaidro: JQL ir tas pats, tikai teksta formā.</li><li>Ievadi “Aizķērušies” vaicājumu. Parādi automātiskos ieteikumus, rakstot.</li><li>Parādi kolonnu izvēli (<span class="ui">Columns</span>) un pārslēgšanu starp List view un Detail view.</li><li>Parādi <span class="ui">Export</span> → CSV / Excel atskaitei.</li></ol></div>
+    <div class="say"><b class="lb">Saki</b><p>JQL nav jāiemācās no galvas. Sāciet ar Basic, tad pārslēdzieties uz Advanced un pielāgojiet. Šos sešus vaicājumus saņemsiet kā materiālu.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 31. SAGLABĀTS FILTRS ============ -->
+<section class="slide" data-time="11:25" data-kind="demo" data-title="Saglabāti filtri">
+  <div class="head"><span class="eyebrow">1.2.7 Saglabātie skati</span><h2>No vaicājuma līdz saglabātam filtram</h2></div>
+  <div class="flow" style="flex:none">
+    <div class="st"><span class="eyebrow">Solis 1</span><h3>Save as</h3><p>Virs rezultātiem <span class="ui">Save as</span> → nosaukums, piem. “IKT · Aizķērušies”.</p></div><div class="ar">→</div>
+    <div class="st"><span class="eyebrow">Solis 2</span><h3>Favourite</h3><p>Zvaigznīte: filtrs parādās <span class="ui">Issues</span> izvēlnē un kreisajā sarakstā.</p></div><div class="ar">→</div>
+    <div class="st"><span class="eyebrow">Solis 3</span><h3>Share</h3><p><span class="ui">Details</span> → <span class="ui">Edit permissions</span>: koplietot ar grupu vai projektu.</p></div><div class="ar">→</div>
+    <div class="st end"><span class="eyebrow" style="color:var(--forest)">Solis 4</span><h3>Subscribe</h3><p><span class="ui">Details</span> → <span class="ui">New subscription</span>: e-pasts katru rītu.</p></div>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>Filtrs ir pamats visam</h3><p>Dashboard gadgets, atskaites un e-pasta abonementi izmanto saglabātu filtru. Vispirms filtrs, tad dashboard.</p></div>
+    <div class="panel"><h3>Nosaukumu paradums</h3><p>“<b>Struktūrvienība · Ko rāda</b>”, piem., “IKT · Nepiešķirtie”, “SAIM · Šī mēneša pārvietošanas”. Tā kolēģi atrod koplietotos filtrus.</p></div>
+  </div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (3 min)</b><ol><li>No iepriekšējā vaicājuma spied <span class="ui">Save as</span> → “IKT · Aizķērušies”.</li><li>Atzīmē ar zvaigznīti. Atver <span class="ui">Issues</span> izvēlni un parādi to sarakstā.</li><li><span class="ui">Details</span> → parādi koplietošanu (Edit permissions) un <span class="ui">New subscription</span> (piem., darba dienās 8:30).</li><li>Saglabā arī “Mani atvērtie”; tas būs vajadzīgs dashboard.</li></ol></div>
+    <div class="do"><b class="lb">Piezīme</b><p>Ja koplietošana ar grupu nav atļauta (to nosaka administrators), parādi tikai privātu filtru un pasaki, ka koplietošanu konfigurē admins.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 32. DASHBOARD ============ -->
+<section class="slide" data-time="11:28" data-kind="demo" data-title="Dashboard">
+  <div class="head"><span class="eyebrow">1.2.7 Dashboard</span><h2>Struktūrvienības vadības panelis</h2></div>
+  <div class="cols c46" style="grid-template-columns:.85fr 1.6fr">
+    <div class="legend">
+      <div><b class="n">1</b><span><span class="ui">Dashboards</span> → <span class="ui">Manage dashboards</span> → <span class="ui">Create new dashboard</span>. Nosaukums, piem., “IKT atbalsts · Šodien”.</span></div>
+      <div><b class="n">2</b><span><span class="ui">Add gadget</span> → izvēlas gadget → norāda saglabāto filtru.</span></div>
+      <div><b class="n">3</b><span><span class="ui">Edit layout</span>: kolonnu skaits; gadgetus pārvieto vilkdami.</span></div>
+      <div><b class="n">4</b><span>Koplieto ar komandu vai iestata kā sākuma lapu.</span></div>
+    </div>
+    <div class="dash" aria-label="Dashboard makets ar četriem gadgetiem">
+      <div class="gad" style="grid-column:span 2"><div class="gh">Filter Results <small>IKT · Nepiešķirtie</small></div>
+        <div class="jm" style="border:0"><table><tbody>
+          <tr><td class="key">IKT-314</td><td>Projektors Sarkanajā zālē</td><td><span class="lz">Reģistrēts</span></td></tr>
+          <tr><td class="key">IKT-306</td><td>Grupas e-pasts komisijai</td><td><span class="lz">Reģistrēts</span></td></tr>
+          <tr><td class="key">IKT-302</td><td>Programmatūras instalācija</td><td><span class="lz">Reģistrēts</span></td></tr>
+        </tbody></table></div></div>
+      <div class="gad"><div class="gh">Issue Statistics <small>pēc Assignee</small></div>
+        <div class="bars"><div><span>M. Liepa</span><i style="width:90%"></i><span>9</span></div><div><span>J. Ozols</span><i style="width:60%"></i><span>6</span></div><div><span>Nepiešķirti</span><i style="width:50%;background:var(--claret)"></i><span>5</span></div><div><span>A. Kalns</span><i style="width:30%"></i><span>3</span></div></div></div>
+      <div class="gad" style="grid-column:span 2"><div class="gh">Created vs Resolved <small>30 dienas</small></div>
+        <svg viewBox="0 0 400 90" width="100%" height="90" role="img" aria-label="Izveidoto un atrisināto pieteikumu tendence 30 dienās">
+          <g stroke="var(--line)" stroke-width="1"><line x1="0" y1="80" x2="400" y2="80"/><line x1="0" y1="45" x2="400" y2="45"/><line x1="0" y1="10" x2="400" y2="10"/></g>
+          <polyline fill="none" stroke="var(--claret)" stroke-width="2.5" points="0,60 50,52 100,55 150,40 200,44 250,30 300,34 350,26 400,22"/>
+          <polyline fill="none" stroke="var(--forest)" stroke-width="2.5" points="0,70 50,62 100,58 150,50 200,46 250,40 300,36 350,30 400,25"/>
+          <circle cx="400" cy="22" r="4" fill="var(--claret)"/><circle cx="400" cy="25" r="4" fill="var(--forest)"/>
+        </svg>
+        <div class="small" style="font-size:12px;display:flex;gap:14px"><span style="color:var(--claret)">● Izveidoti</span><span style="color:var(--forest)">● Atrisināti</span><span>Ilustratīvi dati</span></div></div>
+      <div class="gad"><div class="gh">Two Dimensional <small>Tips × Statuss</small></div>
+        <div class="jm" style="border:0"><table><tbody><tr><td>Traucējumi</td><td>4</td><td>2</td></tr><tr><td>Jauna tehnika</td><td>1</td><td>3</td></tr><tr><td>Piekļuve</td><td>2</td><td>0</td></tr></tbody></table></div></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (4 min)</b><ol><li><span class="ui">Dashboards</span> → <span class="ui">Manage dashboards</span> → <span class="ui">Create new dashboard</span> → “IKT atbalsts · Šodien”.</li><li><span class="ui">Add gadget</span> → meklē <b>Filter Results</b> → filtrs “IKT · Nepiešķirtie”, kolonnas Key, Summary, Status, Created.</li><li>Pievieno <b>Issue Statistics</b> vai <b>Pie Chart</b> → filtrs “IKT · Visi atvērtie”, statistika pēc Assignee.</li><li>Pievieno <b>Created vs. Resolved Chart</b> (projekts IKT, 30 dienas).</li><li>Ja paliek laiks: <b>Two Dimensional Filter Statistics</b> (Request type × Status) un <b>Assigned to Me</b>.</li><li><span class="ui">Edit layout</span> → 2 kolonnas; pārvelc gadgetu.</li><li>Parādi koplietošanu (Share) un, ja vēlas, <b>Set as default / home</b>.</li></ol></div>
+    <div class="say"><b class="lb">Saki</b><p>Dashboard ir tikai “logs” uz filtriem. Ja filtrs ir pareizs, dashboard būs pareizs.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 33. REPORTS ============ -->
+<section class="slide" data-time="11:32" data-kind="demo" data-title="Projekta pārskati">
+  <div class="head"><span class="eyebrow">1.2.7 Pārskati</span><h2>Projekta Reports</h2></div>
+  <div class="cols c3">
+    <div class="panel"><h3>Workload</h3><p>Cik atvērtu pieteikumu ir katram aģentam. Palīdz līdzsvarot slodzi.</p></div>
+    <div class="panel"><h3>SLA goals / Time to resolution</h3><p>Cik procentu pieteikumu iekļāvās termiņā. Vadītāja galvenais rādītājs.</p></div>
+    <div class="panel"><h3>Created vs Resolved</h3><p>Vai rinda aug vai sarūk. Ja izveidoto līkne ilgstoši virs atrisināto, rinda aug.</p></div>
+  </div>
+  <p class="small">Projekta sānjosla → <span class="ui">Reports</span>. Pieejamo pārskatu saraksts ir atkarīgs no projekta iestatījumiem.</p>
+  <aside class="notes">
+    <div class="do"><b class="lb">Rādi (1 min, ja ir laiks)</b><p>Projekta sānjosla → <span class="ui">Reports</span>. Atver Workload un vienu SLA pārskatu. Parādi laika perioda izvēli. Ja kavējies, šo slaidu tikai nosauc un ej uz kopsavilkumu.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 34. KOPSAVILKUMS ============ -->
+<section class="slide" data-time="11:33" data-kind="teorija" data-title="Kopsavilkums">
+  <div class="head"><span class="eyebrow">Kopsavilkums</span><h2>Ko šodien redzējām</h2></div>
+  <div class="jm">
+    <table>
+      <thead><tr><th>Tēma</th><th>Kur Jira</th><th>Galvenā doma</th></tr></thead>
+      <tbody>
+        <tr><td>1.2.2 Project</td><td>Portāls → kartīte · Projects → View all</td><td>Meklēšana atrod pareizo tipu</td></tr>
+        <tr><td>1.2.3 Izveide</td><td>Portāla forma · Raise a request</td><td>Viens pieteikums = viena vajadzība</td></tr>
+        <tr><td>1.2.4 Sekošana</td><td>Requests → My requests · Queues</td><td>Statuss vienmēr redzams portālā</td></tr>
+        <tr><td>1.2.5 Apstrāde</td><td>Assign · pārejas · Resolve</td><td>Atrisinot pastāsti, kas izdarīts</td></tr>
+        <tr><td>1.2.6 Saziņa</td><td>Respond to customer / Internal comment</td><td>Pirms Save pārbaudi cilni</td></tr>
+        <tr><td>1.2.7 Pārraudzība</td><td>Issues → Search · Dashboards</td><td>Vispirms filtrs, tad dashboard</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Saki (2 min)</b><p>Atgriezīsimies pie sākuma mērķiem. Iziesim tiem cauri, un katrā rindā pajautā zālei: “Vai varat to izdarīt paši?” Ja kāds saka “nē”, tas ir labs jautājums nākamajām 5 minūtēm.</p></div>
+  </aside>
+</section>
+
+<!-- ============ 35. Q&A ============ -->
+<section class="slide" data-time="11:35" data-kind="teorija" data-title="Jautājumi un atbildes">
+  <div class="qa">
+    <span class="eyebrow">Jautājumi un atbildes</span>
+    <h1>Jautājumi?</h1>
+    <div class="cols c3" style="flex:none">
+      <div class="panel"><h3>Bieži jautā</h3><p>“Kāpēc neredzu pieteikumu?” Pārbaudi projektu, filtru un vai tas nav jau atrisināts.</p></div>
+      <div class="panel"><h3>Bieži jautā</h3><p>“Kļūdījos tipā.” Mainiet Request type vai uzrakstiet iekšēju piezīmi atbildīgajam.</p></div>
+      <div class="panel"><h3>Bieži jautā</h3><p>“Klients neatbild.” Atgādiniet komentārā; ievērojiet projekta noteikumus par automātisku slēgšanu.</p></div>
+    </div>
+    <p class="small">Izmaiņas formās, statusos, rindās un tiesībās: projekta administrators (šī moduļa tvērumā nav).</p>
+  </div>
+  <aside class="notes">
+    <div class="say"><b class="lb">Q&amp;A (5 min)</b><p>Ja jautājumu nav, uzdod pats: “Kāds ir jūsu biežākais pieteikums? Parādiet, kurā tipā to likt.” Un pēc tam parādi to dzīvajā sistēmā.</p></div>
+    <div class="do"><b class="lb">Noslēgumā (11:39)</b><p>Pateicies, atgādini par izdales materiālu (JQL vaicājumi, īsinājumtaustiņi), un ka 2. moduļa tēma tiks paziņota atsevišķi.</p></div>
+  </aside>
+</section>
+
+</div>
+<div id="overview" role="dialog" aria-label="Slaidu pārskats"></div>
+</div>
+
+<div id="notes" aria-live="polite"><div class="in">
+  <h4 id="n-title">Piezīmes</h4>
+  <div id="n-meta" class="small"></div>
+  <div id="n-body" class="nt"></div>
+  <div id="n-next" class="next"></div>
+</div></div>
+
+<div id="bar">
+  <button id="b-prev" aria-label="Iepriekšējais slaids">←</button>
+  <button id="b-next" aria-label="Nākamais slaids">→</button>
+  <span id="pos">1 / 1</span>
+  <span id="kind"></span>
+  <span class="sp"></span>
+  <span id="sched" title="Plānotais laiks pret pulksteni">Plāns 10:00</span>
+  <button id="b-notes" aria-pressed="false" title="Piezīmes (N)">Piezīmes <span class="hide-s">N</span></button>
+  <button id="b-ov" aria-pressed="false" title="Pārskats (O)" class="hide-s">Pārskats O</button>
+  <button id="b-fs" title="Pilnekrāns (F)" class="hide-s">Pilnekrāns F</button>
+</div>
+</div>
+
+<script>
+(function(){
+  var deck=document.getElementById('deck'), vp=document.getElementById('viewport'), app=document.getElementById('app');
+  var slides=[].slice.call(deck.querySelectorAll('.slide'));
+  var cur=0;
+  var kindLabel={demo:'Demo',teorija:'Teorija',pauze:'Pauze'};
+  function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+
+  // footer on every non-title slide
+  slides.forEach(function(s,i){
+    if(s.classList.contains('s-title')||s.classList.contains('s-pause'))return;
+    var f=document.createElement('div');f.className='foot';
+    f.innerHTML='<span class="brand">SAEIMA</span><span>Jira Service Management · 1. modulis</span><span class="sp"></span><span>'+(s.dataset.time||'')+'</span><span>'+(i+1)+' / '+slides.length+'</span>';
+    s.appendChild(f);
+  });
+
+  function fit(){
+    var w=vp.clientWidth, h=vp.clientHeight, pad=w<700?8:28;
+    var sc=Math.min((w-pad*2)/1280,(h-pad*2)/720);
+    deck.style.transform='translate(-50%,-50%) scale('+sc+')';
+  }
+  function toMin(t){var p=(t||'0:0').split(':');return +p[0]*60+ +p[1]}
+  function sched(){
+    var s=slides[cur], el=document.getElementById('sched'); if(!s)return;
+    var now=new Date(), nm=now.getHours()*60+now.getMinutes(), pm=toMin(s.dataset.time);
+    var hh=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    var d=nm-pm, inSession=nm>=9*60+30&&nm<=12*60;
+    el.className='';
+    if(inSession){el.textContent='Plāns '+s.dataset.time+' · Tagad '+hh+' ('+(d>0?'+':'')+d+' min)';el.className=d>3?'late':(d<-3?'':'ok')}
+    else el.textContent='Plāns '+s.dataset.time+' · Tagad '+hh;
+  }
+  function show(i,push){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach(function(s,j){s.classList.toggle('active',j===cur)});
+    var s=slides[cur];
+    document.getElementById('pos').textContent=(cur+1)+' / '+slides.length;
+    var k=s.dataset.kind; document.getElementById('kind').innerHTML='<span class="tag '+k+'">'+kindLabel[k]+'</span>';
+    document.getElementById('n-title').textContent=s.dataset.title||'';
+    document.getElementById('n-meta').textContent='Plānotais sākums '+s.dataset.time+' · '+kindLabel[k];
+    var n=s.querySelector('aside.notes'); document.getElementById('n-body').innerHTML=n?n.innerHTML:'<p>Nav piezīmju.</p>';
+    var nx=slides[cur+1]; document.getElementById('n-next').textContent=nx?('Nākamais: '+nx.dataset.title+' ('+nx.dataset.time+')'):'Beigas';
+    [].forEach.call(document.querySelectorAll('.ov-item'),function(b,j){b.classList.toggle('cur',j===cur)});
+    if(push!==false){try{history.replaceState(null,'','#s'+(cur+1))}catch(e){}}
+    sched();
+  }
+  // overview
+  var ov=document.getElementById('overview');
+  slides.forEach(function(s,i){
+    var b=document.createElement('button');b.className='ov-item';b.type='button';
+    b.innerHTML='<small>'+(i+1)+' · '+s.dataset.time+' · '+kindLabel[s.dataset.kind]+'</small><b>'+s.dataset.title+'</b>';
+    b.addEventListener('click',function(){show(i);toggle('show-ov',false)});ov.appendChild(b);
+  });
+  function toggle(cls,force){
+    var on=app.classList.toggle(cls,force);
+    if(cls==='show-notes'){document.getElementById('b-notes').setAttribute('aria-pressed',on);store('jsm-notes',on?'1':'0');setTimeout(fit,220)}
+    if(cls==='show-ov')document.getElementById('b-ov').setAttribute('aria-pressed',on);
+  }
+  function fs(){var d=document.documentElement;try{if(!document.fullscreenElement){var p=d.requestFullscreen&&d.requestFullscreen();if(p&&p.catch)p.catch(function(){})}else document.exitFullscreen()}catch(e){}}
+  document.getElementById('b-prev').onclick=function(){show(cur-1)};
+  document.getElementById('b-next').onclick=function(){show(cur+1)};
+  document.getElementById('b-notes').onclick=function(){toggle('show-notes')};
+  document.getElementById('b-ov').onclick=function(){toggle('show-ov')};
+  document.getElementById('b-fs').onclick=fs;
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest&&e.target.closest('input,textarea'))return;
+    var k=e.key;
+    if(k==='ArrowRight'||k==='PageDown'||k===' '){e.preventDefault();show(cur+1)}
+    else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();show(cur-1)}
+    else if(k==='Home')show(0); else if(k==='End')show(slides.length-1);
+    else if(k==='n'||k==='N')toggle('show-notes');
+    else if(k==='o'||k==='O')toggle('show-ov');
+    else if(k==='f'||k==='F')fs();
+    else if(k==='Escape')toggle('show-ov',false);
+  });
+  var tx=null;
+  vp.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  vp.addEventListener('touchend',function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)show(cur+(d<0?1:-1));tx=null});
+  window.addEventListener('resize',fit);
+  if(store('jsm-notes')==='1')toggle('show-notes',true);
+  var m=/^#s(\d+)$/.exec(location.hash||''); show(m?(+m[1]-1):0,false);
+  fit(); setInterval(sched,30000);
+})();
+</script>
