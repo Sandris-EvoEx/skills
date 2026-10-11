@@ -73,9 +73,9 @@ label.f .req{color:var(--red)}
 
 /* Lozenges */
 .lz{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;padding:2px 6px;border-radius:3px;background:#DFE1E6;color:#42526E;white-space:nowrap}
-.lz.Darbā{background:var(--blue-soft);color:#0055CC}
-.lz.Gaida{background:var(--amber-soft);color:var(--amber)}
-.lz.Atrisināts,.lz.Slēgts{background:var(--green-soft);color:var(--green)}
+.lz.Izpildē,.lz.Ārpakalpojumā{background:var(--blue-soft);color:#0055CC}
+.lz.Atlikts{background:var(--green-soft);color:var(--green)}
+.lz.Slēgts{background:#1F845A;color:#fff}
 .sla{font-family:var(--fm);font-size:12px;white-space:nowrap}
 .sla.bad{color:var(--red);font-weight:600}
 .sla.ok{color:var(--green)}
@@ -257,7 +257,7 @@ kbd{font-family:var(--fm);font-size:11px;background:#fff;border:1px solid var(--
 <script>
 (function(){
 "use strict";
-var KEY='jsm-demo-v1', GKEY='jsm-demo-guide-v1';
+var KEY='jsm-demo-v2', GKEY='jsm-demo-guide-v1';
 var MIN=60000, HOUR=60*MIN, DAY=24*HOUR;
 
 /* ---------- reference data ---------- */
@@ -273,51 +273,58 @@ var CUSTOMERS=[
   {id:'ekrumins',name:'Edgars Krūmiņš',ini:'EK',col:'#2E5C45',unit:'Kanceleja'}
 ];
 var PROJECTS=[
-  {id:'IKT',name:'IKT pakalpojumu atbalsts',desc:'Tehniskais atbalsts un konsultācijas par tehniku, programmatūru un IT infrastruktūru.',col:'#0C66E4',icon:'monitor'},
-  {id:'SAIM',name:'Saimnieciskā nodrošinājuma pakalpojumi',desc:'Darba vietas, telpas, inventārs un saimnieciskie darbi.',col:'#8C1D2F',icon:'box'}
+  {id:'SAIM',name:'Saimnieciskā nodrošinājuma pakalpojumi',desc:'',col:'#5E6C84',icon:'bulb'},
+  {id:'REPR',name:'Reprezentācijas dāvanas',desc:'',col:'#5E6C84',icon:'gift',inactive:true},
+  {id:'PAS',name:'Pasākumu tehniskais atbalsts',desc:'',col:'#5E6C84',icon:'board',inactive:true},
+  {id:'IKT',name:'IKT pakalpojumu atbalsts',desc:'Tehniskais atbalsts un konsultācijas par Saeimas datortehniku, programmatūru un IT infrastruktūru.',col:'#5E6C84',icon:'monitor'}
 ];
-var IMPACT=['Varu strādāt','Varu strādāt daļēji','Nevaru strādāt'];
+var DEVICES=['Dators','Klēpjdators','Monitors','Printeris','Projektors','Dokstacija','Cita iekārta'];
+var BUILDINGS=['Jēkaba iela 11','Jēkaba iela 6/8','Jēkaba iela 16','Cita adrese'];
+var F_DESC={id:'desc',label:'Apraksts',type:'textarea',req:true};
 var RTS=[
-  {id:'dt-trauc',p:'IKT',name:'Datortehnikas darbības traucējumi',it:'Incident',icon:'warn',col:'#B38600',
-   desc:'Ja datortehnika (dators, monitors, printeris, projektors) strādāja un pārstāja vai strādā nepareizi.',
-   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},{id:'desc',label:'Apraksts',type:'textarea',req:true,help:'Kas, kur, kopš kad, ko jau mēģinājāt, cik steidzami?'},{id:'impact',label:'Ietekme uz darbu',type:'select',req:true,options:IMPACT}],sla:8*HOUR},
   {id:'jauna-dt',p:'IKT',name:'Jaunas datortehnikas pieteikums',it:'Service request',icon:'monitor',col:'#5E4DB2',
-   desc:'Ja darba pienākumu veikšanai nepieciešama jauna datortehnika vai tās komponentes.',
-   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},{id:'desc',label:'Apraksts',type:'textarea',req:true,help:'Kādai vajadzībai un kādai tehnikai?'},{id:'due',label:'Vajadzīgs līdz',type:'date',req:false}],sla:3*DAY},
-  {id:'prog-piet',p:'IKT',name:'Programmatūras nodrošinājuma pieteikums',it:'Service request',icon:'cog',col:'#C25100',
-   desc:'Ja nepieciešams uzstādīt vai atjaunināt programmatūru.',
-   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},{id:'desc',label:'Apraksts',type:'textarea',req:true}],sla:3*DAY},
-  {id:'prog-trauc',p:'IKT',name:'Programmatūras nodrošinājuma darbības traucējumi',it:'Incident',icon:'code',col:'#AE2E24',
-   desc:'Ja programmatūra avarē, neatveras vai darbojas nepareizi.',
-   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},{id:'desc',label:'Apraksts',type:'textarea',req:true},{id:'impact',label:'Ietekme uz darbu',type:'select',req:true,options:IMPACT}],sla:8*HOUR},
-  {id:'epasts',p:'IKT',name:'Jaunas grupas e-pasta adreses izveide',it:'Service request',icon:'mail',col:'#B38600',
-   desc:'Kopēja e-pasta adrese struktūrvienībai, komisijai vai darba grupai.',
-   fields:[{id:'desc',label:'Apraksts',type:'textarea',req:true,help:'Vēlamā adrese, kam piekļuve, kas būs atbildīgais.'}],sla:3*DAY},
-  {id:'mape',p:'IKT',name:'Piekļuves tiesību piešķiršana vai maiņa koplietojamām mapēm',it:'Service request',icon:'users',col:'#216E4E',
-   desc:'Piekļuve esošai kopīgotajai mapei vai tiesību maiņa.',
-   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},{id:'desc',label:'Apraksts',type:'textarea',req:true,help:'Mapes nosaukums un vajadzīgās tiesības (lasīt / rakstīt).'}],sla:2*DAY},
-  {id:'parv',p:'SAIM',name:'Darba vietas pārvietošana',it:'Service request',icon:'move',col:'#AE2E24',
-   desc:'Darba vietas (mēbeļu, tehnikas) pārvietošana uz citu kabinetu vai ēku.',
-   fields:[{id:'desc',label:'Apraksts',type:'textarea',req:true},{id:'fromB',label:'Pārvietot no ēkas adreses',type:'select',req:true,options:['Jēkaba iela 11','Jēkaba iela 6/8','Jēkaba iela 16','Cita adrese']},{id:'fromR',label:'Pārvietot no kabineta',type:'text',req:true},{id:'toB',label:'Pārvietot uz ēkas adresi',type:'select',req:true,options:['Jēkaba iela 11','Jēkaba iela 6/8','Jēkaba iela 16','Cita adrese']},{id:'toR',label:'Pārvietot uz kabinetu',type:'text',req:true},{id:'due',label:'Vēlamais izpildes termiņš',type:'date',req:true}],sla:5*DAY},
-  {id:'saim-cits',p:'SAIM',name:'Cits saimniecisks pieteikums (demo)',it:'Service request',icon:'box',col:'#5E6C84',
-   desc:'Demo vides vispārīgais tips. Īstajā portālā izvēlieties precīzāko tipu.',
-   fields:[{id:'desc',label:'Apraksts',type:'textarea',req:true}],sla:5*DAY}
+   desc:'Ja Jūsu darba uzdevumu veikšanai ir nepieciešama jauna datortehnika vai tās komponentes, lūdzu, aizpildiet pieteikumu, norādot nepieciešamās tehnikas vai komponentes nosaukumu, pamatojumu un vēlamo piešķiršanas termiņu.',
+   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},F_DESC],sla:3*DAY},
+  {id:'dt-trauc',p:'IKT',name:'Datortehnikas darbības traucējumi',it:'Incident',icon:'warn',col:'#B38600',
+   desc:'Ja esat novērojuši datortehnikas darbības traucējumus (piemēram, palēninātu darbību, programmatūras kļūmes, savienojuma problēmas vai aparatūras bojājumu).',
+   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},F_DESC,{id:'dev',label:'Iekārtu saraksts',type:'select',req:true,options:DEVICES}],sla:8*HOUR},
+  {id:'prog-piet',p:'IKT',name:'Programmnodrošinājuma pieteikums',it:'Service request',icon:'gauge',col:'#C25100',
+   desc:'Ja Jūsu darba uzdevumu veikšanai nepieciešams papildus programmnodrošinājums, lūdzu, aizpildiet pieteikumu, norādot programmnodrošinājuma nosaukumu, pamatojumu un vēlamo izpildes termiņu.',
+   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},F_DESC],sla:3*DAY},
+  {id:'prog-trauc',p:'IKT',name:'Programmnodrošinājuma darbības traucējumi',it:'Incident',icon:'code',col:'#AE2E24',
+   desc:'Ja esat novērojuši programmnodrošinājuma darbības traucējumus (piemēram, kļūdu paziņojumus, nepareizu funkcionalitāti), lūdzu, aizpildiet pieteikumu, norādot problēmas aprakstu un, ja iespējams, pievienojot ekrānattēlus.',
+   fields:[{id:'user',label:'Lietotājs',type:'user',req:true},F_DESC],sla:8*HOUR},
+  {id:'epasts',p:'IKT',name:'Jaunas grupas e-pasta adreses izveide',it:'Service request',icon:'mail',col:'#B38600',desc:'',fields:[F_DESC],sla:3*DAY},
+  {id:'pastkaste',p:'IKT',name:'Jauna lietotāja pievienošana grupas pastkastītei',it:'Service request',icon:'useradd',col:'#C25100',desc:'',fields:[{id:'user',label:'Lietotājs',type:'user',req:true},F_DESC],sla:2*DAY},
+  {id:'epasts-probl',p:'IKT',name:'Problēmas ar e-pasta saņemšanu vai nosūtīšanu',it:'Incident',icon:'move',col:'#C9372C',desc:'',fields:[{id:'user',label:'Lietotājs',type:'user',req:true},F_DESC],sla:8*HOUR},
+  {id:'mape-jauna',p:'IKT',name:'Jaunas koplietojamās mapes izveide',it:'Service request',icon:'share',col:'#B38600',desc:'',fields:[F_DESC],sla:3*DAY},
+  {id:'mape',p:'IKT',name:'Piekļuves tiesību piešķiršana vai maiņa koplietojamām mapēm',it:'Service request',icon:'users',col:'#216E4E',desc:'',fields:[{id:'user',label:'Lietotājs',type:'user',req:true},F_DESC],sla:2*DAY},
+  {id:'mebeles',p:'SAIM',name:'Mēbeļu un aprīkojuma bojājums',it:'Incident',icon:'sofa',col:'#216E4E',desc:'',fields:[F_DESC],sla:3*DAY},
+  {id:'aprikojums',p:'SAIM',name:'Jauns aprīkojums',it:'Service request',icon:'plus',col:'#216E4E',desc:'',fields:[F_DESC],sla:5*DAY},
+  {id:'parv',p:'SAIM',name:'Darba vietas pārvietošana',it:'Service request',icon:'move',col:'#C9372C',desc:'',
+   fields:[F_DESC,{id:'fromB',label:'Pārvietot no ēkas adreses',type:'select',req:true,options:BUILDINGS},{id:'fromR',label:'Pārvietot no kabineta',type:'text',req:true},{id:'toB',label:'Pārvietot uz ēkas adresi',type:'select',req:true,options:BUILDINGS},{id:'toR',label:'Pārvietot uz kabinetu',type:'text',req:true},{id:'due',label:'Vēlamais izpildes termiņš',type:'date',req:true}],sla:5*DAY},
+  {id:'darba-vide',p:'SAIM',name:'Darba vides uzlabojuma pieprasījums',it:'Service request',icon:'monitor',col:'#5E4DB2',desc:'',fields:[F_DESC],sla:5*DAY},
+  {id:'uzkopsana',p:'SAIM',name:'Telpu un teritorijas uzkopšana',it:'Service request',icon:'home',col:'#C9372C',desc:'',fields:[F_DESC],sla:2*DAY},
+  {id:'elektro',p:'SAIM',name:'Elektroapgādes bojājums',it:'Incident',icon:'bolt',col:'#5E4DB2',desc:'',fields:[F_DESC],sla:8*HOUR},
+  {id:'lifts',p:'SAIM',name:'Lifta bojājums',it:'Incident',icon:'cog',col:'#5E4DB2',desc:'',fields:[F_DESC],sla:8*HOUR},
+  {id:'kanceleja',p:'SAIM',name:'Kancelejas un saimniecības preces',it:'Service request',icon:'bulb',col:'#B38600',desc:'',fields:[F_DESC],sla:3*DAY},
+  {id:'darba-drosiba',p:'SAIM',name:'Konsultācijas par darba drošību',it:'Service request',icon:'headset',col:'#C25100',desc:'',fields:[F_DESC],sla:3*DAY}
 ];
+/* Jūsu IKT darbplūsma (no dokumentācijas): Reģistrēts → Izpildē; no Izpildē 5 pārejas. Slēgšanas pārejas nosaka Resolution. */
 var TRANS={
-  'Reģistrēts':[{n:'Sākt darbu',to:'Darbā'},{n:'Atrisināt',to:'Atrisināts'}],
-  'Darbā':[{n:'Gaidīt klientu',to:'Gaida klientu'},{n:'Atrisināt',to:'Atrisināts'}],
-  'Gaida klientu':[{n:'Atsākt darbu',to:'Darbā'},{n:'Atrisināt',to:'Atrisināts'}],
-  'Atrisināts':[{n:'Atvērt atkārtoti',to:'Darbā'},{n:'Slēgt',to:'Slēgts'}],
-  'Slēgts':[]
+  'Reģistrēts':[{n:'Izpildē',to:'Izpildē'}],
+  'Izpildē':[{n:'Izpildīts',to:'Slēgts',res:'Izpildīts'},{n:'Uzstādīt tehniku',to:'Slēgts',res:'Uzstādīt tehniku'},{n:'Pagaidu risinājums',to:'Slēgts',res:'Pagaidu risinājums'},{n:'Atlikt',to:'Atlikts'},{n:'Nodots ārpakalpojumā',to:'Ārpakalpojumā'}],
+  'Atlikts':[{n:'Izpildē',to:'Izpildē'}],
+  'Ārpakalpojumā':[{n:'Izpildē',to:'Izpildē'}],
+  'Slēgts':[{n:'Izpildē',to:'Izpildē'}]
 };
-var RESOLUTIONS=['Done','Won’t do','Duplicate','Cannot reproduce'];
 var QUEUES=[
   {id:'open',name:'All open'},
   {id:'mine',name:'Assigned to me'},
   {id:'unassigned',name:'Unassigned issues'},
-  {id:'waiting',name:'Waiting on customer'},
+  {id:'onhold',name:'Atlikts / Ārpakalpojumā'},
   {id:'breached',name:'SLA breached'},
-  {id:'resolved',name:'Recently resolved'}
+  {id:'resolved',name:'Recently closed'}
 ];
 
 /* ---------- helpers ---------- */
@@ -329,7 +336,7 @@ function isAgent(id){return AGENTS.some(function(a){return a.id===id})}
 function rt(id){return RTS.filter(function(r){return r.id===id})[0]}
 function proj(id){return PROJECTS.filter(function(p){return p.id===id})[0]}
 function iss(key){return S.issues.filter(function(i){return i.key===key})[0]}
-function resolved(i){return i.status==='Atrisināts'||i.status==='Slēgts'}
+function resolved(i){return i.status==='Slēgts'}
 function av(id,sz){var p=person(id);return '<span class="av" style="background:'+p.col+(sz?';width:'+sz+'px;height:'+sz+'px;font-size:'+Math.round(sz/2.8)+'px':'')+'" aria-hidden="true">'+esc(p.ini)+'</span>'}
 function fmtAgo(t){var d=now()-t;if(d<MIN)return 'tikko';if(d<HOUR)return Math.round(d/MIN)+' min atpakaļ';if(d<DAY)return Math.round(d/HOUR)+' h atpakaļ';return Math.round(d/DAY)+' d atpakaļ'}
 function fmtDate(t){var d=new Date(t);return d.toLocaleDateString('lv-LV',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('lv-LV',{hour:'2-digit',minute:'2-digit'})}
@@ -345,7 +352,19 @@ var ICONS={
   move:'<path d="M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
   box:'<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'
 };
-function ico(name,col,bg){return '<span class="ico" style="color:'+col+';background:'+(bg||'#F4F5F7')+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICONS[name]+'</svg></span>'}
+ICONS.bulb='<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
+ICONS.gift='<path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-2-4-6-3-5 0M12 7c2-4 6-3 5 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
+ICONS.board='<path d="M3 4h18v11H3zM12 15v3M8 21l4-3 4 3M8 12V9M12 12V7M16 12v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+ICONS.gauge='<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12l4-4M7 12h1M12 7v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+ICONS.useradd='<circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+ICONS.share='<circle cx="6" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="6" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m8.2 10.9 7.6-3.8M8.2 13.1l7.6 3.8" stroke="currentColor" stroke-width="2"/>';
+ICONS.sofa='<path d="M4 10V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2M2 12a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v5H2zM5 17v2M19 17v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
+ICONS.plus='<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+ICONS.home='<path d="m3 11 9-7 9 7M5 9.5V20h14V9.5M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
+ICONS.bolt='<path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
+ICONS.headset='<path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v5H4zM17 14h3v5h-3zM20 19c0 1.5-2 2.5-5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
+function ico(name,col,bg){return '<span class="ico" style="color:'+col+';background:'+(bg||'#F4F5F7')+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+(ICONS[name]||ICONS.box)+'</svg></span>'}
+function activeProjects(){return PROJECTS.filter(function(p){return !p.inactive})}
 
 /* ---------- state ---------- */
 var S;
@@ -357,39 +376,38 @@ function seed(){
     var i={key:o.key,p:o.p||r.p,rt:o.rt,it:r?r.it:o.it,summary:o.summary,desc:o.desc,fields:o.fields||{},reporter:o.reporter,assignee:o.assignee||null,
       status:o.status||'Reģistrēts',resolution:o.resolution||null,created:created,updated:t-(o.upd!=null?o.upd:o.ago),resolvedAt:o.resolvedAgo!=null?t-o.resolvedAgo:null,
       comments:[],history:[{at:created,who:o.reporter,f:'Izveidots',from:'',to:r?r.name:''}],participants:o.participants||[],watchers:o.watchers||[],attachments:o.attachments||[],
-      firstResp:o.firstResp||null,frTarget:created+HOUR,resTarget:created+(r?r.sla:3*DAY),pausedMs:0,pausedAt:o.status==='Gaida klientu'?t-o.pausedAgo:null,notify:true,rating:null};
+      firstResp:o.firstResp||null,frTarget:created+HOUR,resTarget:created+(r?r.sla:3*DAY),pausedMs:0,pausedAt:null,notify:true,rating:null};
     (o.comments||[]).forEach(function(c){i.comments.push({who:c.who,internal:!!c.internal,text:c.text,at:t-c.ago,att:c.att||[]})});
     if(o.status&&o.status!=='Reģistrēts')i.history.push({at:created+5*MIN,who:i.assignee||'es',f:'Status',from:'Reģistrēts',to:o.status});
     return i;
   }
   var L=[
-    mk({key:'IKT-314',rt:'dt-trauc',summary:'Projektors Sarkanajā zālē nerāda attēlu',desc:'Sarkanajā zālē projektors nerāda attēlu no klēpjdatora. Sēde sākas 15:00.',fields:{user:'ljansone',impact:'Nevaru strādāt'},reporter:'ljansone',ago:80*MIN}),
-    mk({key:'IKT-311',rt:'prog-trauc',summary:'Excel avarē, atverot lielu failu',desc:'Atverot budžeta tabulu (~40 MB), Excel aizveras bez kļūdas paziņojuma.',fields:{user:'aberzina',impact:'Varu strādāt daļēji'},reporter:'aberzina',assignee:'es',status:'Gaida klientu',ago:26*HOUR,upd:3*HOUR,pausedAgo:3*HOUR,firstResp:true,
+    mk({key:'IKT-314',rt:'dt-trauc',summary:'Projektors Sarkanajā zālē nerāda attēlu',desc:'Sarkanajā zālē projektors nerāda attēlu no klēpjdatora. Sēde sākas 15:00.',fields:{user:'ljansone',dev:'Projektors'},reporter:'ljansone',ago:80*MIN}),
+    mk({key:'IKT-311',rt:'prog-trauc',summary:'Excel avarē, atverot lielu failu',desc:'Atverot budžeta tabulu (~40 MB), Excel aizveras bez kļūdas paziņojuma.',fields:{user:'aberzina'},reporter:'aberzina',assignee:'es',status:'Atlikts',ago:26*HOUR,upd:3*HOUR,firstResp:true,
       comments:[{who:'es',text:'Labdien! Lūdzu, norādiet, vai problēma ir ar visiem lielajiem failiem vai tikai ar šo vienu, un pievienojiet kļūdas ekrānuzņēmumu, ja tāds parādās.',ago:3*HOUR}]}),
-    mk({key:'IKT-309',rt:'jauna-dt',summary:'Klēpjdators jaunajam padomniekam',desc:'No pirmdienas sāk darbu jauns padomnieks. Vajadzīgs klēpjdators ar dokstaciju.',fields:{user:'ekrumins',due:''},reporter:'ekrumins',assignee:'mliepa',status:'Darbā',ago:2*DAY,upd:5*HOUR,firstResp:true,
+    mk({key:'IKT-309',rt:'jauna-dt',summary:'Klēpjdators jaunajam padomniekam',desc:'No pirmdienas sāk darbu jauns padomnieks. Vajadzīgs klēpjdators ar dokstaciju.',fields:{user:'ekrumins',due:''},reporter:'ekrumins',assignee:'mliepa',status:'Izpildē',ago:2*DAY,upd:5*HOUR,firstResp:true,
       comments:[{who:'mliepa',internal:true,text:'Noliktavā ir 2 klēpjdatori. Dokstacija jāpasūta, piegāde 3 darba dienas.',ago:5*HOUR}]}),
     mk({key:'IKT-306',rt:'epasts',summary:'Kopējs e-pasts Budžeta komisijai',desc:'Komisijai vajag kopēju e-pasta adresi, piekļuve 4 darbiniekiem.',reporter:'ljansone',ago:30*HOUR}),
-    mk({key:'IKT-305',rt:'mape',summary:'Piekļuve nodaļas kopīgotajai mapei',desc:'Lūdzu piešķirt rakstīšanas tiesības mapei "Juridiskais birojs / Atzinumi".',fields:{user:'aberzina'},reporter:'aberzina',assignee:'es',status:'Atrisināts',resolution:'Done',ago:3*DAY,upd:1*DAY,resolvedAgo:1*DAY,firstResp:true,
+    mk({key:'IKT-305',rt:'mape',summary:'Piekļuve nodaļas kopīgotajai mapei',desc:'Lūdzu piešķirt rakstīšanas tiesības mapei "Juridiskais birojs / Atzinumi".',fields:{user:'aberzina'},reporter:'aberzina',assignee:'es',status:'Slēgts',resolution:'Izpildīts',ago:3*DAY,upd:1*DAY,resolvedAgo:1*DAY,firstResp:true,
       comments:[{who:'es',text:'Tiesības piešķirtas. Lūdzu, pārlogojieties datorā, lai mape parādītos.',ago:1*DAY}]}),
     mk({key:'IKT-302',rt:'prog-piet',summary:'PDF rediģēšanas programmas instalācija',desc:'Darbam ar likumprojektu pielikumiem vajadzīga PDF rediģēšanas programma.',fields:{user:'ekrumins'},reporter:'ekrumins',ago:20*HOUR}),
-    mk({key:'IKT-298',rt:'dt-trauc',summary:'Printeris 3. stāvā drukā svītrainas lapas',desc:'Kopējais printeris pie 312. kabineta drukā ar svītrām.',fields:{user:'ekrumins',impact:'Varu strādāt'},reporter:'ekrumins',assignee:'jozols',status:'Darbā',ago:10*DAY,upd:9*DAY,firstResp:true,
-      comments:[{who:'jozols',text:'Pasūtīts jauns tonera kārtridžs.',ago:9*DAY}]}),
-    mk({key:'SAIM-48',rt:'parv',summary:'Darba vietas pārvietošana: 214 → 305',desc:'Juridiskā biroja 2 darbinieku darba vietu pārvietošana sakarā ar nodaļas reorganizāciju.',fields:{fromB:'Jēkaba iela 11',fromR:'214',toB:'Jēkaba iela 11',toR:'305',due:''},reporter:'aberzina',assignee:'ikalna',status:'Darbā',ago:2*DAY,upd:1*DAY,firstResp:true})
+    mk({key:'IKT-298',rt:'dt-trauc',summary:'Printeris 3. stāvā drukā svītrainas lapas',desc:'Kopējais printeris pie 312. kabineta drukā ar svītrām.',fields:{user:'ekrumins',dev:'Printeris'},reporter:'ekrumins',assignee:'jozols',status:'Ārpakalpojumā',ago:10*DAY,upd:9*DAY,firstResp:true,
+      comments:[{who:'jozols',text:'Nodots servisa partnerim, gaidām detaļu.',ago:9*DAY}]}),
+    mk({key:'SAIM-48',rt:'parv',summary:'Darba vietas pārvietošana: 214 → 305',desc:'Juridiskā biroja 2 darbinieku darba vietu pārvietošana sakarā ar nodaļas reorganizāciju.',fields:{fromB:'Jēkaba iela 11',fromR:'214',toB:'Jēkaba iela 11',toR:'305',due:''},reporter:'aberzina',assignee:'ikalna',status:'Izpildē',ago:2*DAY,upd:1*DAY,firstResp:true})
   ];
   // historic resolved issues for charts and reports
-  var hist=[['IKT-290','dt-trauc','Monitors mirgo',13,12,'mliepa'],['IKT-291','prog-piet','Programmas atjauninājums',12,10,'jozols'],['IKT-292','mape','Piekļuve arhīva mapei',11,11,'es'],['IKT-293','dt-trauc','Pele nedarbojas',10,9,'mliepa'],['IKT-294','epasts','E-pasts darba grupai',9,6,'jozols'],['IKT-295','prog-trauc','Pārlūks neatver portālu',8,8,'es'],['IKT-296','jauna-dt','Otrs monitors',7,4,'mliepa'],['IKT-297','dt-trauc','Skaļruņi zālē',6,5,'jozols'],['SAIM-44','parv','Galda pārvietošana',8,5,'ikalna'],['SAIM-45','saim-cits','Krēsla nomaiņa',5,3,'ikalna'],['SAIM-46','saim-cits','Žalūziju remonts',4,2,'ikalna'],['IKT-299','prog-piet','Vārdnīcas instalācija',3,2,'es'],['IKT-300','dt-trauc','Klaviatūra',2,1,'mliepa']];
-  hist.forEach(function(h,k){var c=CUSTOMERS[k%3].id;L.push(mk({key:h[0],rt:h[1],summary:h[2],desc:h[2]+'.',fields:{user:c},reporter:c,assignee:h[5],status:'Slēgts',resolution:'Done',ago:h[3]*DAY,upd:h[4]*DAY,resolvedAgo:h[4]*DAY,firstResp:true}))});
+  var hist=[['IKT-290','dt-trauc','Monitors mirgo',13,12,'mliepa'],['IKT-291','prog-piet','Programmas atjauninājums',12,10,'jozols'],['IKT-292','mape','Piekļuve arhīva mapei',11,11,'es'],['IKT-293','dt-trauc','Pele nedarbojas',10,9,'mliepa'],['IKT-294','epasts','E-pasts darba grupai',9,6,'jozols'],['IKT-295','prog-trauc','Pārlūks neatver portālu',8,8,'es'],['IKT-296','jauna-dt','Otrs monitors',7,4,'mliepa'],['IKT-297','dt-trauc','Skaļruņi zālē',6,5,'jozols'],['SAIM-44','parv','Galda pārvietošana',8,5,'ikalna'],['SAIM-45','mebeles','Salūzis krēsls kab. 208',5,3,'ikalna'],['SAIM-46','kanceleja','Printera papīrs nodaļai',4,2,'ikalna'],['IKT-299','prog-piet','Vārdnīcas instalācija',3,2,'es'],['IKT-300','dt-trauc','Klaviatūra',2,1,'mliepa']];
+  hist.forEach(function(h,k){var c=CUSTOMERS[k%3].id;L.push(mk({key:h[0],rt:h[1],summary:h[2],desc:h[2]+'.',fields:{user:c},reporter:c,assignee:h[5],status:'Slēgts',resolution:['Izpildīts','Uzstādīt tehniku','Pagaidu risinājums','Izpildīts'][k%4],ago:h[3]*DAY,upd:h[4]*DAY,resolvedAgo:h[4]*DAY,firstResp:true}))});
   // some open ones created on earlier days so the created line is not flat
-  return {v:1,side:'portal',me:'aberzina',portal:{page:'home'},agent:{page:'queue',q:'open',proj:'IKT'},issues:L,counters:{IKT:315,SAIM:49},mail:[],mailSeen:0,filters:[],dash:null,search:{proj:'',status:'unres',assignee:'',text:'',stale:false,breached:false}};
+  return {v:2,side:'portal',me:'aberzina',portal:{page:'home'},agent:{page:'queue',q:'open',proj:'IKT'},issues:L,counters:{IKT:315,SAIM:49},mail:[],mailSeen:0,filters:[],dash:null,search:{proj:'',status:'unres',assignee:'',text:'',stale:false,breached:false}};
 }
-function load(){try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return s}catch(e){}return null}
+function load(){try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===2)return s}catch(e){}return null}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 S=load()||seed();
 
 /* ---------- SLA ---------- */
 function slaRes(i){
   if(resolved(i))return {txt:(i.resolvedAt<=i.resTarget+i.pausedMs?'Izpildīts':'Pārsniegts'),cls:(i.resolvedAt<=i.resTarget+i.pausedMs?'ok':'bad'),met:i.resolvedAt<=i.resTarget+i.pausedMs};
-  if(i.status==='Gaida klientu')return {txt:'pauzēts',cls:'pause'};
   var left=i.resTarget+i.pausedMs-now();return {txt:dur(left),cls:left<0?'bad':'',left:left};
 }
 function slaFR(i){
@@ -403,11 +421,9 @@ function touch(i){i.updated=now()}
 function hist(i,who,f,from,to){i.history.push({at:now(),who:who,f:f,from:from||'',to:to||''});touch(i)}
 function setStatus(i,to,who,resolution){
   var from=i.status;if(from===to)return;
-  if(to==='Gaida klientu')i.pausedAt=now();
-  if(from==='Gaida klientu'&&i.pausedAt){i.pausedMs+=now()-i.pausedAt;i.pausedAt=null}
   i.status=to;hist(i,who,'Status',from,to);
-  if(to==='Atrisināts'){i.resolution=resolution||'Done';i.resolvedAt=now();hist(i,who,'Resolution','',i.resolution);notify(i,'Pieteikums atrisināts',false,[])}
-  if(to==='Darbā'&&(from==='Atrisināts')){i.resolution=null;i.resolvedAt=null}
+  if(to==='Slēgts'){i.resolution=resolution||'Izpildīts';i.resolvedAt=now();hist(i,who,'Resolution','',i.resolution);notify(i,'Pieteikums slēgts ('+i.resolution+')',false,[])}
+  if(from==='Slēgts'){i.resolution=null;i.resolvedAt=null}
 }
 function notify(i,what,internal,mentioned){
   var to=[];
@@ -439,8 +455,6 @@ function addComment(i,who,text,internal,att){
   ment.forEach(function(m){if(i.watchers.indexOf(m)<0)i.watchers.push(m)});
   touch(i);
   var to=notify(i,(internal?'Iekšējs komentārs':'Jauns komentārs')+' · '+i.summary,internal,ment);
-  // customer reply while waiting → automation moves it back
-  if(!isAgent(who)&&i.status==='Gaida klientu'){setStatus(i,'Darbā','automatizacija');toast('Automatizācija: klients atbildēja, statuss → Darbā')}
   return to;
 }
 
@@ -463,18 +477,18 @@ function portalHead(){
   return '<div class="p-head"><div class="p-top"><span class="p-brand">SAEIMA</span><span style="opacity:.85;font-size:13px">Pakalpojumu portāls · demo</span><span class="sp"></span>'+
     '<button class="lnk" data-act="p" data-page="requests">Requests</button>'+
     '<label class="who" for="me-sel">Klients:</label><select id="me-sel" data-act="me" style="width:auto;min-height:30px;padding:2px 6px;border:0;border-radius:4px;color:var(--ink)">'+CUSTOMERS.map(function(c){return '<option value="'+c.id+'"'+(c.id===S.me?' selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select>'+
-    '</div>'+(S.portal.page==='home'?'<div class="p-hero"><h1>Saeimas pakalpojumu portāls</h1><div style="opacity:.9">Labdien, '+esc(me.name.split(' ')[0])+'! Ko jums vajag?</div><div class="p-search"><input type="search" id="p-q" placeholder="Meklēt pakalpojumu, piem. “printeris” vai “pārvietošana”" aria-label="Meklēt pakalpojumu" autocomplete="off"><div class="p-results hidden" id="p-res"></div></div></div>':'')+'</div>';
+    '</div>'+(S.portal.page==='home'?'<div class="p-hero"><h1>Saeimas pakalpojumu portāls</h1><div style="opacity:.9;font-weight:600">What do you need help with?</div><div class="p-search"><input type="search" id="p-q" placeholder="Search (piem. “dators” vai “pārvietošana”)" aria-label="Meklēt pakalpojumu" autocomplete="off"><div class="p-results hidden" id="p-res"></div></div></div>':'')+'</div>';
 }
 function rPortal(){
   var P=S.portal,h=portalHead();
   h+='<div class="p-body fade">';
   if(P.page==='home'){
-    h+='<h2 style="margin:0 0 12px;font-size:16px">Visi portāli</h2><div class="cards">'+PROJECTS.map(function(p){return '<button class="pcard" data-act="p" data-page="project" data-id="'+p.id+'">'+ico(p.icon,p.col)+'<span><h3>'+esc(p.name)+'</h3><p>'+esc(p.desc)+'</p></span></button>'}).join('')+'</div>'+
-      '<div class="panel" style="margin-top:20px"><b style="font-size:13px">Paziņojumi</b><p class="muted" style="margin:6px 0 0;font-size:13px">Sestdien 9:00–12:00 plānoti tīkla darbi Jēkaba ielā 16. (demo)</p></div>';
+    h+='<h2 style="margin:0 0 12px;font-size:16px">All portals</h2><div class="cards">'+PROJECTS.map(function(p){return '<button class="pcard" '+(p.inactive?'data-act="inactive"':'data-act="p" data-page="project" data-id="'+p.id+'"')+'>'+ico(p.icon,p.col)+'<span><h3>'+esc(p.name)+'</h3>'+(p.desc?'<p>'+esc(p.desc)+'</p>':'')+'</span></button>'}).join('')+'</div>'+
+      '<div style="margin-top:22px"><b style="font-size:14px">Recent</b><div class="rt-list" style="margin-top:6px">'+(S.recent||['parv','dt-trauc']).slice(0,3).map(function(id){var r=rt(id);return r?'<button class="rt-item" data-act="p" data-page="form" data-id="'+r.id+'">'+ico(r.icon,r.col)+'<div><b>'+esc(r.name)+' · '+esc(proj(r.p).name)+'</b>'+(r.desc?'<span>'+esc(r.desc.slice(0,110))+'…</span>':'')+'</div></button>':''}).join('')+'</div></div>';
   } else if(P.page==='project'){
     var p=proj(P.id);
-    h+=crumb([['Saeimas pakalpojumu portāls','home']])+'<div style="display:flex;gap:14px;align-items:center;margin-bottom:16px">'+ico(p.icon,p.col)+'<div><h1 style="margin:0;font-size:22px">'+esc(p.name)+'</h1><div class="muted" style="font-size:13px">'+esc(p.desc)+'</div></div></div>';
-    h+='<div class="panel"><div class="muted" style="font-size:13px;margin-bottom:6px">Kā mēs varam palīdzēt?</div><div class="rt-list">'+RTS.filter(function(r){return r.p===p.id}).map(function(r){return '<button class="rt-item" data-act="p" data-page="form" data-id="'+r.id+'">'+ico(r.icon,r.col)+'<div><b>'+esc(r.name)+'</b><span>'+esc(r.desc)+'</span></div></button>'}).join('')+'</div></div>';
+    h+=crumb([['Saeimas pakalpojumu portāls','home']])+'<div style="display:flex;gap:14px;align-items:center;margin-bottom:16px">'+ico(p.icon,p.col)+'<div><h1 style="margin:0;font-size:22px">'+esc(p.name)+'</h1>'+(p.desc?'<div class="muted" style="font-size:13px">'+esc(p.desc)+'</div>':'')+'</div></div>';
+    h+='<div class="panel"><div class="rt-list">'+RTS.filter(function(r){return r.p===p.id}).map(function(r){return '<button class="rt-item" data-act="p" data-page="form" data-id="'+r.id+'">'+ico(r.icon,r.col)+'<div><b>'+esc(r.name)+'</b>'+(r.desc?'<span>'+esc(r.desc)+'</span>':'')+'</div></button>'}).join('')+'</div></div>';
   } else if(P.page==='form'){
     var r=rt(P.id),pp=proj(r.p);
     h+=crumb([['Saeimas pakalpojumu portāls','home'],[pp.name,'project',pp.id]]);
@@ -525,9 +539,9 @@ function cmtHTML(c,agentView){
 }
 function mentionHL(s){AGENTS.forEach(function(a){s=s.split('@'+esc(a.name)).join('<b style="color:var(--blue)">@'+esc(a.name)+'</b>')});return s}
 function formHTML(r,pref,err,val,agent){
-  var h='<div class="form"><div class="help">Laukus ar <span style="color:var(--red)">*</span> ir obligāti jāaizpilda.</div>';
+  var h='<div class="form"><div class="help">Required fields are marked with an asterisk <span style="color:var(--red)">*</span></div>';
   h+='<div class="kv" style="grid-template-columns:150px minmax(0,1fr);background:#F4F5F7;border-radius:6px;padding:12px">'+
-    '<label class="k" for="'+pref+'-projsel">Project</label><select id="'+pref+'-projsel">'+PROJECTS.map(function(x){return '<option value="'+x.id+'"'+(x.id===r.p?' selected':'')+'>'+esc(x.name)+' ('+x.id+')</option>'}).join('')+'</select>'+
+    '<label class="k" for="'+pref+'-projsel">Project</label><select id="'+pref+'-projsel">'+activeProjects().map(function(x){return '<option value="'+x.id+'"'+(x.id===r.p?' selected':'')+'>'+esc(x.name)+' ('+x.id+')</option>'}).join('')+'</select>'+
     '<label class="k" for="'+pref+'-rtsel">Request type</label><select id="'+pref+'-rtsel">'+RTS.filter(function(x){return x.p===r.p}).map(function(x){return '<option value="'+x.id+'"'+(x.id===r.id?' selected':'')+'>'+esc(x.name)+'</option>'}).join('')+'</select></div>';
   {
     var def=val.behalf||(agent?'':S.me);
@@ -574,7 +588,7 @@ function qList(q,pid){
     if(q==='open')return !resolved(i);
     if(q==='mine')return !resolved(i)&&i.assignee==='es';
     if(q==='unassigned')return !resolved(i)&&!i.assignee;
-    if(q==='waiting')return i.status==='Gaida klientu';
+    if(q==='onhold')return i.status==='Atlikts'||i.status==='Ārpakalpojumā';
     if(q==='breached')return !resolved(i)&&breached(i);
     if(q==='resolved')return resolved(i)&&i.resolvedAt>now()-7*DAY;
     return true;
@@ -583,7 +597,7 @@ function qList(q,pid){
 function agentSide(){
   var A=S.agent,pid=A.proj||'IKT',p=proj(pid);
   var h='<nav class="j-side" aria-label="Projekts"><div class="proj">'+ico(p.icon,p.col)+'<div><b>'+esc(p.name)+'</b><span>Service project</span></div></div>';
-  h+='<select class="projsel" id="a-proj" aria-label="Projekts">'+PROJECTS.map(function(x){return '<option value="'+x.id+'"'+(x.id===pid?' selected':'')+'>'+esc(x.id)+' · '+esc(x.name)+'</option>'}).join('')+'</select>';
+  h+='<select class="projsel" id="a-proj" aria-label="Projekts">'+activeProjects().map(function(x){return '<option value="'+x.id+'"'+(x.id===pid?' selected':'')+'>'+esc(x.id)+' · '+esc(x.name)+'</option>'}).join('')+'</select>';
   h+='<div class="h">Queues</div>';
   QUEUES.forEach(function(q){h+='<button class="'+(A.page==='queue'&&A.q===q.id?'on':'')+'" data-act="a" data-page="queue" data-q="'+q.id+'"><span>'+esc(q.name)+'</span><span class="c">'+qList(q.id,pid).length+'</span></button>'});
   h+='<div class="h">Project</div><button class="'+(A.page==='raise'?'on':'')+'" data-act="a" data-page="raise"><span>Raise a request</span></button><button class="'+(A.page==='reports'?'on':'')+'" data-act="a" data-page="reports"><span>Reports</span></button>';
@@ -621,8 +635,8 @@ function rIssue(i){
   var A=S.agent,r=rt(i.rt),p=proj(i.p),tab=A.tab||'comments',ctab=A.ctab||'ext';
   var h='<div class="crumb">'+esc(p.name)+' / <span class="mono">'+esc(i.key)+'</span></div><div class="issue"><div style="display:flex;flex-direction:column;gap:14px;min-width:0">';
   h+='<h1>'+esc(i.summary)+'</h1>';
-  h+='<div class="ops"><button class="btn" data-act="assignme">Assign to me</button><button class="btn" data-act="focuscmt">Comment</button>'+TRANS[i.status].map(function(t){return '<button class="btn trans" data-act="trans" data-to="'+esc(t.to)+'">'+esc(t.n)+'</button>'}).join('')+'<button class="btn subtle" data-act="watch" aria-pressed="'+(i.watchers.indexOf('es')>=0)+'">'+(i.watchers.indexOf('es')>=0?'Watching':'Watch')+' · '+i.watchers.length+'</button></div>';
-  if(A.resolving)h+='<div class="dlg"><b>Atrisināt pieteikumu</b><div class="field"><label class="f" for="res-sel">Resolution <span class="req">*</span></label><select id="res-sel">'+RESOLUTIONS.map(function(x){return '<option>'+esc(x)+'</option>'}).join('')+'</select></div><div class="field"><label class="f" for="res-cm">Komentārs klientam (Respond to customer)</label><textarea id="res-cm" placeholder="Kas tika izdarīts?"></textarea><div class="help">Šo komentāru klients redzēs portālā un e-pastā.</div></div><div style="display:flex;gap:8px"><button class="btn primary" data-act="doresolve">Atrisināt</button><button class="btn subtle" data-act="cancelresolve">Cancel</button></div></div>';
+  h+='<div class="ops"><button class="btn" data-act="assignme">Assign to me</button><button class="btn" data-act="focuscmt">Comment</button>'+'<span class="stwrap" style="position:relative;display:inline-block"><button class="btn" style="background:'+(i.status==='Slēgts'?'#1F845A':'var(--blue)')+';color:#fff;font-weight:600" data-act="stmenu" aria-expanded="'+(!!A.stmenu)+'">'+esc(i.status)+' ▾</button>'+(A.stmenu?'<div class="dlg" style="position:absolute;z-index:8;left:0;top:38px;min-width:360px;padding:6px;gap:0">'+TRANS[i.status].map(function(t){return '<button class="btn subtle" style="justify-content:space-between;width:100%" data-act="trans" data-to="'+esc(t.to)+'" data-res="'+esc(t.res||'')+'"><span>'+esc(t.n)+'</span><span>→ '+lz(t.to)+'</span></button>'}).join('')+'</div>':'')+'</span>'+'<button class="btn subtle" data-act="watch" aria-pressed="'+(i.watchers.indexOf('es')>=0)+'">'+(i.watchers.indexOf('es')>=0?'Watching':'Watch')+' · '+i.watchers.length+'</button></div>';
+  if(A.resolving)h+='<div class="dlg"><b>'+esc(A.resolving)+' → '+lz('Slēgts')+'</b><div class="help">Resolution: <b>'+esc(A.resolving)+'</b></div><div class="field"><label class="f" for="res-cm">Komentārs klientam (Respond to customer)</label><textarea id="res-cm" placeholder="Kas tika izdarīts? Klients to redzēs portālā un e-pastā."></textarea><div class="help">Šo komentāru klients redzēs portālā un e-pastā.</div></div><div style="display:flex;gap:8px"><button class="btn primary" data-act="doresolve">'+esc(A.resolving)+'</button><button class="btn subtle" data-act="cancelresolve">Cancel</button></div></div>';
   h+='<div class="kv"><div class="k">Request type</div><div>'+(r?'<select id="a-rt" style="max-width:420px" aria-label="Request type">'+RTS.filter(function(x){return x.p===i.p}).map(function(x){return '<option value="'+x.id+'"'+(x.id===i.rt?' selected':'')+'>'+esc(x.name)+'</option>'}).join('')+'</select>':'<span style="color:var(--red)">Nav (klients pieteikumu portālā neredz)</span>')+'</div><div class="k">Issue type</div><div>'+esc(i.it)+'</div><div class="k">Status</div><div>'+lz(i.status)+(i.resolution?' · '+esc(i.resolution):'')+'</div></div>';
   h+='<div><div class="muted" style="font-size:12px;font-weight:600;margin-bottom:4px">Description</div><div class="desc">'+esc(i.desc)+'</div>'+fieldsView(i)+attView(i.attachments)+'</div>';
   // comment editor
@@ -653,7 +667,7 @@ function rIssue(i){
 function rCreate(){
   var C=S.agent.c||{};
   var h='<h1>Create issue</h1><div class="panel"><div class="form">';
-  h+='<div class="field"><label class="f" for="c-p">Project <span class="req">*</span></label><select id="c-p">'+PROJECTS.map(function(p){return '<option value="'+p.id+'"'+(p.id===(C.p||'IKT')?' selected':'')+'>'+esc(p.name)+' ('+p.id+')</option>'}).join('')+'</select></div>';
+  h+='<div class="field"><label class="f" for="c-p">Project <span class="req">*</span></label><select id="c-p">'+activeProjects().map(function(p){return '<option value="'+p.id+'"'+(p.id===(C.p||'IKT')?' selected':'')+'>'+esc(p.name)+' ('+p.id+')</option>'}).join('')+'</select></div>';
   h+='<div class="field"><label class="f" for="c-it">Issue Type <span class="req">*</span></label><select id="c-it"><option>Task</option><option>Incident</option><option>Service request</option></select></div>';
   h+='<div class="field'+(C.err?' has-err':'')+'"><label class="f" for="c-s">Summary <span class="req">*</span></label><input type="text" id="c-s" value="'+esc(C.s||'')+'">'+(C.err?'<div class="err" role="alert">Summary ir obligāts.</div>':'')+'</div>';
   h+='<div class="field"><label class="f" for="c-d">Description</label><textarea id="c-d"></textarea></div>';
@@ -707,8 +721,8 @@ function rSearch(){
   h+='<div class="tabs" style="margin:0"><button data-act="smode" data-v="basic" aria-pressed="'+(A.smode!=='jql')+'">Basic</button><button data-act="smode" data-v="jql" aria-pressed="'+(A.smode==='jql')+'">Advanced (JQL)</button></div>';
   if(A.smode==='jql')h+='<div class="jql" aria-label="JQL vaicājums">'+esc(jqlOf(F))+'</div><div class="help">Demo vidē JQL veidojas no Basic filtriem. Īstajā Jira šeit var rakstīt ar automātiskajiem ieteikumiem.</div>';
   else h+='<div class="filters">'+
-    sel('s-proj','Project',[['','Visi projekti']].concat(PROJECTS.map(function(p){return [p.id,p.id+' · '+p.name]})),F.proj)+
-    sel('s-status','Status',[['','Visi'],['unres','Neatrisinātie (Unresolved)'],['Reģistrēts','Reģistrēts'],['Darbā','Darbā'],['Gaida klientu','Gaida klientu'],['Atrisināts','Atrisināts'],['Slēgts','Slēgts']],F.status)+
+    sel('s-proj','Project',[['','Visi projekti']].concat(activeProjects().map(function(p){return [p.id,p.id+' · '+p.name]})),F.proj)+
+    sel('s-status','Status',[['','Visi'],['unres','Neatrisinātie (Unresolved)'],['Reģistrēts','Reģistrēts'],['Izpildē','Izpildē'],['Atlikts','Atlikts'],['Ārpakalpojumā','Ārpakalpojumā'],['Slēgts','Slēgts']],F.status)+
     sel('s-asg','Assignee',[['','Jebkurš'],['me','Current user'],['none','Unassigned']].concat(AGENTS.slice(1).map(function(a){return [a.id,a.name]})),F.assignee)+
     sel('s-rt','Request type',[['','Jebkurš']].concat(RTS.map(function(r){return [r.id,r.name]})),F.rt||'')+
     '<div class="field"><label class="f" for="s-text">Teksts</label><input type="search" id="s-text" value="'+esc(F.text||'')+'"></div>'+
@@ -752,7 +766,7 @@ function cvrSVG(list){
   var mx=Math.max.apply(null,cc.concat(rc).concat([1]));
   function pts(a){return a.map(function(v,k){return (pl+k*(W-pl-8)/(days-1)).toFixed(1)+','+(pt+(H-pt-pb)*(1-v/mx)).toFixed(1)}).join(' ')}
   var y0=H-pb;
-  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Kumulatīvi izveidoti '+sc+', atrisināti '+sr+' pēdējās '+days+' dienās"><g stroke="#EBECF0"><line x1="'+pl+'" y1="'+pt+'" x2="'+(W-8)+'" y2="'+pt+'"/><line x1="'+pl+'" y1="'+((pt+y0)/2)+'" x2="'+(W-8)+'" y2="'+((pt+y0)/2)+'"/><line x1="'+pl+'" y1="'+y0+'" x2="'+(W-8)+'" y2="'+y0+'"/></g><g font-size="10" fill="#5E6C84" font-family="IBM Plex Sans, sans-serif"><text x="'+(pl-6)+'" y="'+(pt+4)+'" text-anchor="end">'+mx+'</text><text x="'+(pl-6)+'" y="'+(y0+3)+'" text-anchor="end">0</text><text x="'+pl+'" y="'+(H-6)+'">pirms '+(days-1)+' d</text><text x="'+(W-8)+'" y="'+(H-6)+'" text-anchor="end">šodien</text></g><polyline fill="none" stroke="#AE2E24" stroke-width="2.5" points="'+pts(cc)+'"/><polyline fill="none" stroke="#216E4E" stroke-width="2.5" points="'+pts(rc)+'"/></svg><div style="display:flex;gap:14px;font-size:12px"><span style="color:#AE2E24">● Izveidoti (kumulatīvi) '+sc+'</span><span style="color:#216E4E">● Atrisināti '+sr+'</span></div>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Kumulatīvi izveidoti '+sc+', slēgti '+sr+' pēdējās '+days+' dienās"><g stroke="#EBECF0"><line x1="'+pl+'" y1="'+pt+'" x2="'+(W-8)+'" y2="'+pt+'"/><line x1="'+pl+'" y1="'+((pt+y0)/2)+'" x2="'+(W-8)+'" y2="'+((pt+y0)/2)+'"/><line x1="'+pl+'" y1="'+y0+'" x2="'+(W-8)+'" y2="'+y0+'"/></g><g font-size="10" fill="#5E6C84" font-family="IBM Plex Sans, sans-serif"><text x="'+(pl-6)+'" y="'+(pt+4)+'" text-anchor="end">'+mx+'</text><text x="'+(pl-6)+'" y="'+(y0+3)+'" text-anchor="end">0</text><text x="'+pl+'" y="'+(H-6)+'">pirms '+(days-1)+' d</text><text x="'+(W-8)+'" y="'+(H-6)+'" text-anchor="end">šodien</text></g><polyline fill="none" stroke="#AE2E24" stroke-width="2.5" points="'+pts(cc)+'"/><polyline fill="none" stroke="#216E4E" stroke-width="2.5" points="'+pts(rc)+'"/></svg><div style="display:flex;gap:14px;font-size:12px"><span style="color:#AE2E24">● Izveidoti (kumulatīvi) '+sc+'</span><span style="color:#216E4E">● Slēgti '+sr+'</span></div>';
 }
 function rReports(pid){
   var list=S.issues.filter(function(i){return i.p===pid});
@@ -769,17 +783,17 @@ function rReports(pid){
 /* ---------- guide ---------- */
 var GUIDE=[
   {t:'1.2.2 Darbs ar Project',m:'8 min',s:[
-    ['p','Klients: portāla sākumlapā meklē “dators”, tad “pārvietošana”'],['p','Atver kartīti “IKT pakalpojumu atbalsts”, nolasi viena tipa aprakstu'],['p','Ar breadcrumb atpakaļ, atver “Saimnieciskā nodrošinājuma pakalpojumi”'],['a','Aģents: sānjoslā parādi Queues, Raise a request, Reports un projekta pārslēgu']]},
+    ['p','Klients: “What do you need help with?” → “dators”, tad “pārvietošana”'],['p','All portals → “IKT pakalpojumu atbalsts”, nolasi “Datortehnikas darbības traucējumi” aprakstu'],['p','Ar breadcrumb atpakaļ → “Saimnieciskā nodrošinājuma pakalpojumi” (9 tipi)'],['a','Aģents: sānjoslā Queues, Raise a request, Reports, projekta pārslēgs']]},
   {t:'1.2.3 Izveide',m:'15 min',s:[
-    ['p','Klients: kartīte “Saimnieciskā nodrošinājuma pakalpojumi” → “Darba vietas pārvietošana” → Create ar tukšu formu (kļūdas pie laukiem)'],['p','Formas augšā parādi Project un Request type; aizpildi Nosaukums “Juridiskā biroja pārvietošana”, 214 → 305, termiņš, pielikums → Create, pieraksti atslēgu'],['p','Klients: Project “IKT pakalpojumu atbalsts” → “Datortehnikas darbības traucējumi”, Nosaukums + labs apraksts'],['a','Aģents: Raise a request → Project IKT, Request type, “on behalf of” Laura Jansone, Nosaukums “Projektors Sarkanajā zālē”'],['a','Aģents: augšējā Create → Project, Issue Type, Summary, Customer Request Type = None → parādi brīdinājumu']]},
+    ['p','Klients: Saimnieciskais → “Darba vietas pārvietošana” → Create ar tukšu formu (kļūdas pie laukiem)'],['p','Formas augšā parādi Project un Request type; aizpildi Nosaukums, 214 → 305, termiņš, pielikums → Create'],['p','Klients: IKT → “Datortehnikas darbības traucējumi”: Lietotājs, Apraksts, Iekārtu saraksts'],['a','Aģents: Raise a request → on behalf of Laura Jansone, Nosaukums “Projektors Sarkanajā zālē”'],['a','Aģents: augšējā Create → Customer Request Type = None → parādi brīdinājumu']]},
   {t:'1.2.4 Iesniegtie',m:'10 min',s:[
-    ['p','Klients: Requests → filtri Open / Closed / All, meklēšana'],['p','Atver savu pieteikumu → Add comment + pielikums'],['p','Share ar kolēģi, Don’t notify me'],['a','Aģents: Queues → skaitītāji, SLA kolonnas, atrodi jauno pieteikumu']]},
+    ['p','Klients: Requests → Open / Closed / All, meklēšana'],['p','Atver savu pieteikumu → Add comment + pielikums'],['p','Share ar kolēģi, Don’t notify me'],['a','Aģents: Queues → skaitītāji, SLA kolonnas, atrodi jauno pieteikumu']]},
   {t:'1.2.5 Apstrāde',m:'15 min',s:[
-    ['a','Atver IKT-314 (projektors) → Assign to me (vai taustiņš i)'],['a','Sākt darbu → statuss Darbā; parādi History'],['a','Respond to customer ar jautājumu → Gaidīt klientu (SLA pauzēts)'],['p','Klients (Laura Jansone) atbild → automātiski atpakaļ Darbā'],['a','Atrisināt → Resolution + komentārs “kas izdarīts”'],['p','Klients redz atrisināto un novērtē']]},
+    ['a','Atver IKT-314 (projektors) → Assign to me (vai taustiņš i)'],['a','Statusa poga “Reģistrēts ▾” → Izpildē; parādi History'],['a','Respond to customer ar jautājumu; ja jāgaida → “Atlikt” vai “Nodots ārpakalpojumā”'],['p','Klients (Laura Jansone) atbild portālā'],['a','“Atlikts ▾” → Izpildē → “Izpildīts” (vai “Uzstādīt tehniku” / “Pagaidu risinājums”) + komentārs'],['p','Klients redz slēgto pieteikumu un novērtē']]},
   {t:'1.2.6 Saziņa',m:'10 min',s:[
     ['a','Publisks komentārs → klients redz; atver “Paziņojumi”'],['a','Internal comment ar @Māris Liepa → klients NEREDZ; “Paziņojumi” rāda, ka klientam nav sūtīts'],['a','Watch, Participants, pielikums']]},
   {t:'1.2.7 Filtri un dashboard',m:'13 min',s:[
-    ['a','Issues → Basic filtri, tad Advanced (JQL)'],['a','Ātrais vaicājums “Aizķērušies” → Save as “IKT · Aizķērušies”'],['a','Saglabā arī “IKT · Nepiešķirtie” (ātrais vaicājums)'],['a','Dashboards → Create → Add gadget: Filter Results, Issue Statistics, Created vs Resolved'],['a','Edit layout, gadgetu pārvietošana; Reports: Workload, SLA']]}
+    ['a','Issues → Basic filtri, tad Advanced (JQL)'],['a','Ātrais vaicājums “Aizķērušies” → Save as “IKT · Aizķērušies”'],['a','Saglabā arī “IKT · Nepiešķirtie”'],['a','Dashboards → Create → Add gadget: Filter Results, Issue Statistics, Created vs Resolved'],['a','Edit layout, gadgetu pārvietošana; Reports: Workload, SLA']]}
 ];
 function gload(){try{return JSON.parse(localStorage.getItem(GKEY))||{}}catch(e){return {}}}
 function gsave(g){try{localStorage.setItem(GKEY,JSON.stringify(g))}catch(e){}}
@@ -820,9 +834,11 @@ document.addEventListener('click',function(e){
     /* portal */
     case 'p':goP(t.dataset.page,t.dataset.id);break;
     case 'pf':S.portal.f=t.dataset.v;render();break;
+    case 'inactive':toast('Šis portāls ir jūsu sistēmā, bet demo vidē nav aizpildīts');break;
     case 'psubmit':{var r=rt(t.dataset.id),f=readForm(r,'p');if(!f.ok){S.portal.err=f.err;S.portal.val=f.val;render();var fe=$('.has-err select,.has-err input,.has-err textarea');if(fe)fe.focus();return}
       i=createIssue({p:r.p,rt:r.id,summary:f.val.summary||summaryFrom(r,f.val),desc:f.val.desc,fields:f.val,reporter:f.val.behalf,attachments:f.val.att,by:S.me});
       if(f.val.behalf!==S.me)i.participants.push(S.me);
+      S.recent=[r.id].concat((S.recent||['parv','dt-trauc']).filter(function(x){return x!==r.id}));
       goP('created',i.key);toast('Pieteikums '+i.key+' izveidots');break;}
     case 'pcomment':{i=iss(S.portal.id);var tx=$('#p-cm').value.trim(),fi=$('#p-att'),att=fi.files?[].map.call(fi.files,function(x){return x.name}):[];if(!tx&&!att.length){toast('Uzrakstiet komentāru vai pievienojiet failu');return}
       addComment(i,S.me,tx||'(pielikums)',false,att);render();toast('Komentārs pievienots');break;}
@@ -835,10 +851,10 @@ document.addEventListener('click',function(e){
     case 'gotoissue':goA({page:'issue',id:t.dataset.id});break;
     case 'assignme':i=iss(A.id);assign(i,'es');break;
     case 'focuscmt':{var c=$('#a-cm');if(c){c.focus();c.scrollIntoView({block:'center'})}break;}
-    case 'trans':{i=iss(A.id);var to=t.dataset.to;if(to==='Atrisināts'){A.resolving=true;render();var rc=$('#res-cm');if(rc)rc.focus();return}
-      if(to==='Gaida klientu'&&!i.comments.some(function(c){return isAgent(c.who)&&!c.internal&&c.at>now()-30*MIN})){toast('Padoms: vispirms uzrakstiet klientam jautājumu (Respond to customer)')}
-      setStatus(i,to,'es');if(to==='Darbā'&&!i.assignee)i.assignee='es';render();toast('Statuss → '+to);break;}
-    case 'doresolve':{i=iss(A.id);var cm=$('#res-cm').value.trim();if(cm)addComment(i,'es',cm,false,[]);setStatus(i,'Atrisināts','es',$('#res-sel').value);A.resolving=false;render();toast(cm?'Atrisināts; klients saņēma komentāru':'Atrisināts. Padoms: pastāstiet klientam, kas tika izdarīts');break;}
+    case 'stmenu':A.stmenu=!A.stmenu;render();break;
+    case 'trans':{i=iss(A.id);var to=t.dataset.to;A.stmenu=false;if(to==='Slēgts'){A.resolving=t.dataset.res||'Izpildīts';render();var rc=$('#res-cm');if(rc)rc.focus();return}
+      setStatus(i,to,'es');if(to==='Izpildē'&&!i.assignee)i.assignee='es';render();toast('Statuss → '+to);break;}
+    case 'doresolve':{i=iss(A.id);var cm=$('#res-cm').value.trim();if(cm)addComment(i,'es',cm,false,[]);setStatus(i,'Slēgts','es',A.resolving);A.resolving=false;render();toast(cm?'Slēgts; klients saņēma komentāru':'Slēgts. Padoms: pastāstiet klientam, kas tika izdarīts');break;}
     case 'cancelresolve':A.resolving=false;render();break;
     case 'watch':{i=iss(A.id);var w=i.watchers.indexOf('es');if(w>=0)i.watchers.splice(w,1);else i.watchers.push('es');render();break;}
     case 'ctab':A.ctab=t.dataset.v;var keep=$('#a-cm')?$('#a-cm').value:'';render();if($('#a-cm')){$('#a-cm').value=keep;$('#a-cm').focus()}break;

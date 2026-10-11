@@ -5,7 +5,7 @@ Laiks 10:00–11:40 (pauze 10:45–10:55) · 2 akadēmiskās stundas · auditori
 
 Šis dokuments ir prezentācijas (`index.html`) pavadmateriāls. Prezentācijā katram slaidam ir runātāja piezīmes (taustiņš **N**). Šeit ir pilns scenārijs: ko sagatavot iepriekš, ko klikšķināt katrā blokā un ko teikt.
 
-> **Svarīgi par precizitāti.** Pieteikumu tipu un formu lauku nosaukumi ir nolasīti no dokumenta “JIRA pakalpojumu portāls” ekrānuzņēmumiem. Ekrānuzņēmumi ir zemā izšķirtspējā, tāpēc daži nosaukumi var nedaudz atšķirties. Statusu nosaukumi, rindu nosaukumi un projektu atslēgas (`IKT`, `SAIM`) ir **piemēri**. Pirms apmācības pārbaudiet tos savā vidē (skat. sadaļu “Pārbaudīt pirms apmācības”). Jira saskarnes pogu nosaukumi ir angliski, jo arī jūsu portālā saskarne ir angliska (“Raise this request on behalf of”, “Create”, “Cancel”).
+> **Svarīgi par precizitāti.** Portāli, pieteikumu tipi, formu lauki, IKT darbplūsmas statusi un pārejas ir ņemti no dokumenta “JIRA pakalpojumu portāls” (PDF). Rindu nosaukumi un projektu atslēgas (`IKT`, `SAIM`) ir **piemēri**. Pirms apmācības pārbaudiet tos savā vidē (skat. sadaļu “Pārbaudīt pirms apmācības”). Jira saskarnes pogu nosaukumi ir angliski, jo arī jūsu portālā saskarne ir angliska (“Raise this request on behalf of”, “Create”, “Cancel”).
 
 ---
 
@@ -51,13 +51,13 @@ Izveidojiet vismaz šos pieteikumus, lai rindām, filtriem un dashboard būtu sa
 | # | Projekts | Pieteikuma tips | Kopsavilkums (piemērs) | Statuss | Piešķirts |
 |---|---|---|---|---|---|
 | 1 | IKT | Datortehnikas darbības traucējumi | Printeris 3. stāvā drukā svītrainas lapas | Reģistrēts | — |
-| 2 | IKT | Jaunas datortehnikas pieteikums | Klēpjdators jaunajam padomniekam | Darbā | kolēģis |
+| 2 | IKT | Jaunas datortehnikas pieteikums | Klēpjdators jaunajam padomniekam | Izpildē | kolēģis |
 | 3 | IKT | Jaunas grupas e-pasta adreses izveide | Kopējs e-pasts komisijai | Reģistrēts | — |
-| 4 | IKT | Programmatūras … darbības traucējumi | Excel avarē, atverot lielu failu | Gaida klientu | jūs |
-| 5 | IKT | Piekļuves tiesību piešķiršana … mapēm | Piekļuve nodaļas kopīgotajai mapei | Atrisināts | jūs |
-| 6 | SAIM | Darba vietas pārvietošana | Darba vietas pārvietošana: 214 → 305 | Darbā | kolēģis |
+| 4 | IKT | Programmnodrošinājuma darbības traucējumi | Excel avarē, atverot lielu failu | Atlikts | jūs |
+| 5 | IKT | Piekļuves tiesību piešķiršana … mapēm | Piekļuve nodaļas kopīgotajai mapei | Slēgts (Izpildīts) | jūs |
+| 6 | SAIM | Darba vietas pārvietošana | Darba vietas pārvietošana: 214 → 305 | Izpildē | kolēģis |
 | 7 | IKT | (jebkurš) | Pieteikums ar pārsniegtu SLA | Reģistrēts | — |
-| 8 | IKT | (jebkurš) | Pieteikums bez izmaiņām > 7 dienas | Darbā | kolēģis |
+| 8 | IKT | (jebkurš) | Pieteikums bez izmaiņām > 7 dienas | Ārpakalpojumā | kolēģis |
 
 Sagatavojiet arī: vienu PDF (piem., kabineta plānu) un vienu ekrānuzņēmumu, ko pievienot kā pielikumu.
 
@@ -70,7 +70,8 @@ Sagatavojiet arī: vienu PDF (piem., kabineta plānu) un vienu ekrānuzņēmumu,
 - [ ] Precīzās projektu atslēgas (vai tiešām `IKT`, `SAIM`?). Aizstājiet tās JQL piemēros.
 - [ ] Precīzie statusu un pāreju pogu nosaukumi IKT un Saimnieciskajā projektā (atveriet pieteikumu un pierakstiet pogas).
 - [ ] Rindu (queues) nosaukumi jūsu projektā.
-- [ ] Vai klienta atbilde portālā automātiski pārslēdz statusu no “Gaida klientu” atpakaļ (automatizācijas noteikums)?
+- [ ] Vai SLA apstājas statusos Atlikts un Ārpakalpojumā? Kāds ir pogas nosaukums pārejai Reģistrēts → Izpildē?
+- [ ] Vai Saimnieciskā nodrošinājuma projektā ir tā pati darbplūsma kā IKT?
 - [ ] Vai ir ieslēgts e-pasta kanāls (atbilde uz e-pastu kļūst par komentāru)?
 - [ ] Vai aģentiem ir tiesības mainīt Request type / pārvietot pieteikumu (Move)?
 - [ ] Vai filtrus drīkst koplietot ar grupām (Edit permissions)?
@@ -96,7 +97,7 @@ Apzīmējumi: **[K]** klienta logs (portāls), **[A]** aģenta logs (Jira).
 - *Lomas:* Customer, Agent (jūs), Collaborator (var komentēt iekšēji), Request participant (pieteikums kopīgots ar viņu).
 - *Hierarhija:* Portāls → Project → Request type → forma un darbplūsma.
 - *Request type ≠ Issue type.*
-- *Dzīves cikls:* reģistrēts → darbā → (gaida klientu) → atrisināts. Atrisināts ≠ aizvērts.
+- *Dzīves cikls (jūsu IKT plūsma):* Reģistrēts → Izpildē → Slēgts (pogas Izpildīts / Uzstādīt tehniku / Pagaidu risinājums). No Izpildē arī Atlikt → Atlikts un Nodots ārpakalpojumā → Ārpakalpojumā; no tiem atpakaļ uz Izpildē.
 
 **Piemērs zālei:** “Kolēģis raksta ‘nestrādā printeris’. IKT speciālists iekšēji atzīmē ‘jāpasūta toneris’, bet klientam atbild ‘toneris pasūtīts, nomaiņa līdz ceturtdienai’.”
 
@@ -163,12 +164,12 @@ Pārbaudiet testa datus. Atveriet `Dashboards` → `Manage dashboards`.
 **Pilns cikls ar Demo 3 pieteikumu (projektors) [A]+[K] (9 min)**
 1. **Pārskatīt:** vai tips ir pareizs? Parādiet, kā mainīt Request type (ja ir tiesības). Ja nav, rakstiet iekšēju piezīmi atbildīgajam.
 2. **Piešķirt:** `Assign to me`. Tad `Assign` → kolēģim → atpakaļ sev.
-3. **Sākt darbu:** pārejas poga uz “Darbā”. Ja atveras ekrāns ar laukiem, aizpildiet.
-4. **Jautājums klientam:** `Respond to customer` → “Lūdzu, norādiet klēpjdatora inventāra numuru un kuru pieslēgumu (HDMI/USB-C) izmantojat.” → pāreja uz “Gaida klientu”.
+3. **Izpildē:** statusa poga “Reģistrēts ▾” → pāreja uz IZPILDĒ. Ja atveras ekrāns ar laukiem, aizpildiet.
+4. **Jautājums klientam:** `Respond to customer` → “Lūdzu, norādiet klēpjdatora inventāra numuru un kuru pieslēgumu (HDMI/USB-C) izmantojat.” → ja atbilde vai detaļa jāgaida ilgāk: “Atlikt” (→ ATLIKTS); ja darbu veic piegādātājs: “Nodots ārpakalpojumā” (→ ĀRPAKALPOJUMĀ). Pēc tam atpakaļ uz IZPILDĒ.
 5. **[K]** Atbildiet portālā. **[A]** Parādiet, ka statuss mainījies (ja ir automatizācija).
-6. **Atrisināt:** pāreja uz “Atrisināts” → Resolution (piem., *Done*) → komentārs klientam:
+6. **Slēgt:** statusa poga “Izpildē ▾” → “Izpildīts” (vai “Uzstādīt tehniku” / “Pagaidu risinājums”) → komentārs klientam:
    > “Projektoram bija atvienots HDMI pārveidotājs. Pievienojām no jauna un pārbaudījām ar jūsu klēpjdatoru. Ja problēma atkārtojas, atbildiet uz šo pieteikumu.”
-7. **[K]** Atrisināts pieteikums klienta skatā (un apmierinātības vērtējums, ja ir).
+7. **[K]** Slēgts pieteikums klienta skatā (un apmierinātības vērtējums, ja ir).
 
 **Īsinājumtaustiņi (2 min):** `i` (piešķirt sev), `a` (piešķirt), `m` (komentēt), `.` (darbības, ierakstiet “resolve”), `/` (meklēt), `g d` (dashboard), `g i` (issue meklēšana), `?` (visi taustiņi).
 
@@ -243,7 +244,7 @@ project = IKT AND "Time to resolution" = breached()
 -- Konkrēts pieteikuma tips šomēnes
 "Customer Request Type" = "…" AND created >= startOfMonth()
 
--- Atrisināti pēdējās 7 dienās
+-- Slēgti pēdējās 7 dienās
 project = IKT AND resolved >= -7d ORDER BY resolved DESC
 ```
 

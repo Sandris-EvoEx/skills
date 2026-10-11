@@ -4,11 +4,11 @@ Apmācību prezentācija “Pakalpojumu pārvaldības iespējas Jira Service Man
 
 | Fails | Kas tas ir |
 |---|---|
-| `index.html` | Gatavā prezentācija (35 slaidi). Atveriet pārlūkā, darbojas bez interneta, izņemot fontus. |
+| `index.html` | Sākotnējā HTML prezentācija (35 slaidi). **Aktuālā versija ar oriģinālajiem attēliem un jūsu statusiem ir Claude Slides prezentācijā.** Atveriet pārlūkā, darbojas bez interneta, izņemot fontus. |
 | `demo/index.html` | Interaktīva mācību smilškaste: Saeimas portāla klienta skats + Jira aģenta skats (rindas, piešķiršana, statusi, publiski un iekšēji komentāri, @pieminēšana, simulēti e-pasta paziņojumi, filtri, JQL, dashboard, Reports). Darbojas bez interneta; dati glabājas pārlūkā, poga “Atiestatīt datus” sāk no jauna. |
 | `DEMO-SCENARIJS.md` | Pasniedzēja scenārijs: sagatavošana, testa dati, klikšķi pa blokiem, JQL un īsinājumtaustiņu izdales materiāls. |
 | `src/deck.template.html` | Prezentācijas avots (rediģējiet šo). |
-| `assets/*.jpg` | Izgriezumi no dokumenta “JIRA pakalpojumu portāls” ekrānuzņēmuma. |
+| `assets/*.jpg` | Attēli no dokumenta “JIRA pakalpojumu portāls”; `*_hq.jpg` ir oriģinālās izšķirtspējas attēli no PDF. |
 | `build.py` | Ievieto attēlus un būvē `index.html` un `dist/deck.html`. |
 
 ## Vadība
