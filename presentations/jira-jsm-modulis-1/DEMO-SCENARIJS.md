@@ -62,6 +62,7 @@ Izveidojiet vismaz šos pieteikumus, lai rindām, filtriem un dashboard būtu sa
 Sagatavojiet arī: vienu PDF (piem., kabineta plānu) un vienu ekrānuzņēmumu, ko pievienot kā pielikumu.
 
 ### 2.3 Rezerves materiāli
+- **Mācību demo vide** `demo/index.html`. Ja testa Jira nav pieejama vai kaut kas aizķeras, visu scenāriju var izspēlēt tajā. Augšā ar pārslēgu maina klienta un aģenta skatu. Poga “Paziņojumi” rāda, kurš saņemtu e-pastu, piem., ka iekšējs komentārs klientam netiek sūtīts. Sānjoslā “Scenārijs” ir šī dokumenta soļi ar atzīmēm.
 - Saglabāts filtrs “Mani atvērtie” un gatavs dashboard “IKT atbalsts · Rezerve”, ja dzīvā demo laikā kaut kas aizķeras.
 - Ekrānuzņēmums ar e-pasta paziņojumu, ko saņem @pieminētais kolēģis (ja dzīvais e-pasts zālē nav parādāms).
 
