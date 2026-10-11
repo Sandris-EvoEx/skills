@@ -20,7 +20,7 @@ Apmācību prezentācija “Pakalpojumu pārvaldības iespējas Jira Service Man
 | `O` | Visu slaidu pārskats |
 | `F` | Pilnekrāns |
 
-Apakšējā joslā redzams **Plāns / Tagad**: katra slaida plānotais laiks salīdzinājumā ar pulksteni. Zaļš nozīmē, ka esat laikā, sarkans nozīmē, ka kavējaties vairāk nekā 3 minūtes.
+Slaidos nav laika un numura. Plānotais sākuma laiks un slaida numurs ir redzami tikai runātāja piezīmēs (**N**).
 
 **PDF:** atveriet `index.html` pārlūkā Chrome → Print → Save as PDF. Katrs slaids tiek drukāts uz savas lapas.
 

@@ -282,7 +282,7 @@ pre.jql .k{color:#9CC3FF}
   </div>
   <aside class="notes">
     <div class="say"><b class="lb">Saki (1 min)</b><p>Plāns ir sadalīts divās daļās pa 45 minūtēm. Pirmajā daļā skatāmies no <b>klienta</b> puses: kur atrast projektu, kā iesniegt, kā sekot. Otrajā daļā no <b>apstrādātāja</b> puses: rindas, piešķiršana, statusi, saziņa, filtri un dashboard.</p><p>Jautājumus droši uzdodiet uzreiz, bet garākus atstāsim beigām (11:33).</p></div>
-    <div class="do"><b class="lb">Tavs pulkstenis</b><p>Apakšējā joslā redzi “Plāns / Tagad”. Ja esi > 3 min aizkavējies, saīsini 1.2.4 (portāla daļu var rādīt ātrāk, jo to redzēja 1.2.3).</p></div>
+    <div class="do"><b class="lb">Laiks</b><p>Katra slaida plānotais sākums ir redzams piezīmju augšā. Ja esi > 3 min aizkavējies, saīsini 1.2.4 (portāla daļu var rādīt ātrāk, jo to redzēja 1.2.3).</p></div>
   </aside>
 </section>
 
@@ -939,10 +939,8 @@ pre.jql .k{color:#9CC3FF}
 <div id="bar">
   <button id="b-prev" aria-label="Iepriekšējais slaids">←</button>
   <button id="b-next" aria-label="Nākamais slaids">→</button>
-  <span id="pos">1 / 1</span>
   <span id="kind"></span>
   <span class="sp"></span>
-  <span id="sched" title="Plānotais laiks pret pulksteni">Plāns 10:00</span>
   <button id="b-notes" aria-pressed="false" title="Piezīmes (N)">Piezīmes <span class="hide-s">N</span></button>
   <button id="b-ov" aria-pressed="false" title="Pārskats (O)" class="hide-s">Pārskats O</button>
   <button id="b-fs" title="Pilnekrāns (F)" class="hide-s">Pilnekrāns F</button>
@@ -961,7 +959,7 @@ pre.jql .k{color:#9CC3FF}
   slides.forEach(function(s,i){
     if(s.classList.contains('s-title')||s.classList.contains('s-pause'))return;
     var f=document.createElement('div');f.className='foot';
-    f.innerHTML='<span class="brand">SAEIMA</span><span>Jira Service Management · 1. modulis</span><span class="sp"></span><span>'+(s.dataset.time||'')+'</span><span>'+(i+1)+' / '+slides.length+'</span>';
+    f.innerHTML='<span class="brand">SAEIMA</span><span>Jira Service Management · 1. modulis</span>';
     s.appendChild(f);
   });
 
@@ -972,7 +970,7 @@ pre.jql .k{color:#9CC3FF}
   }
   function toMin(t){var p=(t||'0:0').split(':');return +p[0]*60+ +p[1]}
   function sched(){
-    var s=slides[cur], el=document.getElementById('sched'); if(!s)return;
+    var s=slides[cur], el=document.getElementById('sched'); if(!s||!el)return;
     var now=new Date(), nm=now.getHours()*60+now.getMinutes(), pm=toMin(s.dataset.time);
     var hh=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
     var d=nm-pm, inSession=nm>=9*60+30&&nm<=12*60;
@@ -984,10 +982,9 @@ pre.jql .k{color:#9CC3FF}
     cur=Math.max(0,Math.min(slides.length-1,i));
     slides.forEach(function(s,j){s.classList.toggle('active',j===cur)});
     var s=slides[cur];
-    document.getElementById('pos').textContent=(cur+1)+' / '+slides.length;
     var k=s.dataset.kind; document.getElementById('kind').innerHTML='<span class="tag '+k+'">'+kindLabel[k]+'</span>';
     document.getElementById('n-title').textContent=s.dataset.title||'';
-    document.getElementById('n-meta').textContent='Plānotais sākums '+s.dataset.time+' · '+kindLabel[k];
+    document.getElementById('n-meta').textContent='Slaids '+(cur+1)+' / '+slides.length+' · plānotais sākums '+s.dataset.time+' · '+kindLabel[k];
     var n=s.querySelector('aside.notes'); document.getElementById('n-body').innerHTML=n?n.innerHTML:'<p>Nav piezīmju.</p>';
     var nx=slides[cur+1]; document.getElementById('n-next').textContent=nx?('Nākamais: '+nx.dataset.title+' ('+nx.dataset.time+')'):'Beigas';
     [].forEach.call(document.querySelectorAll('.ov-item'),function(b,j){b.classList.toggle('cur',j===cur)});
