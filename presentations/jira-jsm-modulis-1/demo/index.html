@@ -93,7 +93,8 @@ label.f .req{color:var(--red)}
 .p-hero{max-width:1100px;margin:0 auto;padding:28px 24px 40px;display:flex;flex-direction:column;gap:14px}
 .p-hero h1{font:800 30px/1.15 var(--fd);margin:0;text-wrap:balance}
 .p-search{position:relative;max-width:640px}
-.p-search input{border:0;border-radius:6px;min-height:46px;padding:10px 14px;font-size:16px;background:#fff;box-shadow:0 2px 8px rgb(0 0 0 / .18)}
+.p-search input{border:0;border-radius:6px;min-height:46px;padding:10px 14px;font-size:16px;background:#fff;color:var(--ink);caret-color:var(--ink);box-shadow:0 2px 8px rgb(0 0 0 / .18)}
+.p-search input::placeholder{color:#6B778C}
 .p-results{position:absolute;left:0;right:0;top:52px;background:#fff;color:var(--ink);border-radius:6px;box-shadow:0 8px 24px rgb(9 30 66 / .25);z-index:5;overflow:hidden}
 .p-results button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;border:0;background:#fff;padding:10px 14px;border-bottom:1px solid var(--line2)}
 .p-results button:hover{background:var(--blue-soft)}
@@ -310,6 +311,8 @@ var RTS=[
   {id:'kanceleja',p:'SAIM',name:'Kancelejas un saimniecības preces',it:'Service request',icon:'bulb',col:'#B38600',desc:'',fields:[F_DESC],sla:3*DAY},
   {id:'darba-drosiba',p:'SAIM',name:'Konsultācijas par darba drošību',it:'Service request',icon:'headset',col:'#C25100',desc:'',fields:[F_DESC],sla:3*DAY}
 ];
+/* Meklēšanas atslēgvārdi (demo), lai portāla meklēšana atrod tipu pēc ikdienas vārdiem */
+var KW={'dt-trauc':'printeris printers dators monitors projektors pele klaviatūra skaļrunis lēns nestrādā','jauna-dt':'dators klēpjdators monitors dokstacija jauns tehnika','prog-piet':'programma instalācija licence word excel','prog-trauc':'programma excel word outlook kļūda avarē','epasts':'e-pasts epasts pastkaste adrese','pastkaste':'e-pasts epasts pastkaste','epasts-probl':'e-pasts epasts outlook pasts neienāk','mape-jauna':'mape kopīgotā mape','mape':'mape piekļuve tiesības','mebeles':'krēsls galds skapis mēbeles salūza','aprikojums':'aprīkojums jauns','parv':'pārvietošana pārcelties kabinets','darba-vide':'darba vide krēsls monitors statīvs','uzkopsana':'tīrīšana uzkopšana atkritumi','elektro':'gaisma elektrība rozete strāva','lifts':'lifts','kanceleja':'papīrs pildspalva kanceleja','darba-drosiba':'darba drošība'};
 /* Jūsu IKT darbplūsma (no dokumentācijas): Reģistrēts → Izpildē; no Izpildē 5 pārejas. Slēgšanas pārejas nosaka Resolution. */
 var TRANS={
   'Reģistrēts':[{n:'Izpildē',to:'Izpildē'}],
@@ -908,7 +911,7 @@ document.addEventListener('change',function(e){
 document.addEventListener('input',function(e){
   var t=e.target;
   if(t.id==='p-q'){var q=t.value.trim().toLowerCase(),box=$('#p-res');if(!q){box.classList.add('hidden');return}
-    var m=RTS.filter(function(r){return (r.name+' '+r.desc).toLowerCase().indexOf(q)>=0||(q.length>3&&r.name.toLowerCase().indexOf(q.slice(0,-1))>=0)});
+    var m=RTS.filter(function(r){return (r.name+' '+r.desc+' '+(KW[r.id]||'')).toLowerCase().indexOf(q)>=0||(q.length>3&&r.name.toLowerCase().indexOf(q.slice(0,-1))>=0)});
     box.innerHTML=m.length?m.map(function(r){return '<button data-act="p" data-page="form" data-id="'+r.id+'"><b style="color:var(--blue)">'+esc(r.name)+'</b><span class="muted" style="font-size:12px">'+esc(proj(r.p).name)+'</span></button>'}).join(''):'<div style="padding:12px 14px" class="muted">Nekas neatbilst. Mēģiniet citu vārdu.</div>';box.classList.remove('hidden');return}
   if(t.id==='p-rq'){S.portal.q=t.value;render(true);return}
   if(t.id==='s-text'){readSearch();clearTimeout(t._d);t._d=setTimeout(function(){render(true)},250);return}
