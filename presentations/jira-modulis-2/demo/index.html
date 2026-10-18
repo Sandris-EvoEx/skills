@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jira mācību vide · 2. modulis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@700;800&display=swap">
+<style>
+/* Mācību smilškaste, kas atdarina Jira Software Data Center: projekti, dēļi, backlog, meklēšana,
+   filtri, dashboard, Plans un Programs. Augšā demo josla (persona, paziņojumi, scenārijs, atiestatīšana).
+   Viena gaiša tēma, jo tā atdarina Jira DC noklusējuma izskatu. */
+:root{
+  color-scheme:light;
+  --bg:#F4F5F7; --surface:#FFFFFF; --ink:#172B4D; --muted:#5E6C84; --line:#DFE1E6; --line2:#EBECF0;
+  --blue:#0C66E4; --blue-d:#0747A6; --blue-soft:#E9F2FF;
+  --green:#216E4E; --green-soft:#DCFFF1; --amber:#7F5F01; --amber-soft:#FFF7D6; --amber-line:#E2B203;
+  --red:#AE2E24; --red-soft:#FFECEB; --purple:#5E4DB2; --purple-soft:#F3F0FF;
+  --claret:#8C1D2F; --demo:#1A1D24;
+  --f:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fm:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --fd:"Manrope","IBM Plex Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--f)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+a{color:var(--blue);text-decoration:none;cursor:pointer}
+a:hover{text-decoration:underline}
+.mono{font-family:var(--fm)}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+
+/* Demo josla */
+#demobar{position:sticky;top:0;z-index:60;background:var(--demo);color:#E9EAEE;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 16px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+#demobar .badge{font:800 11px/1 var(--fd);letter-spacing:.14em;text-transform:uppercase;background:#E8788A;color:#1A1D24;padding:5px 8px;border-radius:4px}
+#demobar .ttl{font-weight:600;white-space:nowrap}
+.seg{display:inline-flex;background:#2C303A;border-radius:8px;padding:3px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;color:#C9CCD4;padding:6px 10px;border-radius:6px;font-weight:600;font-size:13px;min-height:32px}
+.seg button[aria-pressed="true"]{background:#F4F5F7;color:#1A1D24}
+.dbtn{border:1px solid #444A57;background:#232730;color:#E9EAEE;border-radius:6px;padding:6px 12px;font-size:13px;font-weight:600;min-height:32px;display:inline-flex;align-items:center;gap:6px}
+.dbtn:hover{border-color:#8A90A0}
+.dbtn .cnt{background:#E8788A;color:#1A1D24;border-radius:999px;padding:0 6px;font-size:11px;font-weight:700}
+
+/* Jira galvene */
+.jnav{background:var(--blue-d);color:#fff;display:flex;align-items:center;gap:4px;padding:0 12px;min-height:48px;flex-wrap:wrap;position:relative;z-index:30}
+.jnav .logo{font:800 17px/1 var(--fd);display:flex;align-items:center;gap:8px;padding:0 10px 0 2px;color:#fff;white-space:nowrap}
+.jnav .logo i{width:22px;height:22px;border-radius:4px;background:#fff;display:inline-grid;place-items:center;color:var(--blue-d);font-style:normal;font-size:13px}
+.jnav .mi{position:relative}
+.jnav .mi>button{background:transparent;border:0;color:#fff;font-weight:500;padding:12px 10px;border-radius:3px}
+.jnav .mi>button:hover,.jnav .mi>button[aria-expanded="true"]{background:#ffffff26}
+.jnav .create{background:#fff;color:var(--blue-d);border:0;border-radius:3px;padding:6px 12px;font-weight:600;margin-left:6px}
+.jnav .create:hover{background:#DEEBFF}
+.jnav input[type=search]{width:200px;max-width:40vw;background:#ffffff26;border:0;color:#fff;border-radius:3px;padding:6px 10px;min-height:32px}
+.jnav input[type=search]::placeholder{color:#E6EEFF}
+.jnav input[type=search]:focus{background:#fff;color:var(--ink);outline:none}
+.av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;color:#fff;flex:none}
+.av.sm{width:22px;height:22px;font-size:9px}
+.av.none{background:#DFE1E6;color:#5E6C84}
+.menu{position:absolute;top:100%;left:0;min-width:260px;background:#fff;color:var(--ink);border-radius:4px;box-shadow:0 8px 24px rgb(9 30 66 / .25);padding:6px 0;z-index:70}
+.menu .h{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);padding:8px 14px 4px;letter-spacing:.04em}
+.menu a,.menu button.mitem{display:flex;gap:8px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:8px 14px;color:var(--ink);text-decoration:none}
+.menu a:hover,.menu button.mitem:hover{background:var(--blue-soft)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:6px 0}
+
+/* Izkārtojums */
+#main{display:flex;min-height:calc(100vh - 100px)}
+#app{flex:1;min-width:0}
+#drawer{width:380px;flex:none;background:var(--surface);border-left:1px solid var(--line);overflow-y:auto;max-height:calc(100vh - 52px);position:sticky;top:52px}
+@media (max-width:900px){#drawer{position:fixed;inset:52px 0 0 auto;width:min(380px,92vw);z-index:65;box-shadow:-8px 0 24px rgb(9 30 66 / .18)}}
+.page{padding:20px 24px 48px;max-width:1400px}
+@media (max-width:640px){.page{padding:16px}}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:6px}
+h1.pt{font:600 24px/1.25 var(--f);margin:0 0 16px}
+h2.st{font:600 16px/1.3 var(--f);margin:20px 0 10px}
+.shell{display:flex;min-height:calc(100vh - 100px)}
+.side{width:232px;flex:none;background:#FAFBFC;border-right:1px solid var(--line);padding:16px 8px}
+.side .pj{display:flex;gap:10px;align-items:center;padding:4px 8px 16px}
+.side .pj b{display:block;font-size:14px;line-height:1.2}
+.side .pj small{color:var(--muted);font-size:12px}
+.side a{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:3px;color:var(--ink);text-decoration:none}
+.side a:hover{background:#EBECF0}
+.side a[aria-current="page"]{background:var(--blue-soft);color:var(--blue)}
+.pico{width:32px;height:32px;border-radius:4px;display:grid;place-items:center;color:#fff;font:800 13px/1 var(--fd);flex:none}
+@media (max-width:760px){.shell{flex-direction:column}.side{width:auto;border-right:0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:2px;padding:8px}.side .pj{width:100%;padding-bottom:6px}}
+
+/* Pogas un lauki */
+.btn{border:0;border-radius:3px;padding:6px 12px;font-weight:500;background:#091E420F;color:var(--ink);min-height:32px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:#091E4224}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-d)}
+.btn.subtle{background:transparent}
+.btn.subtle:hover{background:#091E420F}
+.btn.sm{padding:3px 8px;min-height:26px;font-size:13px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.on{background:var(--blue-soft);color:var(--blue)}
+input[type=text],input[type=search],input[type=date],input[type=number],select,textarea{border:2px solid var(--line);background:#FAFBFC;border-radius:3px;padding:6px 8px;width:100%;min-height:36px}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);background:#fff;outline:none}
+textarea{min-height:96px;resize:vertical}
+label.f{display:block;font-weight:600;font-size:12px;color:var(--muted);margin:0 0 4px}
+label.f .req{color:var(--red)}
+.field{display:flex;flex-direction:column;gap:2px;margin-bottom:14px}
+.err{color:var(--red);font-size:12px}
+.field.has-err input,.field.has-err select{border-color:var(--red);background:var(--red-soft)}
+.help{font-size:12px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:4px}
+
+/* Statusi un ikonas */
+.lz{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;padding:2px 6px;border-radius:3px;background:#DFE1E6;color:#42526E;white-space:nowrap}
+.lz.ip{background:var(--blue-soft);color:#0055CC}
+.lz.done{background:#DCFFF1;color:var(--green)}
+.ti{width:16px;height:16px;border-radius:3px;display:inline-grid;place-items:center;flex:none;vertical-align:-3px}
+.ti svg{width:10px;height:10px}
+.pr{font-size:12px;font-weight:700;width:16px;display:inline-block;text-align:center}
+.tag{display:inline-block;font-size:12px;background:#EBECF0;border-radius:3px;padding:1px 6px;margin:0 4px 4px 0}
+.overdue{color:var(--red);font-weight:600}
+
+/* Tabulas */
+table.t{border-collapse:collapse;width:100%;background:#fff}
+table.t th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;border-bottom:2px solid var(--line);padding:8px 10px;white-space:nowrap}
+table.t td{border-bottom:1px solid var(--line2);padding:8px 10px;vertical-align:middle}
+table.t tr:hover td{background:#FAFBFC}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:#fff}
+
+/* Dēlis */
+.bhead{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.qf{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.cols{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(240px,1fr);gap:10px;overflow-x:auto;padding-bottom:8px}
+.col{background:#F4F5F7;border:1px solid var(--line2);border-radius:4px;min-height:360px;display:flex;flex-direction:column}
+.col h3{font-size:12px;text-transform:uppercase;color:var(--muted);margin:0;padding:10px 12px;display:flex;gap:6px;align-items:center;letter-spacing:.03em}
+.col h3 .wip{margin-left:auto;font-weight:600}
+.col.over{background:#FFECEB;border-color:#F87168}
+.col.over h3 .wip{color:var(--red)}
+.col .drop{flex:1;padding:0 8px 8px;display:flex;flex-direction:column;gap:6px}
+.col.dragover{outline:2px dashed var(--blue);outline-offset:-4px}
+.bcard{background:#fff;border-radius:3px;box-shadow:0 1px 1px rgb(9 30 66 / .25);padding:10px;cursor:grab;display:flex;flex-direction:column;gap:8px;border-left:3px solid transparent}
+.bcard:hover{background:#FAFBFC}
+.bcard.od{border-left-color:var(--red)}
+.bcard .bot .mono{white-space:nowrap}
+.bcard .bot{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+
+/* Backlog */
+.sprint{background:#fff;border:1px solid var(--line);border-radius:4px;margin-bottom:14px}
+.sprint .sh{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line2);background:#FAFBFC}
+.irow{display:flex;gap:8px;align-items:center;padding:7px 12px;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.irow:last-child{border-bottom:0}
+.irow .s{flex:1;min-width:180px}
+.irow select{width:auto;min-height:28px;padding:2px 6px;font-size:12px}
+
+/* Pieteikuma skats */
+.iv{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px}
+@media (max-width:980px){.iv{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){dl.det{grid-template-columns:110px minmax(0,1fr)!important}}
+.iv h1{font:600 22px/1.3 var(--f);margin:4px 0 12px}
+.ops{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.mod{margin-bottom:22px}
+.mod>h4{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:4px}
+dl.det{display:grid;grid-template-columns:120px 1fr;gap:8px 12px;margin:0}
+dl.det dt{color:var(--muted)}
+dl.det dd{margin:0;min-width:0}
+.desc{white-space:pre-wrap;background:#fff;border:1px solid transparent;border-radius:3px;padding:6px}
+.desc:hover{border-color:var(--line)}
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--line);margin-bottom:12px;flex-wrap:wrap}
+.tabs button{background:none;border:0;padding:8px 12px;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-2px}
+.tabs button[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue)}
+.cmt{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.cmt .b{flex:1;min-width:0}
+.cmt .who{font-size:13px}
+.cmt .txt{white-space:pre-wrap;margin-top:4px}
+.mention{background:var(--blue-soft);color:var(--blue);border-radius:3px;padding:0 3px;font-weight:600}
+.att{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:4px;padding:8px 10px;margin:0 8px 8px 0;background:#fff;font-size:13px}
+.hist td{font-size:13px}
+.suggest{border:1px solid var(--line);border-radius:4px;background:#fff;box-shadow:0 4px 12px rgb(9 30 66 / .15);margin-top:4px;max-width:320px}
+.suggest button{display:flex;gap:8px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:6px 10px}
+.suggest button:hover{background:var(--blue-soft)}
+
+/* Meklēšana */
+.sbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.sbar select{width:auto;min-width:130px}
+.jql{font-family:var(--fm);font-size:13px;min-height:40px}
+.sres{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px}
+@media (max-width:860px){.sres{grid-template-columns:minmax(0,1fr)}}
+.flist a{display:block;padding:6px 8px;border-radius:3px;color:var(--ink);text-decoration:none}
+.flist a:hover{background:#EBECF0}
+.flist a[aria-current="page"]{background:var(--blue-soft);color:var(--blue)}
+.flist .h{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin:14px 8px 4px}
+
+/* Dashboard */
+.dgrid{display:grid;gap:14px}
+@media (max-width:760px){.dgrid{grid-template-columns:1fr!important}}
+.gad{background:#fff;border:1px solid var(--line);border-radius:4px;min-width:0}
+.gad .gh{display:flex;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line2);background:#FAFBFC}
+.gad .gh b{flex:1;font-size:14px}
+.gad .gb{padding:12px;overflow-x:auto}
+.cat{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.cat .card{padding:12px;display:flex;flex-direction:column;gap:8px}
+.legend{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
+
+/* Plāns */
+.ptool{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.plan{overflow:auto;border:1px solid var(--line);border-radius:4px;background:#fff;max-height:calc(100vh - 260px);position:relative}
+.prow{display:flex;height:40px;border-bottom:1px solid var(--line2)}
+.prow.hd{position:sticky;top:0;z-index:5;background:#FAFBFC;height:44px;font-size:12px;color:var(--muted);font-weight:600}
+.pl{position:sticky;left:0;z-index:3;background:inherit;display:flex;flex:none;border-right:2px solid var(--line)}
+.prow{background:#fff}
+.prow.hd .pl{background:#FAFBFC;z-index:6}
+.pc{padding:0 8px;display:flex;align-items:center;gap:6px;border-right:1px solid var(--line2);overflow:hidden;white-space:nowrap;flex:none}
+.pc.scope{width:340px}
+.pc.w1{width:150px}.pc.w2{width:110px}.pc.w3{width:120px}
+.pc select,.pc input{min-height:28px;padding:2px 4px;font-size:12px;border-width:1px}
+.pc.chg{background:#FFF7D6;box-shadow:inset 3px 0 0 var(--amber-line)}
+.tl{position:relative;flex:none}
+.tl .wk{position:absolute;top:0;bottom:0;border-left:1px solid var(--line2)}
+.tl .wkl{position:absolute;top:4px;font-size:11px;color:var(--muted);white-space:nowrap}
+.tl .mol{position:absolute;top:22px;font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap}
+.today{position:absolute;top:0;bottom:0;width:2px;background:#E8788A;z-index:2;pointer-events:none}
+.bar{position:absolute;top:9px;height:22px;border-radius:4px;background:#8FB8F6;cursor:grab;display:flex;align-items:center;touch-action:none;font-size:11px;color:#09326C;padding:0 8px;white-space:nowrap;overflow:visible}
+.bar.epic{background:#B8ACF6;color:#352C63}
+.bar.done{background:#7EE2B8;color:#164B35}
+.bar.chg{outline:2px solid var(--amber-line)}
+.bar .rz{position:absolute;right:-2px;top:0;bottom:0;width:10px;cursor:ew-resize}
+.bar .rzl{position:absolute;left:-2px;top:0;bottom:0;width:10px;cursor:ew-resize}
+.warn{color:#B65C02;font-weight:700}
+.wbadge{background:#FFF7D6;color:#7F5F01;border:1px solid var(--amber-line)}
+.pbar{height:8px;background:#EBECF0;border-radius:4px;overflow:hidden;display:flex}
+.pbar i{display:block;height:100%}
+.depsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:2}
+
+/* Logi */
+.ov{position:fixed;inset:0;background:rgb(9 30 66 / .54);z-index:80;display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow-y:auto}
+.dlg{background:#fff;border-radius:4px;width:min(640px,100%);box-shadow:0 12px 40px rgb(9 30 66 / .3)}
+.dlg.wide{width:min(900px,100%)}
+.dlg header{padding:16px 20px 8px;display:flex;align-items:center;gap:8px}
+.dlg header h2{font:600 20px/1.3 var(--f);margin:0;flex:1}
+.dlg .bd{padding:8px 20px 4px;max-height:66vh;overflow-y:auto}
+.dlg footer{padding:12px 20px 16px;display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line2)}
+.steps{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.steps span{font-size:12px;padding:3px 8px;border-radius:999px;background:#EBECF0;color:var(--muted)}
+.steps span.on{background:var(--blue);color:#fff}
+.flag{position:fixed;left:16px;bottom:16px;z-index:90;background:#fff;border-left:4px solid var(--green);box-shadow:0 8px 24px rgb(9 30 66 / .25);border-radius:4px;padding:12px 16px;max-width:min(420px,calc(100vw - 32px))}
+.flag.warnf{border-left-color:var(--amber-line)}
+
+/* Drawer */
+#drawer .dh{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}
+#drawer .dh b{flex:1;font:800 15px/1.2 var(--fd)}
+.note{border-bottom:1px solid var(--line2);padding:12px 16px;font-size:13px}
+.note .to{font-weight:600}
+.scn h3{font:800 13px/1.3 var(--fd);margin:16px 16px 6px;color:var(--claret);text-transform:uppercase;letter-spacing:.06em}
+.scn ol{margin:0;padding:0 16px 0 36px;font-size:13px}
+.scn li{margin-bottom:6px}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="demobar">
+  <span class="badge">Demo</span>
+  <span class="ttl">Jira Software DC · mācību vide</span>
+  <span class="sp"></span>
+  <span style="font-size:12px;color:#9AA0AE">Persona:</span>
+  <div class="seg" id="personas" role="group" aria-label="Persona"></div>
+  <button class="dbtn" data-act="drawer" data-v="notif">Paziņojumi <span class="cnt" id="ncnt">0</span></button>
+  <button class="dbtn" data-act="drawer" data-v="scn">Scenārijs</button>
+  <button class="dbtn" data-act="reset">Atiestatīt datus</button>
+</div>
+<nav class="jnav" id="jnav" aria-label="Jira"></nav>
+<div id="main">
+  <div id="app"></div>
+  <aside id="drawer" class="hidden" aria-label="Demo panelis"></aside>
+</div>
+<div id="modal"></div>
+<div id="flagbox"></div>
+
+<script>
+"use strict";
+const KEY='jira-dc-demo-m2-v1';
+const TODAY='2026-10-19';
+const USERS={
+  anna:{name:'Anna Bērziņa',role:'Projekta vadītāja · Plan administratore',ini:'AB',color:'#8C1D2F',planAdmin:true},
+  edgars:{name:'Edgars Krūmiņš',role:'Izstrādātājs',ini:'EK',color:'#0C66E4',planAdmin:false},
+  laura:{name:'Laura Jansone',role:'Komunikācijas speciāliste',ini:'LJ',color:'#216E4E',planAdmin:false},
+  maris:{name:'Māris Kalniņš',role:'IKT speciālists',ini:'MK',color:'#5E4DB2',planAdmin:false}
+};
+const PERSONAS=['anna','edgars','laura'];
+const STATUSES=['To Do','In Progress','In Review','Done'];
+const CAT={'To Do':'todo','In Progress':'ip','In Review':'ip','Done':'done'};
+const TRANS={ // pārejas pogas pieteikuma skatā, kā Jira DC darba plūsmā
+  'To Do':[['Start Progress','In Progress'],['Done','Done']],
+  'In Progress':[['Send to Review','In Review'],['Stop Progress','To Do']],
+  'In Review':[['Done','Done'],['Back to In Progress','In Progress']],
+  'Done':[['Reopen','To Do']]
+};
+const TYPES={
+  Epic:{c:'#904EE2',p:'<path d="M6 1 2 7h3l-1 4 4-6H5z" fill="#fff"/>'},
+  Story:{c:'#63BA3C',p:'<path d="M3 1h6v10L6 8.5 3 11z" fill="#fff"/>'},
+  Task:{c:'#4BADE8',p:'<path d="m2.5 6 2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" fill="none"/>'},
+  Bug:{c:'#E5493A',p:'<circle cx="6" cy="6" r="3" fill="#fff"/>'},
+  'Sub-task':{c:'#4BADE8',p:'<rect x="2" y="2" width="4" height="4" fill="none" stroke="#fff" stroke-width="1.4"/><rect x="6" y="6" width="4" height="4" fill="#fff"/>'}
+};
+const PRI={Highest:['⇈','#CD1317'],High:['↑','#E9494A'],Medium:['=','#E97F33'],Low:['↓','#2D8738'],Lowest:['⇊','#57A55A']};
+const PROJECTS={
+  DIGI:{key:'DIGI',name:'Digitālo pakalpojumu attīstība',kind:'Scrum',lead:'anna',color:'#0C66E4',board:'DIGI dēlis'},
+  PASK:{key:'PASK',name:'Pasākumu organizēšana',kind:'Kanban',lead:'laura',color:'#216E4E',board:'PASK Kanban dēlis'}
+};
+const SYSF=[ // Jira DC sistēmas filtri
+  ['my','My open issues','assignee = currentUser() AND resolution = Unresolved ORDER BY priority DESC, updated DESC'],
+  ['rep','Reported by me','reporter = currentUser() ORDER BY created DESC'],
+  ['all','All issues','ORDER BY created DESC'],
+  ['open','Open issues','resolution = Unresolved ORDER BY priority DESC, updated DESC'],
+  ['done','Done issues','statusCategory = Done ORDER BY updated DESC'],
+  ['cre','Created recently','created >= -7d ORDER BY created DESC'],
+  ['upd','Updated recently','updated >= -7d ORDER BY updated DESC']
+];
+
+/* ---------- Sākuma dati ---------- */
+function seed(){
+  const I=[];
+  const add=(o)=>{I.push(Object.assign({reporter:'anna',priority:'Medium',labels:[],sprint:null,epic:null,parent:null,due:null,ts:null,te:null,sp:null,
+    status:'To Do',assignee:null,desc:'',created:'2026-10-01',updated:'2026-10-14',comments:[],atts:[],hist:[],links:[],watchers:[]},o));};
+  add({key:'DIGI-1',type:'Epic',epicName:'Iekštīkls',summary:'Jaunā iekštīkla portāla ieviešana',assignee:'anna',status:'In Progress',ts:'2026-09-01',te:'2026-12-18',created:'2026-08-20',
+    desc:'Mērķis: viens iekštīkls visiem darbiniekiem ar ziņām, darbinieku katalogu un sēžu kalendāru.\nRezultāts līdz 18.12.2026.'});
+  add({key:'DIGI-2',type:'Epic',epicName:'Sēžu e-pieteikšanās',summary:'Sēžu e-pieteikšanās sistēma',assignee:'anna',ts:'2026-10-26',te:'2027-01-29',created:'2026-09-15',
+    desc:'Elektroniska pieteikšanās sēžu apmeklējumam viesiem un medijiem.'});
+  add({key:'DIGI-3',type:'Story',summary:'Iekštīkla sākumlapas dizaina saskaņošana',epic:'DIGI-1',assignee:'laura',status:'Done',sprint:'s1',sp:3,ts:'2026-09-28',te:'2026-10-09',due:'2026-10-09',created:'2026-09-20',updated:'2026-10-09'});
+  add({key:'DIGI-4',type:'Story',summary:'Darbinieku kataloga meklēšana',epic:'DIGI-1',assignee:'edgars',status:'In Progress',sprint:'s2',sp:5,priority:'High',ts:'2026-10-12',te:'2026-10-23',due:'2026-10-23',labels:['iekštīkls'],
+    desc:'Kā darbinieks es vēlos atrast kolēģi pēc vārda vai struktūrvienības, lai ātri sazinātos.\n\nPieņemšanas kritēriji:\n- meklē pēc vārda, uzvārda, amata\n- filtrs pēc struktūrvienības\n- rezultāts 1 sekundes laikā',
+    comments:[{who:'anna',when:'2026-10-14 10:12',body:'Lūdzu, vispirms saskaņojiet lauku sarakstu ar Personāla nodaļu.'}],
+    atts:[{name:'kataloga-skice.png',size:'214 KB',who:'laura',when:'2026-10-13'}],watchers:['anna']});
+  add({key:'DIGI-5',type:'Task',summary:'Lietotāju lomu un piekļuves tiesību matrica',epic:'DIGI-1',assignee:'maris',status:'In Review',sprint:'s2',sp:3,ts:'2026-10-12',te:'2026-10-21',due:'2026-10-21',labels:['drošība']});
+  add({key:'DIGI-6',type:'Bug',summary:'Kalendārs nerāda Saeimas sēdes mobilajā skatā',epic:'DIGI-1',assignee:'edgars',sprint:'s2',sp:2,priority:'Highest',ts:'2026-10-13',te:'2026-10-16',due:'2026-10-16',
+    desc:'Telefonā (iOS, Safari) sēžu kalendārs ir tukšs. Datorā viss redzams.\nSoļi: atver iekštīklu telefonā → Kalendārs.'});
+  add({key:'DIGI-7',type:'Story',summary:'Ziņu sadaļas migrācija no vecā portāla',epic:'DIGI-1',assignee:'laura',sprint:'s2',sp:8,ts:'2026-10-19',te:'2026-12-31',due:'2026-12-31',labels:['iekštīkls','saturs']});
+  add({key:'DIGI-8',type:'Sub-task',summary:'Meklēšanas filtrs pēc struktūrvienības',parent:'DIGI-4',assignee:'edgars',status:'In Progress',sprint:'s2',ts:'2026-10-14',te:'2026-10-20'});
+  add({key:'DIGI-9',type:'Sub-task',summary:'Testēšana ar 3 struktūrvienībām',parent:'DIGI-4',assignee:'maris',sprint:'s2',ts:'2026-10-21',te:'2026-10-23'});
+  add({key:'DIGI-10',type:'Story',summary:'Pieteikšanās forma sēdes apmeklējumam',epic:'DIGI-2',assignee:'edgars',sp:5,ts:'2026-11-02',te:'2026-11-27',due:'2026-11-27',links:[{type:'is blocked by',key:'DIGI-11'}]});
+  add({key:'DIGI-11',type:'Task',summary:'Datu aizsardzības novērtējums (DPIA)',epic:'DIGI-2',assignee:'anna',sp:3,priority:'High',ts:'2026-10-26',te:'2026-11-13',due:'2026-11-13',labels:['VDAR'],links:[{type:'blocks',key:'DIGI-10'}]});
+  add({key:'DIGI-12',type:'Story',summary:'Apmācību video darbiniekiem par iekštīklu',epic:'DIGI-1',assignee:'laura',sprint:'s3',sp:3,ts:'2026-10-26',te:'2026-11-06',due:'2026-11-06'});
+  add({key:'PASK-1',type:'Epic',epicName:'Atvērto durvju diena',summary:'Atvērto durvju diena 2026',reporter:'laura',assignee:'laura',status:'In Progress',ts:'2026-10-01',te:'2026-11-18',created:'2026-09-25'});
+  add({key:'PASK-2',type:'Task',summary:'Telpu rezervācija pasākumam',reporter:'laura',epic:'PASK-1',assignee:'maris',status:'Done',ts:'2026-10-01',te:'2026-10-08',due:'2026-10-08',updated:'2026-10-08'});
+  add({key:'PASK-3',type:'Task',summary:'Ielūgumu dizains un druka',reporter:'laura',epic:'PASK-1',assignee:'laura',status:'In Progress',ts:'2026-10-12',te:'2026-10-24',due:'2026-10-24'});
+  add({key:'PASK-4',type:'Task',summary:'Apsardzes un caurlaižu saskaņošana',reporter:'laura',epic:'PASK-1',assignee:'maris',ts:'2026-10-26',te:'2026-11-06',due:'2026-11-06',links:[{type:'is blocked by',key:'PASK-5'}]});
+  add({key:'PASK-5',type:'Task',summary:'Viesu saraksta apstiprināšana',reporter:'laura',epic:'PASK-1',assignee:'anna',status:'In Review',ts:'2026-10-14',te:'2026-10-22',due:'2026-10-22',links:[{type:'blocks',key:'PASK-4'}]});
+  add({key:'PASK-6',type:'Task',summary:'Ēdināšanas iepirkuma pieteikums',reporter:'laura',epic:'PASK-1',priority:'High',ts:'2026-10-09',te:'2026-10-16',due:'2026-10-16'});
+  add({key:'PASK-7',type:'Task',summary:'Fotogrāfa pieteikšana',reporter:'laura',epic:'PASK-1',assignee:'laura',status:'In Progress',ts:'2026-10-15',te:'2026-10-30',due:'2026-10-30'});
+  add({key:'PASK-8',type:'Task',summary:'Ekskursiju maršruta apraksts',reporter:'laura',epic:'PASK-1',assignee:'edgars',status:'In Progress',ts:'2026-10-15',te:'2026-11-04',due:'2026-11-04'});
+  I.forEach(i=>{ if(i.status==='Done') i.resolution='Done'; i.hist.push({who:i.reporter,when:i.created+' 09:00',field:'Created',from:'',to:''}); });
+  return {
+    persona:'anna', issues:I, seq:{DIGI:12,PASK:8},
+    sprints:{s1:{id:'s1',name:'DIGI Sprint 1',start:'2026-09-28',end:'2026-10-11',state:'closed',goal:'Dizains un pamatstruktūra'},
+             s2:{id:'s2',name:'DIGI Sprint 2',start:'2026-10-12',end:'2026-10-25',state:'active',goal:'Darbinieku katalogs un piekļuves tiesības'},
+             s3:{id:'s3',name:'DIGI Sprint 3',start:'2026-10-26',end:'2026-11-08',state:'future',goal:''}},
+    filters:[
+      {id:'f1',name:'DIGI aktīvais sprints',jql:'project = DIGI AND sprint in openSprints() ORDER BY rank',owner:'anna',fav:true,share:'Project: DIGI'},
+      {id:'f2',name:'Kavētie uzdevumi',jql:'duedate < now() AND statusCategory != Done ORDER BY duedate ASC',owner:'anna',fav:true,share:'Group: saeima-darbinieki'}
+    ],
+    dashboards:[
+      {id:'d1',name:'System Dashboard',owner:'admin',share:'Visi lietotāji',cols:2,gadgets:[{id:'g1',type:'intro',col:0},{id:'g2',type:'assigned',col:0},{id:'g3',type:'activity',col:1}]},
+      {id:'d2',name:'DIGI komandas dashboard',owner:'anna',share:'Project: DIGI',cols:2,gadgets:[{id:'g4',type:'pie',filter:'f1',stat:'status',col:0},{id:'g5',type:'sprint',col:1},{id:'g6',type:'twod',filter:'f1',col:0},{id:'g7',type:'filter',filter:'f2',col:1}]}
+    ],
+    plans:[
+      {id:'p1',name:'Digitālo pakalpojumu plāns 2026',access:'Open',sources:[{t:'Board',v:'DIGI'}],excl:30,owner:'anna',program:null,draft:{},deps:[]},
+      {id:'p2',name:'Pasākumu plāns 2026',access:'Open',sources:[{t:'Project',v:'PASK'}],excl:30,owner:'laura',program:null,draft:{},deps:[]}
+    ],
+    programs:[], notifs:[], activity:[], recent:['DIGI-4'], wipPASK:3, seqId:100
+  };
+}
+let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!S.issues) S=seed();
+const UI={menu:null,drawer:null,jql:null,mode:'basic',filter:null,qf:{},tab:'all',editDesc:false,dashEdit:false,planTab:'timeline',collapsed:{},modal:null,wOpen:false,wOnly:false,mention:null};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+/* ---------- Palīgfunkcijas ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const me=()=>S.persona;
+const U=k=>USERS[k];
+const uname=k=>k?(USERS[k]?USERS[k].name:k):'Unassigned';
+const av=(k,sm)=>k?`<span class="av${sm?' sm':''}" style="background:${U(k).color}" title="${esc(uname(k))}">${U(k).ini}</span>`:`<span class="av none${sm?' sm':''}" title="Unassigned">?</span>`;
+const ti=t=>`<span class="ti" style="background:${TYPES[t].c}" title="${t}"><svg viewBox="0 0 12 12">${TYPES[t].p}</svg></span>`;
+const pri=p=>`<span class="pr" style="color:${PRI[p][1]}" title="${p}">${PRI[p][0]}</span>`;
+const lz=s=>`<span class="lz ${CAT[s]}">${esc(s)}</span>`;
+const fmt=d=>{if(!d)return '';const [y,m,dd]=d.split('-');return `${dd}.${m}.${y}`};
+const D=d=>new Date(d+'T00:00:00Z');
+const iso=t=>new Date(t).toISOString().slice(0,10);
+const addD=(d,n)=>iso(D(d).getTime()+n*864e5);
+const diff=(a,b)=>Math.round((D(b)-D(a))/864e5);
+const now=()=>{const t=new Date();return TODAY+' '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')};
+const get=k=>S.issues.find(i=>i.key===k);
+const isOver=i=>i.due&&i.due<TODAY&&i.status!=='Done';
+const projOf=i=>i.key.split('-')[0];
+const kids=k=>S.issues.filter(i=>i.epic===k||i.parent===k);
+function flag(msg,warn){$('#flagbox').innerHTML=`<div class="flag${warn?' warnf':''}" role="status">${msg}</div>`;clearTimeout(flag.t);flag.t=setTimeout(()=>$('#flagbox').innerHTML='',4200)}
+function notify(to,subj,body){[...new Set(to.filter(Boolean))].forEach(u=>{if(u===me())return;S.notifs.unshift({to:u,subj,body,when:now()})})}
+function act(key,text){S.activity.unshift({who:me(),key,text,when:now()});S.activity=S.activity.slice(0,40)}
+function setField(i,field,val,label,via){
+  const old=i[field];
+  if(JSON.stringify(old)===JSON.stringify(val))return;
+  const show=v=>field==='assignee'||field==='reporter'?uname(v):field==='sprint'?(v?S.sprints[v].name:''):Array.isArray(v)?v.join(', '):(field==='due'||field==='ts'||field==='te')?fmt(v):(v==null?'':v);
+  i[field]=val;i.updated=TODAY;
+  i.hist.unshift({who:me(),when:now(),field:label||field,from:show(old),to:show(val),via:via||''});
+  if(field==='status'){i.resolution=val==='Done'?'Done':null;}
+}
+
+/* ---------- JQL ---------- */
+function tokenize(q){
+  const re=/\s*("(?:[^"\\]|\\.)*"|'[^']*'|!=|>=|<=|!~|[=<>~(),]|[\p{L}0-9_.\-]+(?:\(\))?)/gu;const out=[];let m;
+  while((m=re.exec(q))){if(!m[1])break;out.push(m[1])}
+  return out;
+}
+function jqlVal(field,v){
+  if(v==null)return v;
+  let s=v.replace(/^["']|["']$/g,'');
+  const l=s.toLowerCase();
+  if(l==='currentuser()')return me();
+  if(l==='now()'||l==='startofday()')return TODAY;
+  if(l==='endofweek()')return addD(TODAY,6);
+  if(l==='startofweek()')return addD(TODAY,0);
+  if(/^-?\d+[dw]$/.test(l)){const n=parseInt(l)*(l.endsWith('w')?7:1);return addD(TODAY,n)}
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  if(['assignee','reporter'].includes(field)){const u=Object.keys(USERS).find(k=>k===l||USERS[k].name.toLowerCase()===l||USERS[k].name.toLowerCase().split(' ')[0]===l);return u||s}
+  return s;
+}
+const FIELDMAP={type:'type',issuetype:'type',project:'project',status:'status',statuscategory:'cat',assignee:'assignee',reporter:'reporter',priority:'priority',duedate:'due',due:'due',created:'created',updated:'updated',resolution:'resolution',labels:'labels',sprint:'sprint',text:'text',summary:'text','"epic link"':'epic',epic:'epic',parent:'parent',key:'key',issuekey:'key'};
+function fieldVal(i,f){
+  switch(f){case 'project':return projOf(i);case 'cat':return {todo:'To Do',ip:'In Progress',done:'Done'}[CAT[i.status]];
+    case 'resolution':return i.resolution||'Unresolved';case 'text':return i.summary+' '+i.desc;
+    case 'sprint':return i.sprint;default:return i[f]}
+}
+function parseJQL(q){
+  const t=tokenize(q);let p=0;const groups=[[]];let order=null;
+  const peek=()=>t[p],next=()=>t[p++];
+  while(p<t.length){
+    const w=peek();
+    if(/^order$/i.test(w)){next();if(!/^by$/i.test(next()||''))throw 'Gaidīts "ORDER BY"';order=[];
+      while(p<t.length){const f=next();let dir='ASC';if(/^(asc|desc)$/i.test(peek()||''))dir=next().toUpperCase();order.push([f.toLowerCase(),dir]);if(peek()===',')next();}
+      break}
+    if(/^and$/i.test(w)){next();continue}
+    if(/^or$/i.test(w)){next();groups.push([]);continue}
+    let fld=next();let fl=fld.toLowerCase();
+    if(fl==='"epic'){fl='"epic link"';next()}
+    const f=FIELDMAP[fl];if(!f)throw `Lauks "${fld.replace(/"/g,'')}" neeksistē vai jums nav tiesību to redzēt.`;
+    let op=next();if(!op)throw 'Trūkst operatora pēc lauka '+fld;op=op.toLowerCase();
+    if(op==='not'){op='not '+(next()||'').toLowerCase()}
+    if(op==='is'){if(/^not$/i.test(peek()||'')){next();op='is not'}next();groups[groups.length-1].push({f,op,v:null});continue}
+    let v;
+    if(op==='in'||op==='not in'){const a=next();v=[];if(/\(\)$/.test(a||''))v=[a];else{if(a!=='(')throw 'Pēc IN gaidīta (';while(p<t.length&&peek()!==')'){const x=next();if(x!==',')v.push(x)}next()}
+      if(v.length===1&&/^opensprints\(\)$/i.test(v[0]))v=['__open'];else v=v.map(x=>jqlVal(f,x))}
+    else{const raw=next();if(raw==null)throw 'Trūkst vērtības laukam '+fld;v=jqlVal(f,raw)}
+    if(f==='sprint'&&Array.isArray(v)&&v[0]==='__open')v=Object.values(S.sprints).filter(s=>s.state==='active').map(s=>s.id);
+    else if(f==='sprint'&&!Array.isArray(v)){const sp=Object.values(S.sprints).find(s=>s.name.toLowerCase()===String(v).toLowerCase()||s.id===v);v=sp?sp.id:v}
+    groups[groups.length-1].push({f,op,v});
+  }
+  return {groups,order};
+}
+function match(i,c){
+  const x=fieldVal(i,c.f);const lc=a=>String(a==null?'':a).toLowerCase();
+  if(c.op==='is')return x==null||x===''||(Array.isArray(x)&&!x.length)||(c.f==='resolution'&&x==='Unresolved');
+  if(c.op==='is not')return !(x==null||x===''||(Array.isArray(x)&&!x.length)||(c.f==='resolution'&&x==='Unresolved'));
+  if(Array.isArray(x)){const has=v=>x.map(lc).includes(lc(v));
+    if(c.op==='='||c.op==='~')return has(c.v);if(c.op==='!=')return !has(c.v);if(c.op==='in')return c.v.some(has);if(c.op==='not in')return !c.v.some(has);return false}
+  switch(c.op){
+    case '=':return lc(x)===lc(c.v);case '!=':return lc(x)!==lc(c.v);
+    case '~':return lc(x).includes(lc(c.v));case '!~':return !lc(x).includes(lc(c.v));
+    case 'in':return c.v.map(lc).includes(lc(x));case 'not in':return !c.v.map(lc).includes(lc(x));
+    case '<':return x!=null&&x!==''&&x<c.v;case '<=':return x!=null&&x!==''&&x<=c.v;
+    case '>':return x!=null&&x!==''&&x>c.v;case '>=':return x!=null&&x!==''&&x>=c.v;
+  }
+  throw 'Nezināms operators '+c.op;
+}
+const PRANK={Highest:5,High:4,Medium:3,Low:2,Lowest:1};
+function runJQL(q){
+  const {groups,order}=parseJQL(q||'');
+  let r=S.issues.filter(i=>groups.some(g=>g.every(c=>match(i,c))));
+  const ord=order||[['created','DESC']];
+  r.sort((a,b)=>{for(const [f,d] of ord){let fa,fb;
+      if(f==='priority'){fa=PRANK[a.priority];fb=PRANK[b.priority]}else if(f==='rank'||f==='key'){fa=+a.key.split('-')[1]+(projOf(a)==='PASK'?1000:0);fb=+b.key.split('-')[1]+(projOf(b)==='PASK'?1000:0)}
+      else{const ff=FIELDMAP[f]||f;fa=fieldVal(a,ff)||'';fb=fieldVal(b,ff)||''}
+      if(fa<fb)return d==='ASC'?-1:1;if(fa>fb)return d==='ASC'?1:-1}return 0});
+  return r;
+}
+function filterById(id){if(!id)return null;const s=SYSF.find(f=>f[0]===id);if(s)return {id,name:s[1],jql:s[2],owner:'system',sys:true};return S.filters.find(f=>f.id===id)}
+
+/* ---------- Galvene ---------- */
+function renderNav(){
+  const dl=S.dashboards.map(d=>`<a href="#/dash/${d.id}">${esc(d.name)}</a>`).join('');
+  const fav=S.filters.filter(f=>f.fav).map(f=>`<a href="#/search?filter=${f.id}">★ ${esc(f.name)}</a>`).join('');
+  const menus={
+    dash:`<div class="h">Dashboards</div>${dl}<hr><a href="#/dashboards">View all dashboards</a><button class="mitem" data-act="newdash">Create dashboard</button>`,
+    proj:`<div class="h">Recent projects</div>${Object.values(PROJECTS).map(p=>`<a href="#/board/${p.key}"><span class="pico" style="width:22px;height:22px;font-size:9px;background:${p.color}">${p.key.slice(0,2)}</span>${esc(p.name)} (${p.key})</a>`).join('')}<hr><a href="#/projects">View all projects</a>`,
+    iss:`<a href="#/search">Search for issues</a><hr><div class="h">Filters</div><a href="#/search?filter=my">My open issues</a><a href="#/search?filter=rep">Reported by me</a>${fav}<hr><a href="#/filters">Manage filters</a>`,
+    brd:`<div class="h">Recent boards</div>${Object.values(PROJECTS).map(p=>`<a href="#/board/${p.key}">${esc(p.board)}</a>`).join('')}<hr><a href="#/projects">View all boards</a>`,
+    plan:`<div class="h">Plans</div>${S.plans.map(p=>`<a href="#/plan/${p.id}">${esc(p.name)}</a>`).join('')}${S.programs.length?'<div class="h">Programs</div>'+S.programs.map(p=>`<a href="#/program/${p.id}">${esc(p.name)}</a>`).join(''):''}<hr><a href="#/plans">View all plans</a><button class="mitem" data-act="newplan">Create plan</button><button class="mitem" data-act="newprog">Create program</button>`
+  };
+  const mi=(id,l)=>`<div class="mi"><button data-act="menu" data-v="${id}" aria-expanded="${UI.menu===id}" aria-haspopup="true">${l} ▾</button>${UI.menu===id?`<div class="menu">${menus[id]}</div>`:''}</div>`;
+  $('#jnav').innerHTML=`<a class="logo" href="#/dash/d1"><i>J</i>Jira</a>${mi('dash','Dashboards')}${mi('proj','Projects')}${mi('iss','Issues')}${mi('brd','Boards')}${mi('plan','Plans')}
+   <button class="create" data-act="create">Create</button><span class="sp"></span>
+   <input type="search" id="qs" placeholder="Search" aria-label="Meklēt pieteikumus" autocomplete="off">
+   <span style="margin-left:8px">${av(me())}</span>`;
+  $('#personas').innerHTML=PERSONAS.map(k=>`<button data-act="persona" data-v="${k}" aria-pressed="${S.persona===k}" title="${esc(U(k).role)}">${esc(U(k).name.split(' ')[0])}</button>`).join('');
+  $('#ncnt').textContent=S.notifs.length;
+}
+
+/* ---------- Maršruti ---------- */
+function route(){
+  const h=location.hash.replace(/^#\/?/,'')||'dash/d1';
+  const [path,qs]=h.split('?');const parts=path.split('/');const q=new URLSearchParams(qs||'');
+  return {parts,q};
+}
+function render(){
+  renderNav();
+  const {parts,q}=route();const a=$('#app');const p0=parts[0];
+  let html='';
+  try{
+    if(p0==='dash')html=pDash(parts[1]||'d1');
+    else if(p0==='dashboards')html=pDashList();
+    else if(p0==='projects')html=pProjects();
+    else if(p0==='board')html=shell(parts[1],'board',pBoard(parts[1]));
+    else if(p0==='backlog')html=shell(parts[1],'backlog',pBacklog(parts[1]));
+    else if(p0==='reports')html=shell(parts[1],'reports',pReports(parts[1]));
+    else if(p0==='issue')html=pIssue(parts[1]);
+    else if(p0==='search')html=pSearch(q);
+    else if(p0==='filters')html=pFilters();
+    else if(p0==='plans')html=pPlans();
+    else if(p0==='plan')html=pPlan(parts[1]);
+    else if(p0==='program')html=pProgram(parts[1]);
+    else html='<div class="page"><div class="empty">Lapa nav atrasta.</div></div>';
+  }catch(e){console.error(e);html='<div class="page"><div class="empty">Kļūda: '+esc(e.message||e)+'</div></div>'}
+  a.innerHTML=html;
+  renderDrawer();renderModal();
+  if(p0==='plan')drawDeps();
+}
+
+/* ---------- Dashboards ---------- */
+function gadgetBody(g){
+  const f=filterById(g.filter);
+  const list=(arr,empty)=>arr.length?`<table class="t"><tr><th>T</th><th>Key</th><th>Summary</th><th>Status</th><th>Due</th></tr>${arr.slice(0,8).map(i=>`<tr><td>${ti(i.type)}</td><td><a href="#/issue/${i.key}">${i.key}</a></td><td>${esc(i.summary)}</td><td>${lz(i.status)}</td><td class="${isOver(i)?'overdue':''}">${fmt(i.due)}</td></tr>`).join('')}</table><p class="help">Rāda 1–${Math.min(8,arr.length)} no ${arr.length}</p>`:`<p class="muted">${empty}</p>`;
+  switch(g.type){
+    case 'intro':return `<p><b>Laipni lūgti Jira mācību vidē.</b></p><p class="muted">Šis ir System Dashboard. Izveidojiet savu dashboard izvēlnē <b>Dashboards → Create dashboard</b> un pievienojiet gadžetus.</p>`;
+    case 'assigned':return list(runJQL('assignee = currentUser() AND resolution = Unresolved ORDER BY priority DESC'),'Jums nav piešķirtu atvērtu uzdevumu.');
+    case 'filter':return f?list(runJQL(f.jql),'Filtram nav rezultātu.'):'<p class="muted">Izvēlieties filtru gadžeta iestatījumos.</p>';
+    case 'activity':return S.activity.length?S.activity.slice(0,8).map(a=>`<div class="cmt">${av(a.who,1)}<div class="b"><div class="who"><b>${esc(uname(a.who))}</b> ${esc(a.text)} <a href="#/issue/${a.key}">${a.key}</a></div><div class="help">${esc(a.when)}</div></div></div>`).join(''):'<p class="muted">Vēl nav aktivitātes. Veiciet izmaiņas kādā uzdevumā, un tās parādīsies šeit.</p>';
+    case 'pie':{if(!f)return '<p class="muted">Izvēlieties filtru.</p>';const r=runJQL(f.jql);const by={};r.forEach(i=>{const k=g.stat==='assignee'?uname(i.assignee):g.stat==='priority'?i.priority:i.status;by[k]=(by[k]||0)+1});
+      const SC={'To Do':'#8590A2','In Progress':'#0C66E4','In Review':'#E2B203','Done':'#1F845A'};const ent=Object.entries(by);const cols=g.stat==='status'?ent.map(([k])=>SC[k]):['#0C66E4','#E2B203','#1F845A','#8C1D2F','#5E4DB2','#8590A2'];let acc=0;const tot=r.length||1;
+      const arcs=ent.map(([k,v],n)=>{const a0=acc/tot*2*Math.PI,a1=(acc+v)/tot*2*Math.PI;acc+=v;const L=a1-a0>Math.PI?1:0;
+        const p=ent.length===1?`<circle cx="60" cy="60" r="56" fill="${cols[n%cols.length]}"/>`:`<path d="M60 60 L${60+56*Math.sin(a0)} ${60-56*Math.cos(a0)} A56 56 0 ${L} 1 ${60+56*Math.sin(a1)} ${60-56*Math.cos(a1)}Z" fill="${cols[n%cols.length]}" stroke="#fff" stroke-width="2"/>`;return p}).join('');
+      return `<div class="row" style="gap:20px;align-items:center"><svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Sektoru diagramma">${arcs}</svg><div class="legend">${ent.map(([k,v],n)=>`<span><i style="background:${cols[n%cols.length]}"></i>${esc(k)}: <b>${v}</b> (${Math.round(v/tot*100)}%)</span>`).join('')}</div></div><p class="help">Filtrs: ${esc(f.name)} · Statistika: ${g.stat==='assignee'?'Assignee':g.stat==='priority'?'Priority':'Status'}</p>`}
+    case 'twod':{if(!f)return '<p class="muted">Izvēlieties filtru.</p>';const r=runJQL(f.jql);const us=[...new Set(r.map(i=>i.assignee))];
+      return `<table class="t"><tr><th>Assignee</th>${STATUSES.map(s=>`<th>${s}</th>`).join('')}<th>T:</th></tr>${us.map(u=>`<tr><td>${av(u,1)} ${esc(uname(u))}</td>${STATUSES.map(s=>`<td>${r.filter(i=>i.assignee===u&&i.status===s).length||''}</td>`).join('')}<td><b>${r.filter(i=>i.assignee===u).length}</b></td></tr>`).join('')}</table><p class="help">Two Dimensional Filter Statistics · ${esc(f.name)}</p>`}
+    case 'sprint':{const sp=Object.values(S.sprints).find(s=>s.state==='active');if(!sp)return '<p class="muted">Nav aktīva sprinta.</p>';const r=S.issues.filter(i=>i.sprint===sp.id&&i.type!=='Sub-task');
+      const done=r.filter(i=>i.status==='Done').length,ip=r.filter(i=>CAT[i.status]==='ip').length,td=r.length-done-ip;const left=diff(TODAY,sp.end);const pct=Math.round(diff(sp.start,TODAY)/diff(sp.start,sp.end)*100);
+      return `<p><b>${esc(sp.name)}</b> · ${fmt(sp.start)}–${fmt(sp.end)}</p><p style="font:800 32px/1 var(--fd);margin:8px 0">${left} <span style="font-size:14px;font-weight:600" class="muted">dienas atlikušas</span></p>
+        <div class="pbar" style="height:12px;margin:10px 0"><i style="width:${done/r.length*100}%;background:#1F845A"></i><i style="width:${ip/r.length*100}%;background:#0C66E4"></i><i style="width:${td/r.length*100}%;background:#DFE1E6"></i></div>
+        <p class="help">Done ${done} · In progress ${ip} · To do ${td} · Pagājis ${pct}% sprinta laika</p>`}
+  }
+  return '';
+}
+const GTITLE={intro:'Introduction',assigned:'Assigned to Me',filter:'Filter Results',activity:'Activity Stream',pie:'Pie Chart',twod:'Two Dimensional Filter Statistics',sprint:'Sprint Health · Days Remaining'};
+function pDash(id){
+  const d=S.dashboards.find(x=>x.id===id)||S.dashboards[0];
+  const cols=Array.from({length:d.cols},(_,c)=>d.gadgets.filter(g=>Math.min(g.col,d.cols-1)===c));
+  const canEdit=d.owner===me()||d.owner==='admin'&&me()==='anna';
+  return `<div class="page" style="max-width:none"><div class="row" style="margin-bottom:14px"><h1 class="pt" style="margin:0">${esc(d.name)}</h1><span class="sp"></span>
+    <span class="help">Koplietots: <b>${esc(d.share)}</b></span>
+    ${canEdit?`<button class="btn" data-act="addgad" data-v="${d.id}">Add gadget</button><button class="btn" data-act="layout" data-v="${d.id}">Edit layout</button><button class="btn" data-act="sharedash" data-v="${d.id}">Share</button>`:'<span class="help">Jūs varat tikai skatīt šo dashboard</span>'}
+    <button class="btn" data-act="newdash">Create dashboard</button></div>
+    <div class="dgrid" style="grid-template-columns:repeat(${d.cols},minmax(0,1fr))">${cols.map((cg,c)=>`<div style="display:flex;flex-direction:column;gap:14px;min-width:0">${cg.map(g=>`<section class="gad"><div class="gh"><b>${GTITLE[g.type]}${g.filter&&filterById(g.filter)?': '+esc(filterById(g.filter).name):''}</b>
+      ${canEdit?`${d.cols>1?`<button class="btn sm subtle" data-act="gmove" data-v="${d.id}|${g.id}" title="Pārvietot uz citu kolonnu">⇄</button>`:''}${['filter','pie','twod'].includes(g.type)?`<button class="btn sm subtle" data-act="gconf" data-v="${d.id}|${g.id}" title="Konfigurēt">⚙</button>`:''}<button class="btn sm subtle" data-act="gdel" data-v="${d.id}|${g.id}" title="Noņemt">✕</button>`:''}</div><div class="gb">${gadgetBody(g)}</div></section>`).join('')||'<div class="empty card">Tukša kolonna</div>'}</div>`).join('')}</div>
+</div>`;
+}
+function pDashList(){
+  return `<div class="page"><div class="row"><h1 class="pt" style="margin:0">Manage Dashboards</h1><span class="sp"></span><button class="btn primary" data-act="newdash">Create new dashboard</button></div><br>
+   <div class="tw"><table class="t"><tr><th>Name</th><th>Owner</th><th>Shared with</th><th>Gadgets</th></tr>${S.dashboards.map(d=>`<tr><td><a href="#/dash/${d.id}">${esc(d.name)}</a></td><td>${d.owner==='admin'?'Jira administrators':esc(uname(d.owner))}</td><td>${esc(d.share)}</td><td>${d.gadgets.length}</td></tr>`).join('')}</table></div></div>`;
+}
+
+/* ---------- Projekti, dēlis, backlog ---------- */
+function pProjects(){
+  return `<div class="page"><h1 class="pt">Projects</h1><div class="tw"><table class="t"><tr><th>Name</th><th>Key</th><th>Type</th><th>Lead</th><th>Board</th></tr>
+   ${Object.values(PROJECTS).map(p=>`<tr><td><div class="row"><span class="pico" style="background:${p.color}">${p.key.slice(0,2)}</span><a href="#/board/${p.key}">${esc(p.name)}</a></div></td><td class="mono">${p.key}</td><td>Software · ${p.kind}</td><td>${av(p.lead,1)} ${esc(uname(p.lead))}</td><td><a href="#/board/${p.key}">${esc(p.board)}</a></td></tr>`).join('')}
+   </table></div><p class="help" style="margin-top:12px">Padoms: projektu var atrast arī izvēlnē <b>Projects</b> augšā. Zvaigznīte nav vajadzīga, jo nesen atvērtie projekti parādās sarakstā paši.</p></div>`;
+}
+function shell(pk,cur,body){
+  const p=PROJECTS[pk];if(!p)return '<div class="page"><div class="empty">Projekts nav atrasts.</div></div>';
+  const L=(k,href,l)=>`<a href="${href}" aria-current="${cur===k?'page':'false'}">${l}</a>`;
+  return `<div class="shell"><nav class="side" aria-label="Projekta navigācija"><div class="pj"><span class="pico" style="background:${p.color}">${p.key.slice(0,2)}</span><div><b>${esc(p.name)}</b><small>Software project · ${p.kind}</small></div></div>
+    ${p.kind==='Scrum'?L('backlog','#/backlog/'+pk,'☰ Backlog')+L('board','#/board/'+pk,'▦ Active sprints'):L('board','#/board/'+pk,'▦ Kanban board')}
+    ${L('reports','#/reports/'+pk,'📈 Reports')}${L('issues','#/search?jql='+encodeURIComponent('project = '+pk+' ORDER BY created DESC'),'≡ Issues')}
+    <a data-act="wf">⟳ Workflow</a></nav><div style="flex:1;min-width:0">${body}</div></div>`;
+}
+function boardIssues(pk){
+  const p=PROJECTS[pk];let r=S.issues.filter(i=>projOf(i)===pk&&i.type!=='Epic');
+  if(p.kind==='Scrum'){const sp=Object.values(S.sprints).find(s=>s.state==='active');r=r.filter(i=>sp&&i.sprint===sp.id)}
+  else r=r.filter(i=>!(i.status==='Done'&&i.updated<addD(TODAY,-14)));
+  const qf=UI.qf;
+  if(qf.mine)r=r.filter(i=>i.assignee===me());
+  if(qf.recent)r=r.filter(i=>i.updated>=addD(TODAY,-1));
+  if(qf.over)r=r.filter(isOver);
+  if(qf.user)r=r.filter(i=>i.assignee===qf.user);
+  return r;
+}
+function bcard(i){
+  const sub=kids(i.key).filter(k=>k.type==='Sub-task');const ep=i.epic&&get(i.epic);
+  return `<div class="bcard${isOver(i)?' od':''}" draggable="true" data-drag="${i.key}" data-act="open" data-v="${i.key}" tabindex="0" role="button" aria-label="${i.key} ${esc(i.summary)}">
+   <div>${esc(i.summary)}</div>${ep?`<div><span class="tag" style="background:#F3F0FF;color:#5E4DB2">${esc(ep.epicName||ep.summary)}</span></div>`:''}
+   ${i.parent?`<div class="help">↳ ${i.parent}</div>`:''}
+   <div class="bot">${ti(i.type)} ${pri(i.priority)}<span class="mono">${i.key}</span>${sub.length?`<span title="Sub-tasks">☑ ${sub.filter(s=>s.status==='Done').length}/${sub.length}</span>`:''}${i.sp?`<span class="tag" style="margin:0">${i.sp}</span>`:''}${i.due?`<span class="${isOver(i)?'overdue':''}">${fmt(i.due)}</span>`:''}<span class="sp"></span>${av(i.assignee,1)}</div></div>`;
+}
+function pBoard(pk){
+  const p=PROJECTS[pk];if(!p)return '';const r=boardIssues(pk);const sp=Object.values(S.sprints).find(s=>s.state==='active');
+  const users=[...new Set(S.issues.filter(i=>projOf(i)===pk&&i.assignee).map(i=>i.assignee))];
+  const qb=(k,l)=>`<button class="btn sm${UI.qf[k]?' on':''}" data-act="qf" data-v="${k}" aria-pressed="${!!UI.qf[k]}">${l}</button>`;
+  return `<div class="page" style="max-width:none"><div class="crumbs">Projects / ${esc(p.name)}</div>
+   <div class="bhead"><h1 class="pt" style="margin:0">${p.kind==='Scrum'&&sp?esc(sp.name):esc(p.board)}</h1>${p.kind==='Scrum'&&sp?`<span class="help">${fmt(sp.start)}–${fmt(sp.end)} · <b>${diff(TODAY,sp.end)} dienas atlikušas</b>${sp.goal?' · Mērķis: '+esc(sp.goal):''}</span><span class="sp"></span><button class="btn" data-act="complete" data-v="${sp.id}">Complete sprint</button>`:'<span class="sp"></span>'}
+   <button class="btn" data-act="create">+ Create issue</button></div>
+   <div class="qf"><span class="help">Quick filters:</span>${qb('mine','Only My Issues')}${qb('recent','Recently Updated')}${qb('over','Kavētie')}
+    <span style="width:8px"></span>${users.map(u=>`<button class="btn sm subtle${UI.qf.user===u?' on':''}" data-act="qfu" data-v="${u}" title="${esc(uname(u))}" style="padding:2px">${av(u,1)}</button>`).join('')}
+    ${Object.keys(UI.qf).some(k=>UI.qf[k])?'<button class="btn sm subtle" data-act="qfclear">Notīrīt filtrus</button>':''}</div>
+   <div class="cols">${STATUSES.map(s=>{const c=r.filter(i=>i.status===s);const wip=p.kind==='Kanban'&&s==='In Progress'?S.wipPASK:0;const over=wip&&c.length>wip;
+     return `<section class="col${over?' over':''}" data-drop="${s}" aria-label="${s}"><h3>${s} <span>${c.length}</span>${wip?`<span class="wip">Max ${wip}</span>`:''}</h3><div class="drop">${c.map(bcard).join('')}</div></section>`}).join('')}</div>
+   <p class="help">Velciet kartīti uz citu kolonnu, lai mainītu statusu. Klikšķis uz kartītes atver uzdevumu.${p.kind==='Kanban'?' Kolonnā In Progress ir WIP limits: ja kartīšu ir vairāk, kolonna kļūst sarkana.':''}</p></div>`;
+}
+function irow(i,where){
+  const opts=Object.values(S.sprints).filter(s=>s.state!=='closed').map(s=>`<option value="${s.id}" ${i.sprint===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
+  return `<div class="irow">${ti(i.type)} ${pri(i.priority)}<a class="mono" href="#/issue/${i.key}">${i.key}</a><span class="s">${esc(i.summary)}${i.epic?` <span class="tag" style="background:#F3F0FF;color:#5E4DB2">${esc((get(i.epic)||{}).epicName||'')}</span>`:''}</span>${lz(i.status)}${i.sp?`<span class="tag" style="margin:0">${i.sp}</span>`:''}${av(i.assignee,1)}
+   <select data-chg="movesprint" data-v="${i.key}" aria-label="Pārvietot uz"><option value="">Backlog</option>${opts}</select></div>`;
+}
+function pBacklog(pk){
+  const r=S.issues.filter(i=>projOf(i)===pk&&!['Epic','Sub-task'].includes(i.type));
+  const sps=Object.values(S.sprints).filter(s=>s.state!=='closed');
+  return `<div class="page" style="max-width:1100px"><div class="crumbs">Projects / ${esc(PROJECTS[pk].name)}</div><div class="row"><h1 class="pt" style="margin:0">Backlog</h1><span class="sp"></span><button class="btn" data-act="newsprint">Create sprint</button></div><br>
+   ${sps.map(s=>{const a=r.filter(i=>i.sprint===s.id);const pts=a.reduce((x,i)=>x+(i.sp||0),0);return `<div class="sprint"><div class="sh"><b>${esc(s.name)}</b><span class="help">${fmt(s.start)}–${fmt(s.end)} · ${a.length} issues · ${pts} story points</span>${s.state==='active'?'<span class="lz ip">Active</span>':''}<span class="sp"></span>
+     ${s.state==='future'?`<button class="btn sm" data-act="startsprint" data-v="${s.id}">Start sprint</button>`:`<a href="#/board/${pk}">Atvērt dēli</a>`}</div>${a.map(i=>irow(i)).join('')||'<div class="irow muted">Plānojiet sprintu: pārvietojiet uzdevumus no Backlog.</div>'}</div>`}).join('')}
+   <div class="sprint"><div class="sh"><b>Backlog</b><span class="help">${r.filter(i=>!i.sprint).length} issues</span><span class="sp"></span><button class="btn sm" data-act="create">+ Create issue</button></div>${r.filter(i=>!i.sprint).map(i=>irow(i)).join('')||'<div class="irow muted">Backlog ir tukšs.</div>'}</div>
+   <p class="help">Lai ieplānotu darbu sprintā, izvēlieties sprintu laukā labajā pusē.</p></div>`;
+}
+function pReports(pk){
+  const r=S.issues.filter(i=>projOf(i)===pk&&i.type!=='Epic');
+  const by=STATUSES.map(s=>[s,r.filter(i=>i.status===s).length]);const mx=Math.max(...by.map(x=>x[1]),1);
+  const vel=pk==='DIGI'?[['Sprint 1',3,3],['Sprint 2',S.issues.filter(i=>i.sprint==='s2').reduce((a,i)=>a+(i.sp||0),0),S.issues.filter(i=>i.sprint==='s2'&&i.status==='Done').reduce((a,i)=>a+(i.sp||0),0)]]:null;
+  return `<div class="page"><div class="crumbs">Projects / ${esc(PROJECTS[pk].name)}</div><h1 class="pt">Reports</h1>
+   <div class="card" style="padding:16px;margin-bottom:16px"><h2 class="st" style="margin-top:0">Uzdevumi pa statusiem</h2>${by.map(([s,n])=>`<div class="row" style="margin-bottom:6px"><span style="width:110px">${lz(s)}</span><div class="pbar" style="flex:1;height:14px"><i style="width:${n/mx*100}%;background:${s==='Done'?'#1F845A':CAT[s]==='ip'?'#0C66E4':'#8590A2'}"></i></div><b style="width:24px;text-align:right">${n}</b></div>`).join('')}</div>
+   ${vel?`<div class="card" style="padding:16px;margin-bottom:16px"><h2 class="st" style="margin-top:0">Velocity Chart (story points)</h2>${vel.map(([n,c,d])=>`<div class="row" style="margin-bottom:8px"><span style="width:80px">${n}</span><div style="flex:1"><div class="pbar" style="height:10px;margin-bottom:3px"><i style="width:${c/20*100}%;background:#8590A2"></i></div><div class="pbar" style="height:10px"><i style="width:${d/20*100}%;background:#1F845A"></i></div></div><span class="help" style="width:150px">Plānots ${c} · Paveikts ${d}</span></div>`).join('')}</div>`:''}
+   <div class="card" style="padding:16px"><h2 class="st" style="margin-top:0">Kavētie uzdevumi</h2>${r.filter(isOver).map(i=>`<div class="irow">${ti(i.type)}<a href="#/issue/${i.key}" class="mono">${i.key}</a><span class="s">${esc(i.summary)}</span><span class="overdue">${fmt(i.due)}</span>${av(i.assignee,1)}</div>`).join('')||'<p class="muted">Nav kavētu uzdevumu.</p>'}</div></div>`;
+}
+
+/* ---------- Uzdevuma skats ---------- */
+function mtext(s){return esc(s).replace(/@\[(\w+)\]/g,(m,k)=>`<span class="mention">@${esc(uname(k))}</span>`)}
+function pIssue(k){
+  const i=get(k);if(!i)return '<div class="page"><div class="empty">Uzdevums neeksistē vai jums nav tiesību to redzēt.</div></div>';
+  if(S.recent[0]!==k){S.recent=[k,...S.recent.filter(x=>x!==k)].slice(0,8);save()}
+  const p=PROJECTS[projOf(i)];const sub=kids(k).filter(x=>x.type==='Sub-task');const chil=i.type==='Epic'?kids(k):[];
+  const ep=i.epic&&get(i.epic);const par=i.parent&&get(i.parent);
+  const tab=UI.tab;
+  let act='';
+  if(tab==='all'||tab==='comments'){act+=i.comments.map((c,n)=>`<div class="cmt">${av(c.who)}<div class="b"><div class="who"><b>${esc(uname(c.who))}</b> <span class="help">pievienoja komentāru · ${esc(c.when)}</span></div><div class="txt">${mtext(c.body)}</div>${c.who===me()?`<div><a class="help" data-act="delc" data-v="${k}|${n}">Delete</a></div>`:''}</div></div>`).join('')||(tab==='comments'?'<p class="muted">Vēl nav komentāru.</p>':'')}
+  if(tab==='all'||tab==='history'){act+=`<table class="t hist">${i.hist.map(h=>`<tr><td style="width:36px">${av(h.who,1)}</td><td><b>${esc(uname(h.who))}</b> ${h.field==='Created'?'izveidoja uzdevumu':'mainīja <b>'+esc(h.field)+'</b>'}${h.via?' <span class="tag">'+esc(h.via)+'</span>':''}<div class="help">${esc(h.when)}</div></td><td>${h.field==='Created'?'':`<span class="muted" style="text-decoration:line-through">${esc(h.from)||'None'}</span> → <b>${esc(h.to)||'None'}</b>`}</td></tr>`).join('')}</table>`}
+  if(tab==='worklog')act='<p class="muted">Šim uzdevumam nav reģistrēts darba laiks.</p>';
+  const tr=TRANS[i.status].map(([l,to])=>`<button class="btn${to==='Done'?' primary':''}" data-act="trans" data-v="${k}|${to}">${l}</button>`).join('');
+  const ed=(f,l,inp)=>`<dt>${l}</dt><dd>${inp}</dd>`;
+  const usel=(f)=>`<select data-chg="field" data-f="${f}" data-v="${k}" aria-label="${f}">${f==='assignee'?'<option value="">Unassigned</option>':''}${Object.keys(USERS).map(u=>`<option value="${u}" ${i[f]===u?'selected':''}>${esc(uname(u))}</option>`).join('')}</select>`;
+  return `<div class="page" style="max-width:1300px"><div class="crumbs"><a href="#/board/${p.key}">${esc(p.name)}</a> / ${ep?`<a href="#/issue/${ep.key}">${ep.key}</a> / `:''}${par?`<a href="#/issue/${par.key}">${par.key}</a> / `:''}<span class="mono">${k}</span></div>
+  <div class="iv"><div>
+   <h1 contenteditable="true" spellcheck="false" data-edit="summary" data-v="${k}" title="Klikšķiniet, lai labotu">${esc(i.summary)}</h1>
+   <div class="ops"><button class="btn" data-act="edit" data-v="${k}">✎ Edit</button><button class="btn" data-act="focuscmt">💬 Comment</button>
+    ${i.assignee!==me()?`<button class="btn" data-act="assignme" data-v="${k}">Assign to me</button>`:''}
+    <button class="btn" data-act="attach" data-v="${k}">📎 Attach</button>
+    ${i.type!=='Epic'&&i.type!=='Sub-task'?`<button class="btn" data-act="addsub" data-v="${k}">+ Sub-task</button>`:''}
+    <button class="btn" data-act="addlink" data-v="${k}">🔗 Link</button>
+    <span style="width:8px"></span>${tr}<button class="btn subtle" data-act="wf">View workflow</button></div>
+   <div class="mod"><h4>Details</h4><dl class="det" style="grid-template-columns:120px 1fr 120px 1fr">
+    <dt>Type</dt><dd>${ti(i.type)} ${i.type}</dd><dt>Status</dt><dd>${lz(i.status)}</dd>
+    <dt>Priority</dt><dd><select data-chg="field" data-f="priority" data-v="${k}" aria-label="Priority">${Object.keys(PRI).map(x=>`<option ${i.priority===x?'selected':''}>${x}</option>`).join('')}</select></dd><dt>Resolution</dt><dd>${i.resolution||'Unresolved'}</dd>
+    <dt>Labels</dt><dd>${i.labels.map(l=>`<span class="tag">${esc(l)}</span>`).join('')||'None'}</dd>
+    ${i.type==='Epic'?`<dt>Epic Name</dt><dd>${esc(i.epicName)}</dd>`:`<dt>Epic Link</dt><dd>${ep?`<a href="#/issue/${ep.key}"><span class="tag" style="background:#F3F0FF;color:#5E4DB2">${esc(ep.epicName)}</span></a>`:'None'}</dd>`}
+    ${PROJECTS[projOf(i)].kind==='Scrum'&&i.type!=='Epic'?`<dt>Sprint</dt><dd>${i.sprint?esc(S.sprints[i.sprint].name):'None'}</dd><dt>Story Points</dt><dd>${i.sp||'None'}</dd>`:''}
+   </dl></div>
+   <div class="mod"><h4>Description</h4>${UI.editDesc===k?`<textarea id="descta" rows="7">${esc(i.desc)}</textarea><div class="row" style="margin-top:6px"><button class="btn primary sm" data-act="savedesc" data-v="${k}">Save</button><button class="btn sm subtle" data-act="canceldesc">Cancel</button></div>`:`<div class="desc" data-act="editdesc" data-v="${k}" tabindex="0" role="button" title="Klikšķiniet, lai labotu">${i.desc?esc(i.desc):'<span class="muted">Klikšķiniet, lai pievienotu aprakstu</span>'}</div>`}</div>
+   <div class="mod"><h4>Attachments</h4>${i.atts.map(a=>`<span class="att">📄 <span><b>${esc(a.name)}</b><br><span class="help">${esc(a.size)} · ${esc(uname(a.who))} · ${fmt(a.when)}</span></span></span>`).join('')||'<p class="muted">Nav pielikumu. Ievelciet failu vai spiediet 📎 Attach.</p>'}</div>
+   ${sub.length||(i.type!=='Epic'&&i.type!=='Sub-task')?`<div class="mod"><h4>Sub-Tasks</h4>${sub.map(s=>`<div class="irow">${ti(s.type)}<a class="mono" href="#/issue/${s.key}">${s.key}</a><span class="s">${esc(s.summary)}</span>${lz(s.status)}${av(s.assignee,1)}</div>`).join('')||'<p class="muted">Nav apakšuzdevumu.</p>'}</div>`:''}
+   ${chil.length?`<div class="mod"><h4>Issues in epic</h4>${chil.map(s=>`<div class="irow">${ti(s.type)}<a class="mono" href="#/issue/${s.key}">${s.key}</a><span class="s">${esc(s.summary)}</span>${lz(s.status)}${av(s.assignee,1)}</div>`).join('')}<div class="pbar" style="margin-top:8px"><i style="width:${chil.filter(c=>c.status==='Done').length/chil.length*100}%;background:#1F845A"></i></div><p class="help">${chil.filter(c=>c.status==='Done').length} no ${chil.length} pabeigti</p></div>`:''}
+   <div class="mod"><h4>Issue Links</h4>${i.links.map(l=>{const t=get(l.key);return t?`<div class="irow"><span class="help" style="width:100px">${esc(l.type)}</span>${ti(t.type)}<a class="mono" href="#/issue/${t.key}">${t.key}</a><span class="s">${esc(t.summary)}</span>${lz(t.status)}</div>`:''}).join('')||'<p class="muted">Nav saistīto uzdevumu.</p>'}</div>
+   <div class="mod"><h4>Activity</h4><div class="tabs" role="tablist">${[['all','All'],['comments','Comments'],['worklog','Work Log'],['history','History']].map(([v,l])=>`<button role="tab" aria-selected="${tab===v}" data-act="tab" data-v="${v}">${l}</button>`).join('')}</div>${act}
+    <div style="margin-top:14px" id="cbox"><label class="f" for="cta">Komentārs (rakstiet @, lai pieminētu kolēģi)</label><textarea id="cta" placeholder="Pievienojiet komentāru…"></textarea><div id="msug"></div>
+    <div class="row" style="margin-top:6px"><button class="btn primary" data-act="comment" data-v="${k}">Add</button><span class="help">Komentāru redz visi, kam ir piekļuve projektam. Pieminētais saņems e-pastu.</span></div></div></div>
+  </div><div>
+   <div class="mod"><h4>People</h4><dl class="det"><dt>Assignee</dt><dd>${usel('assignee')}${i.assignee!==me()?`<a data-act="assignme" data-v="${k}" style="font-size:12px">Assign to me</a>`:''}</dd><dt>Reporter</dt><dd>${av(i.reporter,1)} ${esc(uname(i.reporter))}</dd>
+    <dt>Watchers</dt><dd><span class="tag">${i.watchers.length}</span> <a data-act="watch" data-v="${k}" style="font-size:12px">${i.watchers.includes(me())?'Stop watching':'Start watching'}</a></dd></dl></div>
+   <div class="mod"><h4>Dates</h4><dl class="det"><dt>Created</dt><dd>${fmt(i.created)}</dd><dt>Updated</dt><dd>${fmt(i.updated)}</dd>
+    <dt>Due date</dt><dd><input type="date" value="${i.due||''}" data-chg="field" data-f="due" data-v="${k}" aria-label="Due date">${isOver(i)?'<span class="overdue" style="font-size:12px">Termiņš ir pagājis</span>':''}</dd>
+    <dt>Target start</dt><dd>${fmt(i.ts)||'None'}</dd><dt>Target end</dt><dd>${fmt(i.te)||'None'}</dd></dl><p class="help">Target start/end parasti maina Plan skatā.</p></div>
+  </div></div></div>`;
+}
+
+/* ---------- Meklēšana un filtri ---------- */
+function pSearch(q){
+  let f=null;
+  if(q.get('filter')){f=filterById(q.get('filter'));if(f&&UI.filter!==f.id){UI.filter=f.id;UI.jql=f.jql}}
+  else if(q.get('jql')!=null&&UI.jqlFromUrl!==q.get('jql')){UI.jqlFromUrl=q.get('jql');UI.jql=q.get('jql');UI.filter=null}
+  if(UI.jql==null)UI.jql='project in (DIGI, PASK) ORDER BY created DESC';
+  f=filterById(UI.filter);
+  let res=[],err='';try{res=runJQL(UI.jql)}catch(e){err=String(e)}
+  const bas=basicFromJql(UI.jql);
+  const sel=(id,l,opts,v)=>`<select data-chg="basic" data-f="${id}" aria-label="${l}"><option value="">${l}: All</option>${opts.map(o=>`<option value="${esc(o[0])}" ${v===o[0]?'selected':''}>${esc(l)}: ${esc(o[1])}</option>`).join('')}</select>`;
+  const dirty=f&&f.jql!==UI.jql;
+  return `<div class="page" style="max-width:none"><div class="sres"><nav class="flist" aria-label="Filtri"><a href="#/search?jql=" data-act="newsearch">+ New search</a><div class="h">Favorite filters</div>${S.filters.filter(x=>x.fav).map(x=>`<a href="#/search?filter=${x.id}" aria-current="${UI.filter===x.id?'page':'false'}">★ ${esc(x.name)}</a>`).join('')||'<p class="help" style="padding:0 8px">Nav</p>'}
+   <div class="h">System filters</div>${SYSF.map(s=>`<a href="#/search?filter=${s[0]}" aria-current="${UI.filter===s[0]?'page':'false'}">${s[1]}</a>`).join('')}<div class="h"></div><a href="#/filters">Manage filters</a></nav>
+  <div><div class="row" style="margin-bottom:10px"><h1 class="pt" style="margin:0">${f?esc(f.name)+(dirty?' <span class="help">(mainīts)</span>':''):'Search'}</h1><span class="sp"></span>
+    ${f&&!f.sys&&f.owner===me()&&dirty?`<button class="btn" data-act="savefilter" data-v="${f.id}">Save</button>`:''}<button class="btn" data-act="saveas">Save as</button>${f&&!f.sys?`<button class="btn" data-act="sharef" data-v="${f.id}">Details · Share</button>`:''}</div>
+   ${UI.mode==='basic'?`<div class="sbar">${sel('project','Project',Object.values(PROJECTS).map(p=>[p.key,p.name]),bas.project)}${sel('type','Type',Object.keys(TYPES).map(t=>[t,t]),bas.type)}${sel('status','Status',STATUSES.map(s=>[s,s]),bas.status)}${sel('assignee','Assignee',[['currentUser()','Current User'],...Object.keys(USERS).map(u=>[u,uname(u)])],bas.assignee)}${sel('due','Due',[['over','Kavēti (pirms šodienas)'],['week','Šonedēļ'],['none','Bez termiņa']],bas.due)}
+     <input type="search" data-chg="basic" data-f="text" placeholder="Contains text" value="${esc(bas.text||'')}" style="width:180px" aria-label="Teksts"><button class="btn primary" data-act="runq">Search</button><a data-act="mode" data-v="adv">Advanced</a></div>${bas.unknown?'<p class="help">Šo vaicājumu nevar attēlot vienkāršajā režīmā. Pārslēdzieties uz Advanced.</p>':''}`
+   :`<div class="sbar"><input type="text" class="jql" id="jqlin" value="${esc(UI.jql)}" aria-label="JQL" style="flex:1;min-width:240px"><button class="btn primary" data-act="runjql">Search</button><a data-act="mode" data-v="basic">Basic</a></div>
+     <p class="help">Piemēri: <a data-act="ex" data-v="assignee = currentUser() AND statusCategory != Done">mani atvērtie</a> · <a data-act="ex" data-v="project = DIGI AND status = &quot;In Progress&quot;">DIGI procesā</a> · <a data-act="ex" data-v="duedate &lt; now() AND resolution = Unresolved">kavētie</a> · <a data-act="ex" data-v="duedate &lt;= endOfWeek() AND statusCategory != Done ORDER BY duedate">termiņš šonedēļ</a> · <a data-act="ex" data-v="labels = iekštīkls ORDER BY priority DESC">pēc etiķetes</a></p>`}
+   ${err?`<div class="card" style="padding:12px;border-color:var(--red);background:var(--red-soft);color:var(--red);margin-bottom:12px">${esc(err)}</div>`:''}
+   <div class="tw"><table class="t"><tr><th>T</th><th>Key</th><th>Summary</th><th>Assignee</th><th>Reporter</th><th>P</th><th>Status</th><th>Resolution</th><th>Due</th><th>Updated</th></tr>
+   ${res.map(i=>`<tr><td>${ti(i.type)}</td><td><a class="mono" href="#/issue/${i.key}">${i.key}</a></td><td>${esc(i.summary)}</td><td>${i.assignee?esc(uname(i.assignee)):'<span class="muted">Unassigned</span>'}</td><td>${esc(uname(i.reporter))}</td><td>${pri(i.priority)}</td><td>${lz(i.status)}</td><td>${i.resolution||'<i class="muted">Unresolved</i>'}</td><td class="${isOver(i)?'overdue':''}">${fmt(i.due)}</td><td>${fmt(i.updated)}</td></tr>`).join('')||`<tr><td colspan="10"><div class="empty">Nav atrasts neviens uzdevums. Mainiet kritērijus.</div></td></tr>`}</table></div>
+   <p class="help">${res.length} uzdevumi · JQL: <span class="mono">${esc(UI.jql)}</span></p></div></div></div>`;
+}
+function basicFromJql(q){
+  const o={};let t=q.replace(/\s+ORDER BY.*$/i,'').trim();if(!t)return o;
+  t.split(/\s+AND\s+/i).forEach(c=>{let m;
+    if((m=c.match(/^project\s*=\s*"?(\w+)"?$/i)))o.project=m[1].toUpperCase();
+    else if((m=c.match(/^(issue)?type\s*=\s*"?([\w-]+)"?$/i)))o.type=m[2];
+    else if((m=c.match(/^status\s*=\s*"([^"]+)"$/i))||(m=c.match(/^status\s*=\s*(\w+)$/i)))o.status=STATUSES.find(s=>s.toLowerCase()===m[1].toLowerCase());
+    else if((m=c.match(/^assignee\s*=\s*(currentUser\(\)|\w+)$/i)))o.assignee=m[1];
+    else if(/^duedate\s*<\s*now\(\)$/i.test(c))o.due='over';
+    else if(/^duedate\s*<=\s*endOfWeek\(\)$/i.test(c))o.due='week';
+    else if(/^duedate\s+is\s+EMPTY$/i.test(c))o.due='none';
+    else if((m=c.match(/^text\s*~\s*"([^"]*)"$/i)))o.text=m[1];
+    else o.unknown=true});
+  return o;
+}
+function jqlFromBasic(o){
+  const c=[];if(o.project)c.push('project = '+o.project);if(o.type)c.push('type = '+(o.type.includes('-')?`"${o.type}"`:o.type));if(o.status)c.push(`status = "${o.status}"`);
+  if(o.assignee)c.push('assignee = '+o.assignee);if(o.due==='over')c.push('duedate < now()');if(o.due==='week')c.push('duedate <= endOfWeek()');if(o.due==='none')c.push('duedate is EMPTY');
+  if(o.text)c.push(`text ~ "${o.text.replace(/"/g,'')}"`);
+  return (c.join(' AND ')+' ORDER BY created DESC').trim();
+}
+function pFilters(){
+  const mine=S.filters;
+  return `<div class="page"><div class="row"><h1 class="pt" style="margin:0">Manage Filters</h1><span class="sp"></span><a class="btn" href="#/search">Search for issues</a></div><br>
+   <div class="tw"><table class="t"><tr><th>★</th><th>Name</th><th>Owner</th><th>Shared with</th><th>JQL</th><th></th></tr>${mine.map(f=>`<tr><td><button class="btn sm subtle" data-act="fav" data-v="${f.id}" aria-label="Izlase" aria-pressed="${f.fav}">${f.fav?'★':'☆'}</button></td><td><a href="#/search?filter=${f.id}">${esc(f.name)}</a></td><td>${esc(uname(f.owner))}</td><td>${esc(f.share)}</td><td class="mono" style="font-size:12px">${esc(f.jql)}</td><td>${f.owner===me()?`<button class="btn sm" data-act="sharef" data-v="${f.id}">Edit</button> <button class="btn sm subtle" data-act="delf" data-v="${f.id}">Delete</button>`:''}</td></tr>`).join('')}</table></div>
+   <p class="help" style="margin-top:12px">Saglabātu filtru var izmantot dashboard gadžetos, dēļos un Plan avotos. Koplietošana nosaka, kas filtru redz; tā nedod piekļuvi pašiem uzdevumiem.</p></div>`;
+}
+
+/* ---------- Plans ---------- */
+function planIssues(pl){
+  let set=[];
+  pl.sources.forEach(s=>{
+    if(s.t==='Project'||s.t==='Board')set.push(...S.issues.filter(i=>projOf(i)===s.v));
+    if(s.t==='Filter'){const f=filterById(s.v);if(f){try{set.push(...runJQL(f.jql))}catch(e){}}}
+  });
+  set=[...new Set(set)].filter(i=>!(i.status==='Done'&&i.updated<addD(TODAY,-pl.excl)));
+  return set;
+}
+function V(pl,i,f){const d=pl.draft[i.key];return d&&d[f]?d[f][1]:i[f]}
+function warnings(pl){
+  const W=[];const iss=planIssues(pl);const keys=new Set(iss.map(i=>i.key));
+  iss.forEach(i=>{
+    const ts=V(pl,i,'ts'),te=V(pl,i,'te'),st=V(pl,i,'status');
+    const parKey=i.parent||i.epic;const par=parKey&&get(parKey);
+    if(par&&keys.has(par.key)){const ps=V(pl,par,'ts'),pe=V(pl,par,'te');
+      if(ts&&ps&&ts<ps)W.push({t:'Child issue starts before parent',k:i.key});
+      if(te&&pe&&te>pe)W.push({t:'Child issue ends after parent',k:i.key})}
+    const sp=V(pl,i,'sprint');if(sp&&ts&&te){const s=S.sprints[sp];if(s&&(ts<s.start||te>s.end))W.push({t:'Issue dates outside of assigned sprint',k:i.key})}
+    if(te&&te<TODAY&&st!=='Done')W.push({t:'Open issue has passed its assigned end date',k:i.key});
+  });
+  allDeps(pl).forEach(d=>{const a=get(d.from),b=get(d.to);if(!a||!b||!keys.has(a.key)||!keys.has(b.key))return;const ae=V(pl,a,'te'),bs=V(pl,b,'ts');if(ae&&bs&&bs<=ae)W.push({t:'Dependency is off track',k:b.key,dep:d})});
+  return W;
+}
+function allDeps(pl){
+  const out=[];S.issues.forEach(i=>i.links.forEach(l=>{if(l.type==='blocks')out.push({from:i.key,to:l.key})}));
+  (pl.deps||[]).forEach(d=>out.push(Object.assign({draft:true},d)));
+  return out;
+}
+const PX=7; // pikseļi dienā
+function planRange(){return {start:'2026-08-31',end:'2027-02-07'}}
+function planRows(pl){
+  const iss=planIssues(pl);const rows=[];const done=new Set();
+  const pushTree=(i,lvl)=>{if(done.has(i.key))return;done.add(i.key);rows.push({i,lvl});if(UI.collapsed[i.key])return;
+    iss.filter(c=>(c.epic===i.key&&c.type!=='Sub-task')||c.parent===i.key).forEach(c=>pushTree(c,lvl+1))};
+  iss.filter(i=>i.type==='Epic').forEach(e=>pushTree(e,0));
+  iss.filter(i=>!done.has(i.key)&&!i.parent).forEach(i=>pushTree(i,0));
+  return rows;
+}
+function pPlans(){
+  return `<div class="page"><div class="row"><h1 class="pt" style="margin:0">Plans</h1><span class="sp"></span><button class="btn primary" data-act="newplan">Create plan</button><button class="btn" data-act="newprog">Create program</button></div><br>
+  <div class="tw"><table class="t"><tr><th>Name</th><th>Type</th><th>Issue sources</th><th>Program</th><th>Access</th><th>Owner</th></tr>
+  ${S.plans.map(p=>`<tr><td><a href="#/plan/${p.id}">${esc(p.name)}</a></td><td>Plan</td><td>${p.sources.map(s=>`<span class="tag">${s.t}: ${esc(s.t==='Filter'?(filterById(s.v)||{}).name:s.v)}</span>`).join('')}</td><td>${p.program?esc((S.programs.find(x=>x.id===p.program)||{}).name):'<span class="muted">—</span>'}</td><td>${p.access}</td><td>${esc(uname(p.owner))}</td></tr>`).join('')}
+  ${S.programs.map(p=>`<tr><td><a href="#/program/${p.id}">${esc(p.name)}</a></td><td><span class="lz" style="background:#F3F0FF;color:#5E4DB2">Program</span></td><td>${S.plans.filter(x=>x.program===p.id).length} plans</td><td></td><td>${p.access}</td><td>${esc(uname(p.owner))}</td></tr>`).join('')}
+  </table></div><p class="help" style="margin-top:12px">Plan ir smilškaste: izmaiņas plānā neietekmē Jira uzdevumus, kamēr tās neapstiprina ar <b>Review changes → Save selected changes in Jira</b>.</p></div>`;
+}
+function pPlan(id){
+  const pl=S.plans.find(p=>p.id===id);if(!pl)return '<div class="page"><div class="empty">Plāns nav atrasts.</div></div>';
+  const W=warnings(pl);const wk=new Set(W.map(w=>w.k));const nchg=Object.keys(pl.draft).length+(pl.deps||[]).length;
+  const rg=planRange();const days=diff(rg.start,rg.end);const width=days*PX;
+  let rows=planRows(pl);if(UI.wOnly)rows=rows.filter(r=>wk.has(r.i.key));
+  const can=U(me()).planAdmin;
+  const wtypes=[...new Set(W.map(w=>w.t))];
+  let head='';for(let d=0;d<days;d+=7){const dt=addD(rg.start,d);head+=`<span class="wk" style="left:${d*PX}px"></span><span class="wkl" style="left:${d*PX+3}px">${dt.slice(8)}.${dt.slice(5,7)}</span>`}
+  let mon='';for(let d=0;d<days;d++){const dt=addD(rg.start,d);if(dt.endsWith('-01'))mon+=`<span class="mol" style="left:${d*PX+3}px">${['Janv','Febr','Marts','Apr','Maijs','Jūn','Jūl','Aug','Sept','Okt','Nov','Dec'][+dt.slice(5,7)-1]} ${dt.slice(0,4)}</span>`}
+  const grid=(()=>{let g='';for(let d=0;d<days;d+=7)g+=`<span class="wk" style="left:${d*PX}px"></span>`;return g})();
+  const todayX=diff(rg.start,TODAY)*PX;
+  const chg=(i,f)=>pl.draft[i.key]&&pl.draft[i.key][f]?' chg':'';
+  const body=rows.map(({i,lvl})=>{
+    const ts=V(pl,i,'ts'),te=V(pl,i,'te'),st=V(pl,i,'status'),as=V(pl,i,'assignee');
+    const hasKids=planIssues(pl).some(c=>(c.epic===i.key&&c.type!=='Sub-task')||c.parent===i.key);
+    const bar=ts&&te?`<div class="bar${i.type==='Epic'?' epic':''}${st==='Done'?' done':''}${chg(i,'ts')||chg(i,'te')?' chg':''}" data-bar="${i.key}" style="left:${diff(rg.start,ts)*PX}px;width:${Math.max(diff(ts,te)+1,1)*PX}px" title="${i.key}: ${fmt(ts)}–${fmt(te)}"><span class="rzl" data-edge="l"></span>${i.type==='Epic'?esc(i.epicName||''):''}<span class="rz" data-edge="r"></span></div>`:'';
+    return `<div class="prow" data-row="${i.key}"><div class="pl"><div class="pc scope" style="padding-left:${8+lvl*18}px">${hasKids?`<button class="btn sm subtle" data-act="coll" data-v="${i.key}" aria-label="Izvērst/sakļaut" style="padding:0 4px;min-height:20px">${UI.collapsed[i.key]?'▸':'▾'}</button>`:'<span style="width:22px"></span>'}${ti(i.type)}<a class="mono" href="#/issue/${i.key}" style="font-size:12px">${i.key}</a><span style="overflow:hidden;text-overflow:ellipsis" title="${esc(i.summary)}">${esc(i.summary)}</span>${wk.has(i.key)?`<span class="warn" title="${esc(W.filter(w=>w.k===i.key).map(w=>w.t).join('; '))}">⚠</span>`:''}</div>
+     <div class="pc w1${chg(i,'assignee')}"><select data-chg="pfield" data-f="assignee" data-v="${pl.id}|${i.key}" aria-label="Assignee ${i.key}"><option value="">Unassigned</option>${Object.keys(USERS).map(u=>`<option value="${u}" ${as===u?'selected':''}>${esc(uname(u))}</option>`).join('')}</select></div>
+     <div class="pc w2${chg(i,'status')}">${lz(st)}</div>
+     <div class="pc w3${chg(i,'ts')}"><input type="date" value="${ts||''}" data-chg="pfield" data-f="ts" data-v="${pl.id}|${i.key}" aria-label="Target start ${i.key}"></div>
+     <div class="pc w3${chg(i,'te')}"><input type="date" value="${te||''}" data-chg="pfield" data-f="te" data-v="${pl.id}|${i.key}" aria-label="Target end ${i.key}"></div></div>
+     <div class="tl" style="width:${width}px">${grid}${bar}</div></div>`}).join('');
+  const tab=UI.planTab;
+  let content='';
+  if(tab==='timeline')content=`<div class="plan" id="planbox"><div class="prow hd"><div class="pl"><div class="pc scope">Scope · ${rows.length} issues</div><div class="pc w1">Assignee</div><div class="pc w2">Status</div><div class="pc w3">Target start</div><div class="pc w3">Target end</div></div><div class="tl" style="width:${width}px">${head}${mon}</div></div>${body}<div class="today" style="left:${670+170+todayX}px" id="todayline"></div><svg class="depsvg" id="depsvg"></svg></div>
+    <p class="help">Velciet joslu, lai pārvietotu datumus, vai velciet tās malu, lai mainītu ilgumu. Mainītās vērtības ir iekrāsotas dzeltenas, līdz tās saglabā Jira. Sarkanā vertikālā līnija ir šodiena (${fmt(TODAY)}).</p>`;
+  else content=`<div class="tw"><table class="t"><tr><th>Bloķē (blocks)</th><th>Beidzas</th><th></th><th>Bloķētais</th><th>Sākas</th><th>Stāvoklis</th></tr>${allDeps(pl).filter(d=>planIssues(pl).some(i=>i.key===d.from)).map(d=>{const a=get(d.from),b=get(d.to);const ae=V(pl,a,'te'),bs=V(pl,b,'ts');const bad=ae&&bs&&bs<=ae;
+     return `<tr><td>${ti(a.type)} <a href="#/issue/${a.key}">${a.key}</a> ${esc(a.summary)}</td><td>${fmt(ae)}</td><td>→</td><td>${ti(b.type)} <a href="#/issue/${b.key}">${b.key}</a> ${esc(b.summary)}</td><td>${fmt(bs)}</td><td>${bad?'<span class="lz" style="background:#FFECEB;color:#AE2E24">Off track</span>':'<span class="lz done">On track</span>'}${d.draft?' <span class="tag">nesaglabāts</span>':''}</td></tr>`}).join('')}</table></div>
+     <p class="help">Off track nozīmē: bloķētais darbs sākas, pirms bloķējošais ir pabeigts. Atrisiniet, pārbīdot datumus vai mainot atbildīgo.</p>`;
+  return `<div class="page" style="max-width:none"><div class="crumbs"><a href="#/plans">Plans</a>${pl.program?` / <a href="#/program/${pl.program}">${esc((S.programs.find(x=>x.id===pl.program)||{}).name)}</a>`:''}</div>
+   <div class="ptool"><h1 class="pt" style="margin:0">${esc(pl.name)}</h1><span class="tag">${pl.access}</span><span class="sp"></span>
+    <div style="position:relative"><button class="btn wbadge" data-act="wopen" aria-expanded="${UI.wOpen}">⚠ ${W.length} warnings</button>${UI.wOpen?`<div class="menu" style="left:auto;right:0;width:min(420px,90vw);padding:10px 0">
+     <label class="row" style="padding:4px 14px"><input type="checkbox" data-chg="wonly" ${UI.wOnly?'checked':''}> Filter issues with warnings</label><hr>
+     ${wtypes.map(t=>`<div style="padding:6px 14px"><b>${esc(t)}</b> <span class="tag">${W.filter(w=>w.t===t).length}</span><div class="help">${W.filter(w=>w.t===t).map(w=>`<a href="#/issue/${w.k}">${w.k}</a>`).join(', ')}</div></div>`).join('')||'<p class="muted" style="padding:0 14px">Brīdinājumu nav.</p>'}</div>`:''}</div>
+    <button class="btn" data-act="adddep" data-v="${pl.id}">+ Dependency</button>
+    <button class="btn ${nchg?'primary':''}" data-act="review" data-v="${pl.id}" ${nchg?'':'disabled'}>Review changes${nchg?' ('+nchg+')':''}</button>
+    <button class="btn subtle" data-act="plansrc" data-v="${pl.id}">⚙ Configure</button></div>
+   <div class="tabs" role="tablist"><button role="tab" aria-selected="${tab==='timeline'}" data-act="ptab" data-v="timeline">Timeline</button><button role="tab" aria-selected="${tab==='deps'}" data-act="ptab" data-v="deps">Dependencies</button></div>
+   ${!can?`<p class="card" style="padding:10px 12px;background:var(--amber-soft);border-color:var(--amber-line)">Jūs (${esc(uname(me()))}) varat mainīt plānu, bet saglabāt izmaiņas Jira var tikai lietotājs ar Plan administratora tiesībām.</p>`:''}
+   ${content}</div>`;
+}
+function drawDeps(){
+  const box=$('#planbox'),svg=$('#depsvg');if(!box||!svg)return;
+  const pl=S.plans.find(p=>p.id===route().parts[1]);if(!pl)return;
+  svg.setAttribute('width',box.scrollWidth);svg.setAttribute('height',box.scrollHeight);
+  const W=warnings(pl);let out='<defs><marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 8 4 0 8z" fill="#5E6C84"/></marker><marker id="ahr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 8 4 0 8z" fill="#C9372C"/></marker></defs>';
+  const br=box.getBoundingClientRect();
+  allDeps(pl).forEach(d=>{const a=box.querySelector(`[data-bar="${d.from}"]`),b=box.querySelector(`[data-bar="${d.to}"]`);if(!a||!b)return;
+    const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();
+    const x1=ra.right-br.left+box.scrollLeft,y1=ra.top+ra.height/2-br.top+box.scrollTop,x2=rb.left-br.left+box.scrollLeft,y2=rb.top+rb.height/2-br.top+box.scrollTop;
+    const bad=W.some(w=>w.dep&&w.dep.from===d.from&&w.dep.to===d.to);
+    out+=`<path d="M${x1} ${y1} C${x1+30} ${y1}, ${x2-30} ${y2}, ${x2-2} ${y2}" fill="none" stroke="${bad?'#C9372C':'#5E6C84'}" stroke-width="2" ${d.draft?'stroke-dasharray="5 4"':''} marker-end="url(#${bad?'ahr':'ah'})"/>`});
+  svg.innerHTML=out;
+  const tl=$('#todayline'),hdl=box.querySelector('.prow.hd .pl');if(tl&&hdl){const rg=planRange();tl.style.left=(hdl.offsetWidth+diff(rg.start,TODAY)*PX)+'px';tl.style.height=box.scrollHeight+'px'}
+}
+function setDraft(pl,key,f,val){
+  const i=get(key);pl.draft[key]=pl.draft[key]||{};
+  const orig=pl.draft[key][f]?pl.draft[key][f][0]:i[f];
+  if(JSON.stringify(orig)===JSON.stringify(val))delete pl.draft[key][f];else pl.draft[key][f]=[orig,val];
+  if(!Object.keys(pl.draft[key]).length)delete pl.draft[key];
+}
+function pProgram(id){
+  const pg=S.programs.find(p=>p.id===id);if(!pg)return '<div class="page"><div class="empty">Programma nav atrasta.</div></div>';
+  const pls=S.plans.filter(p=>p.program===id);
+  const epics=pls.flatMap(pl=>planIssues(pl).filter(i=>i.type==='Epic').map(e=>({e,pl})));
+  return `<div class="page"><div class="crumbs"><a href="#/plans">Plans</a> / Program</div><div class="row"><h1 class="pt" style="margin:0">${esc(pg.name)}</h1><span class="tag">${pg.access}</span><span class="sp"></span><button class="btn" data-act="progconf" data-v="${id}">⋯ Configure · Connected plans</button></div><br>
+   ${pls.length?`<div class="cat" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">${pls.map(pl=>{const is=planIssues(pl).filter(i=>i.type!=='Epic');const d=is.filter(i=>i.status==='Done').length,ip=is.filter(i=>CAT[i.status]==='ip').length;const W=warnings(pl);const end=planIssues(pl).map(i=>V(pl,i,'te')).filter(Boolean).sort().pop();
+    return `<div class="card" style="padding:16px"><a href="#/plan/${pl.id}"><b>${esc(pl.name)}</b></a><div class="pbar" style="height:12px;margin:12px 0 6px"><i style="width:${d/is.length*100}%;background:#1F845A"></i><i style="width:${ip/is.length*100}%;background:#0C66E4"></i></div>
+     <p class="help">Done ${d} · In progress ${ip} · To do ${is.length-d-ip} · Beigas: ${fmt(end)}</p><p>${W.length?`<span class="lz" style="background:#FFF7D6;color:#7F5F01">⚠ ${W.length} warnings</span>`:'<span class="lz done">Bez brīdinājumiem</span>'} ${Object.keys(pl.draft).length?'<span class="tag">nesaglabātas izmaiņas</span>':''}</p></div>`}).join('')}</div>
+   <h2 class="st">Epics (Scope)</h2><div class="tw"><table class="t"><tr><th>Epic</th><th>Plan</th><th>Assignee</th><th>Status</th><th>Progress</th><th>Target end</th><th>Risks</th></tr>${epics.map(({e,pl})=>{const ch=kids(e.key).filter(c=>c.type!=='Sub-task');const d=ch.filter(c=>c.status==='Done').length;const w=warnings(pl).filter(x=>x.k===e.key||ch.some(c=>c.key===x.k));
+    return `<tr><td>${ti('Epic')} <a href="#/issue/${e.key}">${e.key}</a> ${esc(e.summary)}</td><td>${esc(pl.name)}</td><td>${av(V(pl,e,'assignee'),1)}</td><td>${lz(e.status)}</td><td style="min-width:120px"><div class="pbar"><i style="width:${ch.length?d/ch.length*100:0}%;background:#1F845A"></i></div><span class="help">${d}/${ch.length}</span></td><td>${fmt(V(pl,e,'te'))}</td><td>${w.length?`<span class="warn">⚠ ${w.length}</span> <span class="help">${esc([...new Set(w.map(x=>x.t))].join('; '))}</span>`:'—'}</td></tr>`}).join('')}</table></div>`
+   :`<div class="card empty">Programmā vēl nav plānu. Spiediet <b>Configure · Connected plans</b>, lai pievienotu.</div>`}
+   <p class="help" style="margin-top:12px">Programma apvieno vairākus plānus un rāda epiku līmeni. Viens plāns var būt tikai vienā programmā.</p></div>`;
+}
+
+/* ---------- Drawer ---------- */
+const SCN=[
+ ['2.2.1 Pamatprincipi',['Projects → View all projects: divi projekti, Scrum (DIGI) un Kanban (PASK).','Atver DIGI-4: parādi tipu, statusu, atbildīgo, termiņu.','Spied View workflow: To Do → In Progress → In Review → Done.','Pārslēdz personu augšā (Anna / Edgars / Laura): katram savi darbi un tiesības.']],
+ ['2.2.2 Savs Project',['Projects → Digitālo pakalpojumu attīstība.','Sānjoslā Backlog un Active sprints.','Issues → My open issues: tikai tavi darbi.','Dēlī Quick filter "Only My Issues".']],
+ ['2.2.3 Uzdevuma izveide',['Create (augšā). Project: DIGI, Issue Type: Task.','Mēģini Create bez Summary: sarkana kļūda pie obligātā lauka.','Aizpildi Summary, Description, Assignee, Due date, Labels, Epic Link.','Pēc izveides: komentārs un 📎 Attach.','Epic izveidē obligāts lauks Epic Name.']],
+ ['2.2.4 Esošs uzdevums',['Atver DIGI-6 (kavēts, sarkans termiņš).','Spied Start Progress → statuss mainās.','Maini Priority un Due date labajā pusē.','Pievieno komentāru ar @Anna.','Activity → History: redzams, kas un kad mainīja.']],
+ ['2.2.5 Dēlis',['Boards → DIGI dēlis: sprinta kolonnas.','Velc kartīti no To Do uz In Progress.','PASK Kanban: In Progress ir WIP limits 3; kolonna sarkana, ja pārsniegts.','Backlog: pārvieto DIGI-10 uz DIGI Sprint 3.']],
+ ['2.2.6 Meklēšana un filtri',['Issues → Search for issues. Basic: Project DIGI, Status In Progress.','Advanced: duedate < now() AND resolution = Unresolved.','Save as → "Mani kavētie". Atzīmē ★ izlasē.','Details · Share: koplieto ar projektu DIGI.']],
+ ['2.2.7 Dashboard',['Dashboards → Create dashboard "Mana komanda".','Add gadget → Pie Chart → filtrs "DIGI aktīvais sprints".','Pievieno Two Dimensional Filter Statistics un Sprint Health.','Edit layout: 3 kolonnas. Share: Project DIGI.']],
+ ['2.2.8 Plan un Program',['Plans → Digitālo pakalpojumu plāns 2026.','Atver ⚠ warnings: dependency off track, termiņš pagājis, ārpus sprinta.','Velc DIGI-10 joslu pēc DIGI-11 beigām: brīdinājums pazūd.','Maini Assignee vai Target end tabulā: šūna kļūst dzeltena.','Review changes → atzīmē → Save selected changes in Jira (Anna). Edgaram poga nav pieejama.','Create plan: nosaukums → avots (Board/Project/Filter) → izņēmumi.','Create program → pievieno abus plānus → kopskats ar progresu un riskiem.']],
+ ['2.2.9 Sadarbība',['Komentārā @Edgars: Paziņojumi parāda e-pastu Edgaram.','Start watching: saņem paziņojumus par izmaiņām.','📎 Attach pievieno failu; History rāda visas izmaiņas.']]
+];
+function renderDrawer(){
+  const d=$('#drawer');if(!UI.drawer){d.classList.add('hidden');return}d.classList.remove('hidden');
+  if(UI.drawer==='notif')d.innerHTML=`<div class="dh"><b>Simulētie e-pasta paziņojumi</b><button class="btn sm" data-act="clearn">Notīrīt</button><button class="btn sm subtle" data-act="drawer" data-v="" aria-label="Aizvērt">✕</button></div>${S.notifs.map(n=>`<div class="note"><div class="to">Kam: ${esc(uname(n.to))}</div><div><b>${esc(n.subj)}</b></div><div class="muted">${esc(n.body)}</div><div class="help">${esc(n.when)}</div></div>`).join('')||'<div class="empty">Vēl nav paziņojumu. Piešķiriet uzdevumu, pieminiet kolēģi (@) vai mainiet statusu.</div>'}`;
+  else d.innerHTML=`<div class="dh"><b>Demo scenārijs · 2. modulis</b><button class="btn sm subtle" data-act="drawer" data-v="" aria-label="Aizvērt">✕</button></div><div class="scn">${SCN.map(([h,l])=>`<h3>${h}</h3><ol>${l.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`).join('')}<p class="help" style="padding:16px">Šī ir mācību kopija. Īstajā Jira izvēlņu nosaukumi un lauki var nedaudz atšķirties atkarībā no iestatījumiem.</p></div>`;
+}
+
+/* ---------- Modāļi ---------- */
+function M(title,body,foot,wide){return `<div class="ov" data-act="ovclose"><div class="dlg${wide?' wide':''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header><h2>${title}</h2><button class="btn sm subtle" data-act="close" aria-label="Aizvērt">✕</button></header><div class="bd">${body}</div><footer>${foot}</footer></div></div>`}
+function renderModal(){
+  const m=UI.modal;const box=$('#modal');if(!m){box.innerHTML='';return}
+  const sel=(id,opts,v,extra)=>`<select id="${id}" ${extra||''}>${opts.map(o=>Array.isArray(o)?`<option value="${esc(o[0])}" ${o[0]===v?'selected':''}>${esc(o[1])}</option>`:`<option ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  const fld=(l,inp,req,err,help)=>`<div class="field${err?' has-err':''}"><label class="f">${l}${req?' <span class="req">*</span>':''}</label>${inp}${err?`<span class="err">${err}</span>`:''}${help?`<span class="help">${help}</span>`:''}</div>`;
+  let h='';const e=m.err||{};const v=m.v||{};
+  if(m.t==='create'){
+    const pk=v.project||'DIGI';const epics=S.issues.filter(i=>i.type==='Epic'&&projOf(i)===pk);
+    h=M(m.parent?'Create Sub-task':'Create Issue',
+     `${m.parent?`<p class="help">Vecākuzdevums: <b>${m.parent}</b></p>`:`<div class="row" style="align-items:flex-start">${'<div style="flex:1;min-width:200px">'+fld('Project',sel('c_project',Object.values(PROJECTS).map(p=>[p.key,p.name+' ('+p.key+')']),pk,'data-chg="cproj"'),1)+'</div><div style="flex:1;min-width:160px">'+fld('Issue Type',sel('c_type',['Task','Story','Bug','Epic'],v.type||'Task','data-chg="ctype"'),1)+'</div>'}</div>`}
+      <hr style="border:0;border-top:1px solid var(--line);margin:4px 0 14px">
+      ${fld('Summary',`<input type="text" id="c_summary" value="${esc(v.summary||'')}">`,1,e.summary)}
+      ${(v.type==='Epic')?fld('Epic Name',`<input type="text" id="c_epicname" value="${esc(v.epicName||'')}">`,1,e.epicName,'Īss nosaukums, kas redzams uz kartītēm.'):''}
+      ${fld('Description',`<textarea id="c_desc" rows="4">${esc(v.desc||'')}</textarea>`,0,0,'Kas jādara, kāpēc, pieņemšanas kritēriji.')}
+      <div class="row" style="align-items:flex-start"><div style="flex:1;min-width:200px">${fld('Assignee',sel('c_assignee',[['','Automatic'],...Object.keys(USERS).map(u=>[u,uname(u)])],v.assignee||''),0,0,'<a data-act="cme">Assign to me</a>')}</div>
+      <div style="flex:1;min-width:150px">${fld('Priority',sel('c_priority',Object.keys(PRI),v.priority||'Medium'))}</div></div>
+      <div class="row" style="align-items:flex-start"><div style="flex:1;min-width:160px">${fld('Due date',`<input type="date" id="c_due" value="${v.due||''}">`)}</div><div style="flex:1;min-width:200px">${fld('Labels',`<input type="text" id="c_labels" value="${esc(v.labels||'')}" placeholder="iekštīkls, saturs">`,0,0,'Atdaliet ar komatu.')}</div></div>
+      ${!m.parent&&v.type!=='Epic'?fld('Epic Link',sel('c_epic',[['','None'],...epics.map(x=>[x.key,x.epicName+' ('+x.key+')'])],v.epic||'')):''}
+      ${!m.parent&&PROJECTS[pk].kind==='Scrum'&&v.type!=='Epic'?fld('Sprint',sel('c_sprint',[['','Backlog'],...Object.values(S.sprints).filter(s=>s.state!=='closed').map(s=>[s.id,s.name])],v.sprint||'')):''}
+      ${fld('Attachment',`<label class="btn" style="width:max-content">📎 Pievienot failu<input type="file" id="c_file" class="hidden"></label>`,0,0,'Demo vidē fails netiek augšupielādēts, saglabājas tikai nosaukums.')}`,
+     `<label class="row" style="margin-right:auto"><input type="checkbox" id="c_another" ${m.another?'checked':''}> Create another</label><button class="btn primary" data-act="docreate">Create</button><button class="btn subtle" data-act="close">Cancel</button>`);
+  }
+  else if(m.t==='edit'){const i=get(m.k);
+    h=M('Edit Issue: '+i.key,`${fld('Summary',`<input type="text" id="e_summary" value="${esc(i.summary)}">`,1,e.summary)}${fld('Labels',`<input type="text" id="e_labels" value="${esc(i.labels.join(', '))}">`)}
+     ${i.type!=='Epic'&&i.type!=='Sub-task'?fld('Epic Link',sel('e_epic',[['','None'],...S.issues.filter(x=>x.type==='Epic'&&projOf(x)===projOf(i)).map(x=>[x.key,x.epicName])],i.epic||'')):''}
+     ${PROJECTS[projOf(i)].kind==='Scrum'&&i.type!=='Epic'?fld('Story Points',`<input type="number" id="e_sp" min="0" value="${i.sp||''}">`):''}`,
+     `<button class="btn primary" data-act="doedit" data-v="${i.key}">Update</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='attach'){h=M('Attach files',`<p>Izvēlieties failu. Demo vidē saglabājas tikai faila nosaukums un izmērs.</p><input type="file" id="a_file"><p class="help">Īstajā Jira failu var arī ievilkt uzdevuma logā vai ielīmēt ekrānuzņēmumu ar Ctrl+V.</p>`,`<button class="btn primary" data-act="doattach" data-v="${m.k}">Attach</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='link'){const i=get(m.k);h=M('Link: '+i.key,fld('This issue',sel('l_type',['blocks','is blocked by','relates to'],'blocks'))+fld('Issue',sel('l_key',S.issues.filter(x=>x.key!==i.key).map(x=>[x.key,x.key+' '+x.summary]))),`<button class="btn primary" data-act="dolink" data-v="${i.key}">Link</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='wf'){h=M('Workflow',`<svg viewBox="0 0 640 170" width="100%" role="img" aria-label="Darba plūsma: To Do, In Progress, In Review, Done">
+     ${[['To Do',20,'#DFE1E6','#42526E'],['In Progress',180,'#E9F2FF','#0055CC'],['In Review',340,'#E9F2FF','#0055CC'],['Done',500,'#DCFFF1','#216E4E']].map(([l,x,b,c])=>`<rect x="${x}" y="60" width="120" height="44" rx="6" fill="${b}" stroke="${c}"/><text x="${x+60}" y="87" text-anchor="middle" font-size="14" font-weight="700" fill="${c}" font-family="IBM Plex Sans">${l.toUpperCase()}</text>`).join('')}
+     <defs><marker id="wa" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 8 4 0 8z" fill="#5E6C84"/></marker></defs>
+     <g stroke="#5E6C84" stroke-width="1.6" fill="none" marker-end="url(#wa)"><path d="M140 76h38"/><path d="M300 76h38"/><path d="M460 76h38"/><path d="M400 104 q0 40 -160 40 q-160 0 -160 -38"/><path d="M560 60 q0 -40 -240 -40 q-240 0 -240 38"/></g>
+     <text x="159" y="70" font-size="11" text-anchor="middle" fill="#5E6C84">Start</text><text x="319" y="70" font-size="11" text-anchor="middle" fill="#5E6C84">Review</text><text x="479" y="70" font-size="11" text-anchor="middle" fill="#5E6C84">Done</text><text x="240" y="160" font-size="11" text-anchor="middle" fill="#5E6C84">Back / Stop Progress</text><text x="320" y="14" font-size="11" text-anchor="middle" fill="#5E6C84">Reopen</text></svg>
+     <p class="help">Statusa kategorijas: pelēks = To Do, zils = In Progress, zaļš = Done. Jūsu iestādes Jira statusu nosaukumi var atšķirties.</p>`,`<button class="btn" data-act="close">Close</button>`,1)}
+  else if(m.t==='filtersave'){h=M('Save filter',fld('Filter Name',`<input type="text" id="f_name" value="${esc(v.name||'')}">`,1,e.name)+fld('Shared with',sel('f_share',['Private','Group: saeima-darbinieki','Project: DIGI','Project: PASK'],'Private'))+`<label class="row"><input type="checkbox" id="f_fav" checked> Pievienot izlasei (★)</label>`,`<button class="btn primary" data-act="dosavefilter">Submit</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='sharef'){const f=S.filters.find(x=>x.id===m.k);h=M('Edit filter: '+esc(f.name),fld('Name',`<input type="text" id="sf_name" value="${esc(f.name)}">`,1)+fld('Shared with',sel('sf_share',['Private','Group: saeima-darbinieki','Project: DIGI','Project: PASK'],f.share))+`<p class="help">Lietotāji redzēs tikai tos uzdevumus, kuriem viņiem jau ir piekļuve.</p>`,`<button class="btn primary" data-act="dosharef" data-v="${f.id}">Save</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='newdash'){h=M('Create dashboard',fld('Name',`<input type="text" id="d_name" value="${esc(v.name||'')}">`,1,e.name)+fld('Start from',sel('d_from',[['blank','Blank dashboard'],['d1','System Dashboard']],'blank'))+fld('Shares',sel('d_share',['Private','Group: saeima-darbinieki','Project: DIGI','Project: PASK'],'Private')),`<button class="btn primary" data-act="donewdash">Create</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='addgad'){const G=[['filter','Filter Results','Tabulā rāda saglabāta filtra uzdevumus.'],['assigned','Assigned to Me','Jums piešķirtie atvērtie uzdevumi.'],['pie','Pie Chart','Filtra rezultāti sektoros pēc statusa, atbildīgā vai prioritātes.'],['twod','Two Dimensional Filter Statistics','Tabula: atbildīgie × statusi.'],['sprint','Sprint Health · Days Remaining','Aktīvā sprinta progress un atlikušās dienas.'],['activity','Activity Stream','Pēdējās izmaiņas projektos.']];
+    h=M('Add a gadget',`<div class="cat">${G.map(([t,n,d])=>`<div class="card"><b>${n}</b><span class="help">${d}</span><button class="btn sm" data-act="dogad" data-v="${m.k}|${t}">Add gadget</button></div>`).join('')}</div>`,`<button class="btn" data-act="close">Close</button>`,1)}
+  else if(m.t==='gconf'){const d=S.dashboards.find(x=>x.id===m.d),g=d.gadgets.find(x=>x.id===m.g);
+    const fl=[...S.filters.map(f=>[f.id,f.name]),...SYSF.map(s=>[s[0],s[1]])];
+    h=M('Configure: '+GTITLE[g.type],fld('Saved Filter',sel('g_filter',fl,g.filter||'f1'))+(g.type==='pie'?fld('Statistic Type',sel('g_stat',[['status','Status'],['assignee','Assignee'],['priority','Priority']],g.stat||'status')):''),`<button class="btn primary" data-act="dogconf" data-v="${d.id}|${g.id}">Save</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='layout'){const d=S.dashboards.find(x=>x.id===m.k);h=M('Edit layout',`<p>Izvēlieties kolonnu skaitu:</p><div class="row">${[1,2,3].map(n=>`<button class="btn${d.cols===n?' on':''}" data-act="dolayout" data-v="${d.id}|${n}">${'▮'.repeat(n)} ${n} kolonna${n>1?'s':''}</button>`).join('')}</div><p class="help">Gadžetu var pārvietot ar ⇄ pogu tā galvenē.</p>`,`<button class="btn" data-act="close">Done</button>`)}
+  else if(m.t==='sharedash'){const d=S.dashboards.find(x=>x.id===m.k);h=M('Edit and share dashboard',fld('Name',`<input type="text" id="sd_name" value="${esc(d.name)}">`)+fld('Shares (kas var skatīt)',sel('sd_share',['Private','Visi lietotāji','Group: saeima-darbinieki','Project: DIGI','Project: PASK'],d.share))+`<p class="help">Gadžeti citiem rāda tikai tos uzdevumus, kurus viņi drīkst redzēt. Filtram arī jābūt koplietotam.</p>`,`<button class="btn primary" data-act="dosharedash" data-v="${d.id}">Save</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='newplan'){const st=m.step||1;
+    h=M('Create plan',`<div class="steps">${['1 Plan details','2 Issue sources','3 Exclusion rules'].map((s,n)=>`<span class="${st===n+1?'on':''}">${s}</span>`).join('')}</div>
+      ${st===1?fld('Name',`<input type="text" id="np_name" value="${esc(v.name||'')}">`,1,e.name)+fld('Access',sel('np_access',[['Open','Open: visi Plans lietotāji var skatīt'],['Private','Private: tikai jūs']],v.access||'Open')):''}
+      ${st===2?`<p class="help">No kurienes plāns ņem uzdevumus. Var izvēlēties vairākus.</p>${[['Board','DIGI','DIGI dēlis'],['Board','PASK','PASK Kanban dēlis'],['Project','DIGI','Projekts DIGI'],['Project','PASK','Projekts PASK'],...S.filters.map(f=>['Filter',f.id,'Filtrs: '+f.name])].map(([t,val,l])=>`<label class="row" style="padding:6px 0"><input type="checkbox" class="np_src" value="${t}|${val}" ${(v.src||[]).includes(t+'|'+val)?'checked':''}> <span class="tag" style="margin:0">${t}</span> ${esc(l)}</label>`).join('')}${e.src?`<p class="err">${e.src}</p>`:''}`:''}
+      ${st===3?fld('Izslēgt pabeigtos uzdevumus, kas pabeigti pirms vairāk nekā (dienām)',`<input type="number" id="np_excl" value="${v.excl||30}" min="0">`)+'<p class="help">Tā plānā nepaliek sen pabeigts darbs.</p>':''}`,
+      `${st>1?'<button class="btn subtle" data-act="npback" style="margin-right:auto">Back</button>':''}${st<3?'<button class="btn primary" data-act="npnext">Next</button>':'<button class="btn primary" data-act="npcreate">Create</button>'}<button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='plansrc'){const pl=S.plans.find(p=>p.id===m.k);h=M('Configure: '+esc(pl.name),`<p class="help">Issue sources</p>${[['Board','DIGI'],['Board','PASK'],['Project','DIGI'],['Project','PASK'],...S.filters.map(f=>['Filter',f.id])].map(([t,val])=>`<label class="row" style="padding:6px 0"><input type="checkbox" class="ps_src" value="${t}|${val}" ${pl.sources.some(s=>s.t===t&&s.v===val)?'checked':''}> <span class="tag" style="margin:0">${t}</span> ${esc(t==='Filter'?filterById(val).name:val)}</label>`).join('')}`,`<button class="btn primary" data-act="doplansrc" data-v="${pl.id}">Save</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='newprog'){h=M('Create program',fld('Program name',`<input type="text" id="pg_name" value="${esc(v.name||'')}">`,1,e.name)+fld('Privacy',sel('pg_access',[['No restrictions','No restrictions: visi Plans lietotāji'],['Private','Private: tikai jūs']],'No restrictions'))+`<p class="help">Plans (viens plāns var būt tikai vienā programmā)</p>${S.plans.map(p=>`<label class="row" style="padding:6px 0"><input type="checkbox" class="pg_pl" value="${p.id}" ${p.program?'disabled':''}> ${esc(p.name)} ${p.program?'<span class="help">(jau programmā)</span>':''}</label>`).join('')}`,`<button class="btn primary" data-act="donewprog">Create</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='progconf'){const pg=S.programs.find(p=>p.id===m.k);h=M('Connected plans',S.plans.map(p=>{const other=p.program&&p.program!==pg.id;return `<label class="row" style="padding:6px 0"><input type="checkbox" class="pc_pl" value="${p.id}" ${p.program===pg.id?'checked':''} ${other?'disabled':''}> ${esc(p.name)} ${other?'<span class="help">(citā programmā)</span>':''}</label>`}).join(''),`<button class="btn primary" data-act="doprogconf" data-v="${pg.id}">Save</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='adddep'){const pl=S.plans.find(p=>p.id===m.k);const is=planIssues(pl).filter(i=>i.type!=='Epic');
+    h=M('Add dependency',fld('Šis uzdevums (blocks)',sel('dp_from',is.map(i=>[i.key,i.key+' '+i.summary])))+fld('bloķē šo uzdevumu',sel('dp_to',is.map(i=>[i.key,i.key+' '+i.summary]),is[1]&&is[1].key))+'<p class="help">Atkarība tiks saglabāta Jira kā saite "blocks" pēc Review changes.</p>',`<button class="btn primary" data-act="doadddep" data-v="${pl.id}">Add</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='review'){const pl=S.plans.find(p=>p.id===m.k);const can=U(me()).planAdmin;const lab={assignee:'Assignee',ts:'Target start',te:'Target end',status:'Status'};
+    const show=(f,x)=>f==='assignee'?uname(x):fmt(x)||x||'None';
+    const rows=[...Object.entries(pl.draft).map(([k,ch])=>{const i=get(k);return `<tr><td><input type="checkbox" class="rv" value="i|${k}" checked aria-label="${k}"></td><td>${ti(i.type)} <b>${k}</b> ${esc(i.summary)}</td><td>${Object.entries(ch).map(([f,[o,n]])=>`${lab[f]}: <span class="muted" style="text-decoration:line-through">${esc(show(f,o))}</span> → <b>${esc(show(f,n))}</b>`).join('<br>')}</td></tr>`}),
+      ...(pl.deps||[]).map((d,n)=>`<tr><td><input type="checkbox" class="rv" value="d|${n}" checked></td><td><b>${d.from}</b> → <b>${d.to}</b></td><td>Jauna atkarība: ${d.from} blocks ${d.to}</td></tr>`)].join('');
+    const W=warnings(pl);
+    h=M('Review changes',`${W.length?`<p class="card" style="padding:8px 12px;background:var(--amber-soft);border-color:var(--amber-line)">⚠ Plānā ir ${W.length} brīdinājumi. Varat saglabāt, bet ieteicams tos vispirms pārbaudīt.</p>`:''}<div class="tw"><table class="t"><tr><th></th><th>Issue</th><th>What changed</th></tr>${rows}</table></div>
+      ${!can?`<p class="err" style="margin-top:10px">Jums nav tiesību saglabāt izmaiņas Jira. Lūdziet Plan administratoru (Anna Bērziņa) vai pārslēdziet personu.</p>`:''}`,
+      `<button class="btn subtle" data-act="discard" data-v="${pl.id}" style="margin-right:auto">Discard selected changes</button><button class="btn primary" data-act="savechg" data-v="${pl.id}" ${can?'':'disabled'}>Save selected changes in Jira</button><button class="btn subtle" data-act="close">Cancel</button>`,1)}
+  else if(m.t==='complete'){const sp=S.sprints[m.k];const r=S.issues.filter(i=>i.sprint===sp.id&&i.type!=='Sub-task');const open=r.filter(i=>i.status!=='Done');
+    h=M('Complete sprint: '+esc(sp.name),`<p><b>${r.length-open.length}</b> uzdevumi pabeigti, <b>${open.length}</b> nepabeigti.</p>${fld('Nepabeigtos pārvietot uz',sel('cs_to',[['s3','DIGI Sprint 3'],['','Backlog']],'s3'))}<p class="help">Demo vidē sprints netiks slēgts, lai dati paliktu nākamajai grupai. Spiediet Complete, lai redzētu rezultātu ziņojumu.</p>`,`<button class="btn primary" data-act="docomplete">Complete</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  box.innerHTML=h;
+  const first=box.querySelector('input[type=text],textarea,select');if(first&&!m.noFocus)setTimeout(()=>first.focus(),0);
+}
+function openModal(o){UI.modal=o;renderModal()}
+function closeModal(){UI.modal=null;renderModal()}
+
+/* ---------- Darbības ---------- */
+function doTrans(k,to,via){
+  const i=get(k);const from=i.status;if(from===to)return;
+  setField(i,'status',to,'Status',via);act(k,`mainīja statusu ${from} → ${to}`);
+  notify([i.reporter,i.assignee,...i.watchers],`[JIRA] ${uname(me())} mainīja ${k}`,`${i.summary}: ${from} → ${to}`);
+  save();flag(`<b>${k}</b> pārvietots uz <b>${to}</b>`);
+}
+function createIssue(){
+  const m=UI.modal;const g=id=>{const e=$('#'+id);return e?e.value.trim():''};
+  const v={project:m.parent?projOf(get(m.parent)):g('c_project'),type:m.parent?'Sub-task':g('c_type'),summary:g('c_summary'),epicName:g('c_epicname'),desc:g('c_desc'),assignee:g('c_assignee'),priority:g('c_priority')||'Medium',due:g('c_due'),labels:g('c_labels'),epic:g('c_epic'),sprint:g('c_sprint')};
+  const err={};if(!v.summary)err.summary='Summary ir obligāts lauks.';if(v.type==='Epic'&&!v.epicName)err.epicName='Epic Name ir obligāts lauks.';
+  if(Object.keys(err).length){UI.modal=Object.assign({},m,{v,err});renderModal();return}
+  const pk=v.project;S.seq[pk]++;const key=pk+'-'+S.seq[pk];const file=$('#c_file')&&$('#c_file').files[0];
+  const par=m.parent&&get(m.parent);
+  const i={key,type:v.type,summary:v.summary,epicName:v.type==='Epic'?v.epicName:undefined,desc:v.desc,assignee:v.assignee||null,reporter:me(),priority:v.priority,due:v.due||null,
+    labels:v.labels?v.labels.split(',').map(s=>s.trim()).filter(Boolean):[],epic:par?null:(v.epic||null),parent:par?par.key:null,sprint:par?par.sprint:(v.sprint||null),status:'To Do',ts:null,te:v.due||null,sp:null,
+    created:TODAY,updated:TODAY,comments:[],atts:file?[{name:file.name,size:Math.max(1,Math.round(file.size/1024))+' KB',who:me(),when:TODAY}]:[],hist:[{who:me(),when:now(),field:'Created',from:'',to:''}],links:[],watchers:[me()]};
+  if(i.te)i.ts=addD(i.te,-5)<TODAY?TODAY:addD(i.te,-5);
+  S.issues.push(i);act(key,'izveidoja');
+  if(i.assignee)notify([i.assignee],`[JIRA] ${uname(me())} piešķīra jums ${key}`,i.summary);
+  save();
+  const another=$('#c_another')&&$('#c_another').checked;
+  if(another){UI.modal={t:'create',v:{project:pk,type:v.type},another:true};renderModal()}else closeModal();
+  flag(`Uzdevums <a href="#/issue/${key}"><b>${key}</b></a> izveidots.`);
+  render();
+}
+function addComment(k){
+  const ta=$('#cta');let body=ta.value.trim();if(!body){ta.focus();return}
+  const i=get(k);
+  // @Vārds → @[lietotājs]
+  Object.keys(USERS).forEach(u=>{const n=USERS[u].name;body=body.replace(new RegExp('@'+n.replace(/ /g,'\\s')+'|@'+n.split(' ')[0]+'(?![\\wāčēģīķļņšūž])','g'),'@['+u+']')});
+  const men=[...body.matchAll(/@\[(\w+)\]/g)].map(x=>x[1]);
+  i.comments.push({who:me(),when:now(),body});i.updated=TODAY;act(k,'komentēja');
+  men.forEach(u=>notify([u],`[JIRA] ${uname(me())} pieminēja jūs ${k}`,body.replace(/@\[(\w+)\]/g,(a,b)=>'@'+uname(b))));
+  notify([i.reporter,i.assignee,...i.watchers].filter(u=>!men.includes(u)),`[JIRA] ${uname(me())} komentēja ${k}`,i.summary);
+  save();render();flag(men.length?`Komentārs pievienots. Pieminētie (${men.map(uname).join(', ')}) saņems e-pastu.`:'Komentārs pievienots.');
+}
+
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-act]');
+  if(!t){if(UI.menu||UI.wOpen){UI.menu=null;UI.wOpen=false;render()}return}
+  const a=t.dataset.act,v=t.dataset.v;
+  if(a!=='menu'&&UI.menu&&!t.closest('.menu')){UI.menu=null}
+  if(a==='ovclose'){if(ev.target===t)closeModal();return}
+  if(t.tagName==='A'&&t.getAttribute('href')&&a!=='newsearch')return;
+  switch(a){
+    case 'menu':UI.menu=UI.menu===v?null:v;renderNav();break;
+    case 'persona':S.persona=v;save();UI.qf={};render();flag(`Tagad strādājat kā <b>${esc(uname(v))}</b> (${esc(U(v).role)}).`);break;
+    case 'drawer':UI.drawer=v||null;renderDrawer();break;
+    case 'clearn':S.notifs=[];save();render();break;
+    case 'reset':if(confirm('Atiestatīt visus demo datus uz sākuma stāvokli?')){S=seed();save();UI.jql=null;UI.filter=null;UI.qf={};location.hash='#/dash/d1';render();flag('Dati atiestatīti.')}break;
+    case 'create':UI.menu=null;openModal({t:'create',v:{project:(route().parts[0]==='board'||route().parts[0]==='backlog')?route().parts[1]:'DIGI',type:'Task'}});renderNav();break;
+    case 'cme':$('#c_assignee').value=me();break;
+    case 'docreate':createIssue();break;
+    case 'close':closeModal();break;
+    case 'open':location.hash='#/issue/'+v;break;
+    case 'qf':UI.qf[v]=!UI.qf[v];render();break;
+    case 'qfu':UI.qf.user=UI.qf.user===v?null:v;render();break;
+    case 'qfclear':UI.qf={};render();break;
+    case 'wf':openModal({t:'wf',noFocus:1});break;
+    case 'trans':{const [k,to]=v.split('|');doTrans(k,to);render();break}
+    case 'assignme':{const i=get(v);setField(i,'assignee',me(),'Assignee');act(v,'piešķīra sev');save();render();flag(`${v} piešķirts jums.`);break}
+    case 'watch':{const i=get(v);i.watchers=i.watchers.includes(me())?i.watchers.filter(x=>x!==me()):[...i.watchers,me()];save();render();break}
+    case 'edit':openModal({t:'edit',k:v});break;
+    case 'doedit':{const i=get(v);const s=$('#e_summary').value.trim();if(!s){UI.modal.err={summary:'Summary ir obligāts lauks.'};renderModal();return}
+      setField(i,'summary',s,'Summary');setField(i,'labels',$('#e_labels').value.split(',').map(x=>x.trim()).filter(Boolean),'Labels');
+      if($('#e_epic'))setField(i,'epic',$('#e_epic').value||null,'Epic Link');if($('#e_sp'))setField(i,'sp',$('#e_sp').value?+$('#e_sp').value:null,'Story Points');
+      act(v,'laboja');save();closeModal();render();break}
+    case 'editdesc':UI.editDesc=v;render();setTimeout(()=>$('#descta')&&$('#descta').focus(),0);break;
+    case 'savedesc':{const i=get(v);setField(i,'desc',$('#descta').value,'Description');act(v,'mainīja aprakstu');UI.editDesc=false;save();render();break}
+    case 'canceldesc':UI.editDesc=false;render();break;
+    case 'focuscmt':$('#cta').focus();$('#cbox').scrollIntoView({block:'center'});break;
+    case 'comment':addComment(v);break;
+    case 'delc':{const [k,n]=v.split('|');get(k).comments.splice(+n,1);save();render();break}
+    case 'msel':{const ta=$('#cta');ta.value=ta.value.replace(/@([\wāčēģīķļņšūž]*)$/i,'@'+USERS[v].name+' ');$('#msug').innerHTML='';ta.focus();break}
+    case 'tab':UI.tab=v;render();break;
+    case 'attach':openModal({t:'attach',k:v,noFocus:1});break;
+    case 'doattach':{const f=$('#a_file').files[0];if(!f){flag('Izvēlieties failu.',1);return}const i=get(v);i.atts.push({name:f.name,size:Math.max(1,Math.round(f.size/1024))+' KB',who:me(),when:TODAY});
+      setField(i,'updated',TODAY);i.hist.unshift({who:me(),when:now(),field:'Attachment',from:'',to:f.name});act(v,'pievienoja pielikumu');notify([i.assignee,i.reporter,...i.watchers],`[JIRA] ${uname(me())} pievienoja pielikumu ${v}`,f.name);save();closeModal();render();break}
+    case 'addsub':openModal({t:'create',parent:v,v:{type:'Sub-task'}});break;
+    case 'addlink':openModal({t:'link',k:v});break;
+    case 'dolink':{const i=get(v);const tp=$('#l_type').value,k2=$('#l_key').value;const o=get(k2);const inv={'blocks':'is blocked by','is blocked by':'blocks','relates to':'relates to'}[tp];
+      i.links.push({type:tp,key:k2});o.links.push({type:inv,key:v});i.hist.unshift({who:me(),when:now(),field:'Link',from:'',to:tp+' '+k2});save();closeModal();render();break}
+    case 'complete':openModal({t:'complete',k:v});break;
+    case 'docomplete':closeModal();flag('Sprinta ziņojums: nepabeigtie uzdevumi tiktu pārvietoti uz izvēlēto sprintu. (Demo vidē sprints paliek aktīvs.)');break;
+    case 'startsprint':flag('Īstajā Jira atvērtos logs ar sprinta nosaukumu, ilgumu un mērķi. Demo vidē vienlaikus ir viens aktīvs sprints.',1);break;
+    case 'newsprint':{const n=Object.keys(S.sprints).length+1;const last=Object.values(S.sprints).pop();const id='s'+n;S.sprints[id]={id,name:'DIGI Sprint '+n,start:addD(last.end,1),end:addD(last.end,14),state:'future',goal:''};save();render();flag('Izveidots '+S.sprints[id].name);break}
+    // Meklēšana
+    case 'mode':UI.mode=v;render();break;
+    case 'runjql':UI.jql=$('#jqlin').value;render();break;
+    case 'ex':UI.mode='adv';UI.jql=v;render();break;
+    case 'runq':render();break;
+    case 'newsearch':ev.preventDefault();UI.filter=null;UI.jql='project in (DIGI, PASK) ORDER BY created DESC';UI.jqlFromUrl=null;location.hash='#/search';render();break;
+    case 'saveas':openModal({t:'filtersave'});break;
+    case 'dosavefilter':{const n=$('#f_name').value.trim();if(!n){UI.modal.err={name:'Ievadiet filtra nosaukumu.'};renderModal();return}
+      const id='f'+(++S.seqId);S.filters.push({id,name:n,jql:UI.jql,owner:me(),fav:$('#f_fav').checked,share:$('#f_share').value});save();closeModal();location.hash='#/search?filter='+id;flag(`Filtrs <b>${esc(n)}</b> saglabāts.`);break}
+    case 'savefilter':{const f=S.filters.find(x=>x.id===v);f.jql=UI.jql;save();render();flag('Filtrs atjaunināts.');break}
+    case 'sharef':openModal({t:'sharef',k:v});break;
+    case 'dosharef':{const f=S.filters.find(x=>x.id===v);f.name=$('#sf_name').value.trim()||f.name;f.share=$('#sf_share').value;save();closeModal();render();flag('Koplietošana saglabāta: '+esc(f.share));break}
+    case 'fav':{const f=S.filters.find(x=>x.id===v);f.fav=!f.fav;save();render();break}
+    case 'delf':if(confirm('Dzēst filtru?')){S.filters=S.filters.filter(x=>x.id!==v);save();render()}break;
+    // Dashboard
+    case 'newdash':UI.menu=null;openModal({t:'newdash'});renderNav();break;
+    case 'donewdash':{const n=$('#d_name').value.trim();if(!n){UI.modal.err={name:'Ievadiet nosaukumu.'};UI.modal.v={};renderModal();return}
+      const id='d'+(++S.seqId);const from=$('#d_from').value;const g=from==='d1'?JSON.parse(JSON.stringify(S.dashboards[0].gadgets)).map(x=>Object.assign(x,{id:'g'+(++S.seqId)})):[];
+      S.dashboards.push({id,name:n,owner:me(),share:$('#d_share').value,cols:2,gadgets:g});save();closeModal();location.hash='#/dash/'+id;flag('Dashboard izveidots. Spiediet Add gadget.');break}
+    case 'addgad':openModal({t:'addgad',k:v,noFocus:1});break;
+    case 'dogad':{const [d,tp]=v.split('|');const db=S.dashboards.find(x=>x.id===d);const g={id:'g'+(++S.seqId),type:tp,col:db.gadgets.length%db.cols};
+      if(['filter','pie','twod'].includes(tp)){g.filter=S.filters[0]?S.filters[0].id:'my';g.stat='status'}db.gadgets.unshift(g);save();
+      if(['filter','pie','twod'].includes(tp)){UI.modal={t:'gconf',d,g:g.id}}else closeModal();render();break}
+    case 'gconf':{const [d,g]=v.split('|');openModal({t:'gconf',d,g});break}
+    case 'dogconf':{const [d,gid]=v.split('|');const g=S.dashboards.find(x=>x.id===d).gadgets.find(x=>x.id===gid);g.filter=$('#g_filter').value;if($('#g_stat'))g.stat=$('#g_stat').value;save();closeModal();render();break}
+    case 'gdel':{const [d,gid]=v.split('|');const db=S.dashboards.find(x=>x.id===d);db.gadgets=db.gadgets.filter(x=>x.id!==gid);save();render();break}
+    case 'gmove':{const [d,gid]=v.split('|');const db=S.dashboards.find(x=>x.id===d);const g=db.gadgets.find(x=>x.id===gid);g.col=(Math.min(g.col,db.cols-1)+1)%db.cols;save();render();break}
+    case 'layout':openModal({t:'layout',k:v,noFocus:1});break;
+    case 'dolayout':{const [d,n]=v.split('|');S.dashboards.find(x=>x.id===d).cols=+n;save();render();break}
+    case 'sharedash':openModal({t:'sharedash',k:v});break;
+    case 'dosharedash':{const d=S.dashboards.find(x=>x.id===v);d.name=$('#sd_name').value.trim()||d.name;d.share=$('#sd_share').value;save();closeModal();render();flag('Dashboard koplietots: '+esc(d.share));break}
+    // Plans
+    case 'newplan':UI.menu=null;openModal({t:'newplan',step:1,v:{}});renderNav();break;
+    case 'npnext':{const m=UI.modal;m.err={};if(m.step===1){m.v.name=$('#np_name').value.trim();m.v.access=$('#np_access').value;if(!m.v.name){m.err={name:'Ievadiet plāna nosaukumu.'};renderModal();return}}
+      if(m.step===2){m.v.src=[...document.querySelectorAll('.np_src:checked')].map(x=>x.value);if(!m.v.src.length){m.err={src:'Izvēlieties vismaz vienu avotu.'};renderModal();return}}m.step++;renderModal();break}
+    case 'npback':UI.modal.step--;renderModal();break;
+    case 'npcreate':{const m=UI.modal;const id='p'+(++S.seqId);S.plans.push({id,name:m.v.name,access:m.v.access,sources:m.v.src.map(s=>{const [t,val]=s.split('|');return {t,v:val}}),excl:+$('#np_excl').value||30,owner:me(),program:null,draft:{},deps:[]});save();closeModal();location.hash='#/plan/'+id;flag('Plāns izveidots.');break}
+    case 'plansrc':openModal({t:'plansrc',k:v,noFocus:1});break;
+    case 'doplansrc':{const pl=S.plans.find(p=>p.id===v);const src=[...document.querySelectorAll('.ps_src:checked')].map(x=>{const [t,val]=x.value.split('|');return {t,v:val}});if(src.length)pl.sources=src;save();closeModal();render();break}
+    case 'ptab':UI.planTab=v;render();break;
+    case 'coll':UI.collapsed[v]=!UI.collapsed[v];render();break;
+    case 'wopen':UI.wOpen=!UI.wOpen;render();break;
+    case 'adddep':openModal({t:'adddep',k:v,noFocus:1});break;
+    case 'doadddep':{const pl=S.plans.find(p=>p.id===v);const f=$('#dp_from').value,to=$('#dp_to').value;if(f===to){flag('Uzdevums nevar bloķēt pats sevi.',1);return}pl.deps=pl.deps||[];pl.deps.push({from:f,to});save();closeModal();render();break}
+    case 'review':openModal({t:'review',k:v,noFocus:1});break;
+    case 'savechg':case 'discard':{const pl=S.plans.find(p=>p.id===v);const sel=[...document.querySelectorAll('.rv:checked')].map(x=>x.value);let n=0;
+      const depIdx=sel.filter(s=>s[0]==='d').map(s=>+s.split('|')[1]).sort((a,b)=>b-a);
+      sel.filter(s=>s[0]==='i').forEach(s=>{const k=s.split('|')[1];const ch=pl.draft[k];if(!ch)return;
+        if(a==='savechg'){const i=get(k);const lab={assignee:'Assignee',ts:'Target start',te:'Target end'};Object.entries(ch).forEach(([f,[o,nv]])=>{setField(i,f,nv,lab[f]||f,'Plan');if(f==='assignee'&&nv)notify([nv],`[JIRA] ${uname(me())} piešķīra jums ${k}`,i.summary)});act(k,'atjaunināja no plāna')}
+        delete pl.draft[k];n++});
+      depIdx.forEach(ix=>{const d=pl.deps[ix];if(a==='savechg'){const A=get(d.from),B=get(d.to);A.links.push({type:'blocks',key:d.to});B.links.push({type:'is blocked by',key:d.from});A.hist.unshift({who:me(),when:now(),field:'Link',from:'',to:'blocks '+d.to,via:'Plan'})}pl.deps.splice(ix,1);n++});
+      save();closeModal();render();flag(a==='savechg'?`${n} izmaiņas saglabātas Jira. Tās tagad redzamas uzdevumos, dēlī un History.`:`${n} izmaiņas atmestas.`);break}
+    case 'newprog':UI.menu=null;openModal({t:'newprog',v:{}});renderNav();break;
+    case 'donewprog':{const n=$('#pg_name').value.trim();if(!n){UI.modal.err={name:'Ievadiet programmas nosaukumu.'};renderModal();return}
+      const id='pg'+(++S.seqId);S.programs.push({id,name:n,access:$('#pg_access').value,owner:me()});[...document.querySelectorAll('.pg_pl:checked')].forEach(x=>{S.plans.find(p=>p.id===x.value).program=id});save();closeModal();location.hash='#/program/'+id;flag('Programma izveidota.');break}
+    case 'progconf':openModal({t:'progconf',k:v,noFocus:1});break;
+    case 'doprogconf':{const ch=new Set([...document.querySelectorAll('.pc_pl:checked')].map(x=>x.value));S.plans.forEach(p=>{if(ch.has(p.id))p.program=v;else if(p.program===v)p.program=null});save();closeModal();render();break}
+  }
+});
+document.addEventListener('change',ev=>{
+  const t=ev.target;const c=t.dataset.chg;if(!c)return;const v=t.dataset.v;
+  if(c==='field'){const i=get(v);const f=t.dataset.f;const val=t.value||null;const lab={assignee:'Assignee',priority:'Priority',due:'Due date'}[f];
+    setField(i,f,val,lab);act(v,'mainīja '+lab);
+    if(f==='assignee'&&val)notify([val],`[JIRA] ${uname(me())} piešķīra jums ${v}`,i.summary);else notify([i.assignee,...i.watchers],`[JIRA] ${uname(me())} mainīja ${v}`,`${lab}: ${f==='due'?fmt(val):val||'None'}`);
+    save();render();flag(`${lab} saglabāts.`)}
+  else if(c==='movesprint'){const i=get(v);setField(i,'sprint',t.value||null,'Sprint');kids(v).filter(x=>x.type==='Sub-task').forEach(s=>s.sprint=t.value||null);save();render();flag(`${v} pārvietots uz ${t.value?S.sprints[t.value].name:'Backlog'}.`)}
+  else if(c==='basic'){const o=basicFromJql(UI.jql);document.querySelectorAll('[data-chg="basic"]').forEach(e=>{o[e.dataset.f]=e.value||undefined});delete o.unknown;UI.jql=jqlFromBasic(o);render()}
+  else if(c==='cproj'||c==='ctype'){const m=UI.modal;m.v=Object.assign(m.v||{},{project:$('#c_project').value,type:$('#c_type').value,summary:$('#c_summary').value,desc:$('#c_desc').value,assignee:$('#c_assignee').value,priority:$('#c_priority').value,due:$('#c_due').value,labels:$('#c_labels').value,epicName:$('#c_epicname')?$('#c_epicname').value:''});m.noFocus=1;renderModal()}
+  else if(c==='pfield'){const [pid,k]=v.split('|');const pl=S.plans.find(p=>p.id===pid);setDraft(pl,k,t.dataset.f,t.value||null);save();render()}
+  else if(c==='wonly'){UI.wOnly=t.checked;render()}
+});
+document.addEventListener('input',ev=>{
+  if(ev.target.id==='cta'){const m=ev.target.value.match(/@([\wāčēģīķļņšūž]*)$/i);const box=$('#msug');if(!box)return;
+    if(!m){box.innerHTML='';return}const q=m[1].toLowerCase();const us=Object.keys(USERS).filter(u=>USERS[u].name.toLowerCase().includes(q));
+    box.innerHTML=us.length?`<div class="suggest" role="listbox">${us.map(u=>`<button data-act="msel" data-v="${u}" role="option">${av(u,1)} ${esc(uname(u))} <span class="help">${esc(U(u).role)}</span></button>`).join('')}</div>`:''}
+});
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'){if(UI.modal)closeModal();else if(UI.menu||UI.wOpen){UI.menu=null;UI.wOpen=false;render()}}
+  if(ev.target.id==='qs'&&ev.key==='Enter'){const q=ev.target.value.trim();const k=q.toUpperCase();if(get(k)){location.hash='#/issue/'+k}else{UI.mode='adv';UI.filter=null;UI.jql=q?`text ~ "${q.replace(/"/g,'')}" ORDER BY updated DESC`:'ORDER BY created DESC';UI.jqlFromUrl=null;location.hash='#/search';render()}}
+  if(ev.target.id==='jqlin'&&ev.key==='Enter'){UI.jql=ev.target.value;render()}
+  if(ev.target.matches&&ev.target.matches('[data-edit="summary"]')&&ev.key==='Enter'){ev.preventDefault();ev.target.blur()}
+  if(ev.target.matches&&ev.target.matches('.bcard,.desc')&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();ev.target.click()}
+  // Īsinājumtaustiņi kā Jira DC: c = Create, / = meklēšana
+  if(!ev.target.closest('input,textarea,select,[contenteditable="true"]')&&!UI.modal){if(ev.key==='c'){ev.preventDefault();openModal({t:'create',v:{project:'DIGI',type:'Task'}})}if(ev.key==='/'){ev.preventDefault();$('#qs').focus()}}
+});
+document.addEventListener('focusout',ev=>{
+  const t=ev.target;if(t.matches&&t.matches('[data-edit="summary"]')){const i=get(t.dataset.v);const s=t.textContent.trim();if(s&&s!==i.summary){setField(i,'summary',s,'Summary');act(i.key,'mainīja nosaukumu');save();flag('Summary saglabāts.')}else t.textContent=i.summary}
+});
+// Dēļa vilkšana
+let dragKey=null;
+document.addEventListener('dragstart',ev=>{const c=ev.target.closest&&ev.target.closest('[data-drag]');if(c){dragKey=c.dataset.drag;ev.dataTransfer.effectAllowed='move';try{ev.dataTransfer.setData('text/plain',dragKey)}catch(e){}}});
+document.addEventListener('dragover',ev=>{const col=ev.target.closest&&ev.target.closest('[data-drop]');if(col&&dragKey){ev.preventDefault();document.querySelectorAll('.col.dragover').forEach(x=>x!==col&&x.classList.remove('dragover'));col.classList.add('dragover')}});
+document.addEventListener('drop',ev=>{const col=ev.target.closest&&ev.target.closest('[data-drop]');if(col&&dragKey){ev.preventDefault();doTrans(dragKey,col.dataset.drop);dragKey=null;render()}});
+document.addEventListener('dragend',()=>{dragKey=null;document.querySelectorAll('.col.dragover').forEach(x=>x.classList.remove('dragover'))});
+// Plāna joslu vilkšana
+let bd=null;
+document.addEventListener('pointerdown',ev=>{const b=ev.target.closest&&ev.target.closest('[data-bar]');if(!b)return;const pl=S.plans.find(p=>p.id===route().parts[1]);if(!pl)return;
+  const i=get(b.dataset.bar);bd={el:b,k:i.key,pl,x:ev.clientX,edge:ev.target.dataset.edge||null,ts:V(pl,i,'ts'),te:V(pl,i,'te'),left:parseFloat(b.style.left),w:parseFloat(b.style.width)};b.setPointerCapture(ev.pointerId);ev.preventDefault()});
+document.addEventListener('pointermove',ev=>{if(!bd)return;const dd=Math.round((ev.clientX-bd.x)/PX);bd.dd=dd;
+  if(bd.edge==='r')bd.el.style.width=Math.max(PX,bd.w+dd*PX)+'px';else if(bd.edge==='l'){bd.el.style.left=bd.left+dd*PX+'px';bd.el.style.width=Math.max(PX,bd.w-dd*PX)+'px'}else bd.el.style.left=bd.left+dd*PX+'px';
+  bd.el.title=`${fmt(bd.edge==='r'?bd.ts:addD(bd.ts,dd))}–${fmt(bd.edge==='l'?bd.te:addD(bd.te,dd))}`});
+document.addEventListener('pointerup',()=>{if(!bd)return;const {pl,k,dd,edge,ts,te}=bd;bd=null;if(!dd){location.hash='#/issue/'+k;return}
+  let nts=ts,nte=te;if(edge!=='r')nts=addD(ts,dd);if(edge!=='l')nte=addD(te,dd);if(nts>nte){if(edge==='l')nts=nte;else nte=nts}
+  setDraft(pl,k,'ts',nts);setDraft(pl,k,'te',nte);save();render();flag(`${k}: ${fmt(nts)}–${fmt(nte)} (nesaglabāts, skatiet Review changes)`,1)});
+window.addEventListener('hashchange',()=>{UI.menu=null;UI.wOpen=false;UI.editDesc=false;UI.tab='all';render();window.scrollTo(0,0)});
+window.addEventListener('resize',()=>{if(route().parts[0]==='plan')drawDeps()});
+document.addEventListener('scroll',ev=>{},true);
+render();
+</script>
+</body>
+</html>
