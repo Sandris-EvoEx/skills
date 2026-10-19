@@ -22,7 +22,7 @@ Demo vide: https://claude.ai/artifact/E5VB6pSNrwvj5NTQtbB3Lc. Pirms sākuma nosp
 
 **2.2.3** Create (vai `c`) → Create ar tukšu formu (kļūda) → Summary, Description, Assignee Laura, Priority High, Due 06.11.2026, Labels `iekštīkls`, Epic Link, Sprint 3, pielikums → Create (DIGI-13) → komentārs ar `@Laura`, Attach, + Sub-task, Link. Issue Type Epic → obligāts Epic Name.
 
-**2.2.4** DIGI-6 → Start Progress → Priority, Due date → Edit (Label) → komentārs ar `@Edgars` → persona Edgars → Send to Review → Anna → Activity → History.
+**2.2.4** DIGI-6 → Start Progress → Priority, Due date → Edit (Label) → komentārs ar `@Edgars` → persona Edgars → Send to Review → Anna → Activity → History. Darba laiks: DIGI-4 → **More ▾ → Log work** → Time Spent `2h 30m`, Remaining Estimate "Adjust automatically", Work Description → Log → cilne **Work Log** un labajā pusē **Time Tracking** (Estimated / Remaining / Logged).
 
 **2.2.5** DIGI dēlis: velc DIGI-9 uz In Progress, DIGI-5 uz Done. PASK Kanban: velc PASK-6 uz In Progress (kolonna sarkana). Backlog: DIGI-10 → DIGI Sprint 3. Reports. Complete sprint (demo neslēdz). Dashboard → Sprint Health.
 

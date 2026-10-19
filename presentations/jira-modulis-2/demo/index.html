@@ -321,7 +321,7 @@ const SYSF=[ // Jira DC sistēmas filtri
 function seed(){
   const I=[];
   const add=(o)=>{I.push(Object.assign({reporter:'anna',priority:'Medium',labels:[],sprint:null,epic:null,parent:null,due:null,ts:null,te:null,sp:null,
-    status:'To Do',assignee:null,desc:'',created:'2026-10-01',updated:'2026-10-14',comments:[],atts:[],hist:[],links:[],watchers:[]},o));};
+    status:'To Do',assignee:null,desc:'',created:'2026-10-01',updated:'2026-10-14',comments:[],atts:[],hist:[],links:[],watchers:[],est:null,rem:null,wl:[]},o));};
   add({key:'DIGI-1',type:'Epic',epicName:'Iekštīkls',summary:'Jaunā iekštīkla portāla ieviešana',assignee:'anna',status:'In Progress',ts:'2026-09-01',te:'2026-12-18',created:'2026-08-20',
     desc:'Mērķis: viens iekštīkls visiem darbiniekiem ar ziņām, darbinieku katalogu un sēžu kalendāru.\nRezultāts līdz 18.12.2026.'});
   add({key:'DIGI-2',type:'Epic',epicName:'Sēžu e-pieteikšanās',summary:'Sēžu e-pieteikšanās sistēma',assignee:'anna',ts:'2026-10-26',te:'2027-01-29',created:'2026-09-15',
@@ -330,10 +330,10 @@ function seed(){
   add({key:'DIGI-4',type:'Story',summary:'Darbinieku kataloga meklēšana',epic:'DIGI-1',assignee:'edgars',status:'In Progress',sprint:'s2',sp:5,priority:'High',ts:'2026-10-12',te:'2026-10-23',due:'2026-10-23',labels:['iekštīkls'],
     desc:'Kā darbinieks es vēlos atrast kolēģi pēc vārda vai struktūrvienības, lai ātri sazinātos.\n\nPieņemšanas kritēriji:\n- meklē pēc vārda, uzvārda, amata\n- filtrs pēc struktūrvienības\n- rezultāts 1 sekundes laikā',
     comments:[{who:'anna',when:'2026-10-14 10:12',body:'Lūdzu, vispirms saskaņojiet lauku sarakstu ar Personāla nodaļu.'}],
-    atts:[{name:'kataloga-skice.png',size:'214 KB',who:'laura',when:'2026-10-13'}],watchers:['anna']});
+    atts:[{name:'kataloga-skice.png',size:'214 KB',who:'laura',when:'2026-10-13'}],watchers:['anna'],est:960,rem:600,wl:[{who:'edgars',when:'2026-10-15',min:360,desc:'Meklēšanas lauku saraksts un pirmā versija'}]});
   add({key:'DIGI-5',type:'Task',summary:'Lietotāju lomu un piekļuves tiesību matrica',epic:'DIGI-1',assignee:'maris',status:'In Review',sprint:'s2',sp:3,ts:'2026-10-12',te:'2026-10-21',due:'2026-10-21',labels:['drošība']});
   add({key:'DIGI-6',type:'Bug',summary:'Kalendārs nerāda Saeimas sēdes mobilajā skatā',epic:'DIGI-1',assignee:'edgars',sprint:'s2',sp:2,priority:'Highest',ts:'2026-10-13',te:'2026-10-16',due:'2026-10-16',
-    desc:'Telefonā (iOS, Safari) sēžu kalendārs ir tukšs. Datorā viss redzams.\nSoļi: atver iekštīklu telefonā → Kalendārs.'});
+    desc:'Telefonā (iOS, Safari) sēžu kalendārs ir tukšs. Datorā viss redzams.\nSoļi: atver iekštīklu telefonā → Kalendārs.',est:480,rem:480});
   add({key:'DIGI-7',type:'Story',summary:'Ziņu sadaļas migrācija no vecā portāla',epic:'DIGI-1',assignee:'laura',sprint:'s2',sp:8,ts:'2026-10-19',te:'2026-12-31',due:'2026-12-31',labels:['iekštīkls','saturs']});
   add({key:'DIGI-8',type:'Sub-task',summary:'Meklēšanas filtrs pēc struktūrvienības',parent:'DIGI-4',assignee:'edgars',status:'In Progress',sprint:'s2',ts:'2026-10-14',te:'2026-10-20'});
   add({key:'DIGI-9',type:'Sub-task',summary:'Testēšana ar 3 struktūrvienībām',parent:'DIGI-4',assignee:'maris',sprint:'s2',ts:'2026-10-21',te:'2026-10-23'});
@@ -371,7 +371,8 @@ function seed(){
 }
 let S; try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
 if(!S||!S.issues) S=seed();
-const UI={menu:null,drawer:null,jql:null,mode:'basic',filter:null,qf:{},tab:'all',editDesc:false,dashEdit:false,planTab:'timeline',collapsed:{},modal:null,wOpen:false,wOnly:false,mention:null};
+S.issues.forEach(i=>{if(!i.wl)i.wl=[];if(i.est===undefined){i.est=null;i.rem=null}});
+const UI={more:null,menu:null,drawer:null,jql:null,mode:'basic',filter:null,qf:{},tab:'all',editDesc:false,dashEdit:false,planTab:'timeline',collapsed:{},modal:null,wOpen:false,wOnly:false,mention:null};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
 /* ---------- Palīgfunkcijas ---------- */
@@ -391,6 +392,9 @@ const addD=(d,n)=>iso(D(d).getTime()+n*864e5);
 const diff=(a,b)=>Math.round((D(b)-D(a))/864e5);
 const now=()=>{const t=new Date();return TODAY+' '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')};
 const get=k=>S.issues.find(i=>i.key===k);
+// Laika formāts kā Jira: 1d = 8h, 1w = 5d
+const fmtMin=m=>{if(m==null)return 'Not specified';if(m<=0)return '0m';const d=Math.floor(m/480),h=Math.floor(m%480/60),mi=m%60;return [d&&d+'d',h&&h+'h',mi&&mi+'m'].filter(Boolean).join(' ')};
+const parseDur=t=>{t=String(t||'').trim().toLowerCase();if(!t)return null;const re=/^(\s*\d+(?:[.,]\d+)?\s*[wdhm]\s*)+$/;if(!re.test(t))return null;let m=0;t.replace(/(\d+(?:[.,]\d+)?)\s*([wdhm])/g,(a,n,u)=>{n=parseFloat(n.replace(',','.'));m+=n*({w:2400,d:480,h:60,m:1}[u])});return Math.round(m)};
 const isOver=i=>i.due&&i.due<TODAY&&i.status!=='Done';
 const projOf=i=>i.key.split('-')[0];
 const kids=k=>S.issues.filter(i=>i.epic===k||i.parent===k);
@@ -650,7 +654,7 @@ function pReports(pk){
 /* ---------- Uzdevuma skats ---------- */
 function mtext(s){return esc(s).replace(/@\[(\w+)\]/g,(m,k)=>`<span class="mention">@${esc(uname(k))}</span>`)}
 function pIssue(k){
-  const i=get(k);if(!i)return '<div class="page"><div class="empty">Uzdevums neeksistē vai jums nav tiesību to redzēt.</div></div>';
+  const i=get(k);if(i&&!i.wl)i.wl=[];if(!i)return '<div class="page"><div class="empty">Uzdevums neeksistē vai jums nav tiesību to redzēt.</div></div>';
   if(S.recent[0]!==k){S.recent=[k,...S.recent.filter(x=>x!==k)].slice(0,8);save()}
   const p=PROJECTS[projOf(i)];const sub=kids(k).filter(x=>x.type==='Sub-task');const chil=i.type==='Epic'?kids(k):[];
   const ep=i.epic&&get(i.epic);const par=i.parent&&get(i.parent);
@@ -658,7 +662,7 @@ function pIssue(k){
   let act='';
   if(tab==='all'||tab==='comments'){act+=i.comments.map((c,n)=>`<div class="cmt">${av(c.who)}<div class="b"><div class="who"><b>${esc(uname(c.who))}</b> <span class="help">pievienoja komentāru · ${esc(c.when)}</span></div><div class="txt">${mtext(c.body)}</div>${c.who===me()?`<div><a class="help" data-act="delc" data-v="${k}|${n}">Delete</a></div>`:''}</div></div>`).join('')||(tab==='comments'?'<p class="muted">Vēl nav komentāru.</p>':'')}
   if(tab==='all'||tab==='history'){act+=`<table class="t hist">${i.hist.map(h=>`<tr><td style="width:36px">${av(h.who,1)}</td><td><b>${esc(uname(h.who))}</b> ${h.field==='Created'?'izveidoja uzdevumu':'mainīja <b>'+esc(h.field)+'</b>'}${h.via?' <span class="tag">'+esc(h.via)+'</span>':''}<div class="help">${esc(h.when)}</div></td><td>${h.field==='Created'?'':`<span class="muted" style="text-decoration:line-through">${esc(h.from)||'None'}</span> → <b>${esc(h.to)||'None'}</b>`}</td></tr>`).join('')}</table>`}
-  if(tab==='worklog')act='<p class="muted">Šim uzdevumam nav reģistrēts darba laiks.</p>';
+  if(tab==='worklog')act=(i.wl.length?i.wl.map((w,n)=>`<div class="cmt">${av(w.who)}<div class="b"><div class="who"><b>${esc(uname(w.who))}</b> <span class="help">reģistrēja darbu · ${fmt(w.when)}</span></div><div class="txt"><b>Time Spent: ${fmtMin(w.min)}</b>${w.desc?'\n'+esc(w.desc):''}</div>${w.who===me()?`<div><a class="help" data-act="delwl" data-v="${k}|${n}">Delete</a></div>`:''}</div></div>`).join(''):'<p class="muted">Šim uzdevumam vēl nav reģistrēts darba laiks. Spiediet More ▾ → Log work.</p>')+`<div style="margin-top:10px"><button class="btn" data-act="logwork" data-v="${k}">⏱ Log work</button></div>`;
   const tr=TRANS[i.status].map(([l,to])=>`<button class="btn${to==='Done'?' primary':''}" data-act="trans" data-v="${k}|${to}">${l}</button>`).join('');
   const ed=(f,l,inp)=>`<dt>${l}</dt><dd>${inp}</dd>`;
   const usel=(f)=>`<select data-chg="field" data-f="${f}" data-v="${k}" aria-label="${f}">${f==='assignee'?'<option value="">Unassigned</option>':''}${Object.keys(USERS).map(u=>`<option value="${u}" ${i[f]===u?'selected':''}>${esc(uname(u))}</option>`).join('')}</select>`;
@@ -670,6 +674,7 @@ function pIssue(k){
     <button class="btn" data-act="attach" data-v="${k}">📎 Attach</button>
     ${i.type!=='Epic'&&i.type!=='Sub-task'?`<button class="btn" data-act="addsub" data-v="${k}">+ Sub-task</button>`:''}
     <button class="btn" data-act="addlink" data-v="${k}">🔗 Link</button>
+    <span style="position:relative;display:inline-block"><button class="btn" data-act="more" data-v="${k}" aria-expanded="${UI.more===k}" aria-haspopup="true">More ▾</button>${UI.more===k?`<div class="menu" style="min-width:200px"><button class="mitem" data-act="logwork" data-v="${k}">⏱ Log work</button><button class="mitem" data-act="attach" data-v="${k}">📎 Attach files</button>${i.type!=='Epic'&&i.type!=='Sub-task'?`<button class="mitem" data-act="addsub" data-v="${k}">Create sub-task</button>`:''}<button class="mitem" data-act="watch" data-v="${k}">${i.watchers.includes(me())?'Stop watching':'Start watching'}</button></div>`:''}</span>
     <span style="width:8px"></span>${tr}<button class="btn subtle" data-act="wf">View workflow</button></div>
    <div class="mod"><h4>Details</h4><dl class="det" style="grid-template-columns:120px 1fr 120px 1fr">
     <dt>Type</dt><dd>${ti(i.type)} ${i.type}</dd><dt>Status</dt><dd>${lz(i.status)}</dd>
@@ -692,6 +697,11 @@ function pIssue(k){
    <div class="mod"><h4>Dates</h4><dl class="det"><dt>Created</dt><dd>${fmt(i.created)}</dd><dt>Updated</dt><dd>${fmt(i.updated)}</dd>
     <dt>Due date</dt><dd><input type="date" value="${i.due||''}" data-chg="field" data-f="due" data-v="${k}" aria-label="Due date">${isOver(i)?'<span class="overdue" style="font-size:12px">Termiņš ir pagājis</span>':''}</dd>
     <dt>Target start</dt><dd>${fmt(i.ts)||'None'}</dd><dt>Target end</dt><dd>${fmt(i.te)||'None'}</dd></dl><p class="help">Target start/end parasti maina Plan skatā.</p></div>
+   <div class="mod"><h4>Time Tracking</h4>${(()=>{const lg=i.wl.reduce((a,w)=>a+w.min,0);const tot=Math.max(i.est||0,lg+(i.rem||0),1);const bar=(c,v)=>`<div class="pbar" style="flex:1;height:8px"><i style="width:${Math.min(100,v/tot*100)}%;background:${c}"></i></div>`;
+     return `<div class="row" style="flex-wrap:nowrap"><span style="width:90px" class="help">Estimated:</span>${bar('#0C66E4',i.est||0)}<span style="width:70px;text-align:right">${fmtMin(i.est)}</span></div>
+     <div class="row" style="flex-wrap:nowrap;margin-top:4px"><span style="width:90px" class="help">Remaining:</span>${bar('#E2B203',i.rem||0)}<span style="width:70px;text-align:right">${fmtMin(i.rem)}</span></div>
+     <div class="row" style="flex-wrap:nowrap;margin-top:4px"><span style="width:90px" class="help">Logged:</span>${bar('#1F845A',lg)}<span style="width:70px;text-align:right">${fmtMin(lg)}</span></div>
+     <p style="margin-top:8px"><a data-act="logwork" data-v="${k}">⏱ Log work</a> · <a data-act="tab" data-v="worklog">Work Log</a></p>`})()}</div>
   </div></div></div>`;
 }
 
@@ -873,7 +883,7 @@ const SCN=[
  ['2.2.1 Pamatprincipi',['Projects → View all projects: divi projekti, Scrum (DIGI) un Kanban (PASK).','Atver DIGI-4: parādi tipu, statusu, atbildīgo, termiņu.','Spied View workflow: To Do → In Progress → In Review → Done.','Pārslēdz personu augšā (Anna / Edgars / Laura): katram savi darbi un tiesības.']],
  ['2.2.2 Savs Project',['Projects → Digitālo pakalpojumu attīstība.','Sānjoslā Backlog un Active sprints.','Issues → My open issues: tikai tavi darbi.','Dēlī Quick filter "Only My Issues".']],
  ['2.2.3 Uzdevuma izveide',['Create (augšā). Project: DIGI, Issue Type: Task.','Mēģini Create bez Summary: sarkana kļūda pie obligātā lauka.','Aizpildi Summary, Description, Assignee, Due date, Labels, Epic Link.','Pēc izveides: komentārs un 📎 Attach.','Epic izveidē obligāts lauks Epic Name.']],
- ['2.2.4 Esošs uzdevums',['Atver DIGI-6 (kavēts, sarkans termiņš).','Spied Start Progress → statuss mainās.','Maini Priority un Due date labajā pusē.','Pievieno komentāru ar @Anna.','Activity → History: redzams, kas un kad mainīja.']],
+ ['2.2.4 Esošs uzdevums',['Atver DIGI-6 (kavēts, sarkans termiņš).','Spied Start Progress → statuss mainās.','Maini Priority un Due date labajā pusē.','Pievieno komentāru ar @Anna.','Activity → History: redzams, kas un kad mainīja.','More ▾ → Log work: Time Spent 2h, Adjust automatically, apraksts → Log. Activity → Work Log un Time Tracking labajā pusē.']],
  ['2.2.5 Dēlis',['Boards → DIGI dēlis: sprinta kolonnas.','Velc kartīti no To Do uz In Progress.','PASK Kanban: In Progress ir WIP limits 3; kolonna sarkana, ja pārsniegts.','Backlog: pārvieto DIGI-10 uz DIGI Sprint 3.']],
  ['2.2.6 Meklēšana un filtri',['Issues → Search for issues. Basic: Project DIGI, Status In Progress.','Advanced: duedate < now() AND resolution = Unresolved.','Save as → "Mani kavētie". Atzīmē ★ izlasē.','Details · Share: koplieto ar projektu DIGI.']],
  ['2.2.7 Dashboard',['Dashboards → Create dashboard "Mana komanda".','Add gadget → Pie Chart → filtrs "DIGI aktīvais sprints".','Pievieno Two Dimensional Filter Statistics un Sprint Health.','Edit layout: 3 kolonnas. Share: Project DIGI.']],
@@ -914,6 +924,16 @@ function renderModal(){
      ${i.type!=='Epic'&&i.type!=='Sub-task'?fld('Epic Link',sel('e_epic',[['','None'],...S.issues.filter(x=>x.type==='Epic'&&projOf(x)===projOf(i)).map(x=>[x.key,x.epicName])],i.epic||'')):''}
      ${PROJECTS[projOf(i)].kind==='Scrum'&&i.type!=='Epic'?fld('Story Points',`<input type="number" id="e_sp" min="0" value="${i.sp||''}">`):''}`,
      `<button class="btn primary" data-act="doedit" data-v="${i.key}">Update</button><button class="btn subtle" data-act="close">Cancel</button>`)}
+  else if(m.t==='logwork'){const i=get(m.k);h=M('Log work: '+i.key,`<p class="help">${esc(i.summary)}</p>
+     ${fld('Time Spent',`<input type="text" id="lw_time" value="${esc(v.time||'')}" placeholder="2h 30m">`,1,e.time,'Piemēri: 30m, 2h, 1h 30m, 1d (1d = 8h, 1w = 5d)')}
+     ${fld('Date Started',`<input type="date" id="lw_date" value="${v.date||TODAY}">`,1)}
+     <div class="field"><label class="f">Remaining Estimate</label>
+      <label class="row"><input type="radio" name="lw_rem" value="auto" ${(v.rem||'auto')==='auto'?'checked':''}> Adjust automatically <span class="help">(atlikušais samazinās par patērēto)</span></label>
+      <label class="row"><input type="radio" name="lw_rem" value="leave" ${v.rem==='leave'?'checked':''}> Use existing estimate of ${fmtMin(i.rem)}</label>
+      <label class="row"><input type="radio" name="lw_rem" value="set" ${v.rem==='set'?'checked':''}> Set to <input type="text" id="lw_set" style="width:110px" placeholder="4h" value="${esc(v.set||'')}"></label>
+      <label class="row"><input type="radio" name="lw_rem" value="reduce" ${v.rem==='reduce'?'checked':''}> Reduce by <input type="text" id="lw_red" style="width:110px" placeholder="1h" value="${esc(v.red||'')}"></label>${e.rem?`<span class="err">${e.rem}</span>`:''}</div>
+     ${fld('Work Description',`<textarea id="lw_desc" rows="3">${esc(v.desc||'')}</textarea>`,0,0,'Īsi: ko izdarījāt.')}`,
+     `<button class="btn primary" data-act="dologwork" data-v="${i.key}">Log</button><button class="btn subtle" data-act="close">Cancel</button>`)}
   else if(m.t==='attach'){h=M('Attach files',`<p>Izvēlieties failu. Demo vidē saglabājas tikai faila nosaukums un izmērs.</p><input type="file" id="a_file"><p class="help">Īstajā Jira failu var arī ievilkt uzdevuma logā vai ielīmēt ekrānuzņēmumu ar Ctrl+V.</p>`,`<button class="btn primary" data-act="doattach" data-v="${m.k}">Attach</button><button class="btn subtle" data-act="close">Cancel</button>`)}
   else if(m.t==='link'){const i=get(m.k);h=M('Link: '+i.key,fld('This issue',sel('l_type',['blocks','is blocked by','relates to'],'blocks'))+fld('Issue',sel('l_key',S.issues.filter(x=>x.key!==i.key).map(x=>[x.key,x.key+' '+x.summary]))),`<button class="btn primary" data-act="dolink" data-v="${i.key}">Link</button><button class="btn subtle" data-act="close">Cancel</button>`)}
   else if(m.t==='wf'){h=M('Workflow',`<svg viewBox="0 0 640 170" width="100%" role="img" aria-label="Darba plūsma: To Do, In Progress, In Review, Done">
@@ -975,7 +995,7 @@ function createIssue(){
   const par=m.parent&&get(m.parent);
   const i={key,type:v.type,summary:v.summary,epicName:v.type==='Epic'?v.epicName:undefined,desc:v.desc,assignee:v.assignee||null,reporter:me(),priority:v.priority,due:v.due||null,
     labels:v.labels?v.labels.split(',').map(s=>s.trim()).filter(Boolean):[],epic:par?null:(v.epic||null),parent:par?par.key:null,sprint:par?par.sprint:(v.sprint||null),status:'To Do',ts:null,te:v.due||null,sp:null,
-    created:TODAY,updated:TODAY,comments:[],atts:file?[{name:file.name,size:Math.max(1,Math.round(file.size/1024))+' KB',who:me(),when:TODAY}]:[],hist:[{who:me(),when:now(),field:'Created',from:'',to:''}],links:[],watchers:[me()]};
+    created:TODAY,updated:TODAY,comments:[],atts:file?[{name:file.name,size:Math.max(1,Math.round(file.size/1024))+' KB',who:me(),when:TODAY}]:[],hist:[{who:me(),when:now(),field:'Created',from:'',to:''}],links:[],watchers:[me()],est:null,rem:null,wl:[]};
   if(i.te)i.ts=addD(i.te,-5)<TODAY?TODAY:addD(i.te,-5);
   S.issues.push(i);act(key,'izveidoja');
   if(i.assignee)notify([i.assignee],`[JIRA] ${uname(me())} piešķīra jums ${key}`,i.summary);
@@ -999,7 +1019,7 @@ function addComment(k){
 
 document.addEventListener('click',ev=>{
   const t=ev.target.closest('[data-act]');
-  if(!t){if(UI.menu||UI.wOpen){UI.menu=null;UI.wOpen=false;render()}return}
+  if(!t){if(UI.menu||UI.wOpen||UI.more){UI.menu=null;UI.wOpen=false;UI.more=null;render()}return}
   const a=t.dataset.act,v=t.dataset.v;
   if(a!=='menu'&&UI.menu&&!t.closest('.menu')){UI.menu=null}
   if(a==='ovclose'){if(ev.target===t)closeModal();return}
@@ -1035,6 +1055,19 @@ document.addEventListener('click',ev=>{
     case 'delc':{const [k,n]=v.split('|');get(k).comments.splice(+n,1);save();render();break}
     case 'msel':{const ta=$('#cta');ta.value=ta.value.replace(/@([\wāčēģīķļņšūž]*)$/i,'@'+USERS[v].name+' ');$('#msug').innerHTML='';ta.focus();break}
     case 'tab':UI.tab=v;render();break;
+    case 'more':UI.more=UI.more===v?null:v;render();break;
+    case 'logwork':UI.more=null;render();openModal({t:'logwork',k:v,v:{}});break;
+    case 'dologwork':{const i=get(v);const g=id=>($('#'+id)||{}).value||'';const remSel=(document.querySelector('input[name=lw_rem]:checked')||{}).value||'auto';
+      const val={time:g('lw_time'),date:g('lw_date')||TODAY,desc:g('lw_desc').trim(),rem:remSel,set:g('lw_set'),red:g('lw_red')};const err={};
+      const min=parseDur(val.time);if(!min)err.time='Ievadiet laiku Jira formātā, piemēram 2h 30m.';
+      let nr=i.rem;if(remSel==='auto')nr=Math.max(0,(i.rem==null?(i.est||0):i.rem)-(min||0));
+      if(remSel==='set'){const x=parseDur(val.set);if(x==null)err.rem='Ievadiet atlikušo laiku, piemēram 4h.';else nr=x}
+      if(remSel==='reduce'){const x=parseDur(val.red);if(x==null)err.rem='Ievadiet, par cik samazināt, piemēram 1h.';else nr=Math.max(0,(i.rem||0)-x)}
+      if(Object.keys(err).length){UI.modal=Object.assign({},UI.modal,{v:val,err,noFocus:1});renderModal();return}
+      i.wl.unshift({who:me(),when:val.date,min,desc:val.desc});const oldRem=i.rem;i.rem=nr;i.updated=TODAY;
+      i.hist.unshift({who:me(),when:now(),field:'Time Spent',from:'',to:fmtMin(min)});if(oldRem!==nr)i.hist.unshift({who:me(),when:now(),field:'Remaining Estimate',from:fmtMin(oldRem),to:fmtMin(nr)});
+      act(v,'reģistrēja darbu '+fmtMin(min));save();closeModal();UI.tab='worklog';render();flag(`Darbs reģistrēts: <b>${fmtMin(min)}</b> uzdevumā ${v}.`);break}
+    case 'delwl':{const [k,n]=v.split('|');const i=get(k);i.wl.splice(+n,1);save();render();break}
     case 'attach':openModal({t:'attach',k:v,noFocus:1});break;
     case 'doattach':{const f=$('#a_file').files[0];if(!f){flag('Izvēlieties failu.',1);return}const i=get(v);i.atts.push({name:f.name,size:Math.max(1,Math.round(f.size/1024))+' KB',who:me(),when:TODAY});
       setField(i,'updated',TODAY);i.hist.unshift({who:me(),when:now(),field:'Attachment',from:'',to:f.name});act(v,'pievienoja pielikumu');notify([i.assignee,i.reporter,...i.watchers],`[JIRA] ${uname(me())} pievienoja pielikumu ${v}`,f.name);save();closeModal();render();break}
@@ -1150,7 +1183,7 @@ document.addEventListener('pointermove',ev=>{if(!bd)return;const dd=Math.round((
 document.addEventListener('pointerup',()=>{if(!bd)return;const {pl,k,dd,edge,ts,te}=bd;bd=null;if(!dd){location.hash='#/issue/'+k;return}
   let nts=ts,nte=te;if(edge!=='r')nts=addD(ts,dd);if(edge!=='l')nte=addD(te,dd);if(nts>nte){if(edge==='l')nts=nte;else nte=nts}
   setDraft(pl,k,'ts',nts);setDraft(pl,k,'te',nte);save();render();flag(`${k}: ${fmt(nts)}–${fmt(nte)} (nesaglabāts, skatiet Review changes)`,1)});
-window.addEventListener('hashchange',()=>{UI.menu=null;UI.wOpen=false;UI.editDesc=false;UI.tab='all';render();window.scrollTo(0,0)});
+window.addEventListener('hashchange',()=>{UI.more=null;UI.menu=null;UI.wOpen=false;UI.editDesc=false;UI.tab='all';render();window.scrollTo(0,0)});
 window.addEventListener('resize',()=>{if(route().parts[0]==='plan')drawDeps()});
 document.addEventListener('scroll',ev=>{},true);
 render();
