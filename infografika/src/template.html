@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI lapas kvalitātes kontrole</title>
+<meta name="description" content="Infografika: AI uzbūvēta lapa nav automātiski gatava lapa - 5 biežākās kļūdas un kā no tām izvairīties.">
+<style>
+/*FONTS*/
+:root {
+  --bg-0: #07111F;
+  --bg-1: #0B1B33;
+  --surface: #0F2240;
+  --surface-2: #132A4D;
+  --line: rgba(34, 211, 238, 0.16);
+  --line-strong: rgba(34, 211, 238, 0.38);
+  --cyan: #22D3EE;
+  --cyan-soft: rgba(34, 211, 238, 0.10);
+  --orange: #FB923C;
+  --orange-soft: rgba(251, 146, 60, 0.12);
+  --green: #34D399;
+  --green-soft: rgba(52, 211, 153, 0.10);
+  --text: #EAF2FB;
+  --muted: #A7BBD3;
+  --faint: #6F87A6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg-0); }
+body {
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  justify-content: center;
+}
+.poster {
+  position: relative;
+  width: 1080px;
+  max-width: 100%;
+  padding: 88px 80px 80px;
+  overflow: hidden;
+  background:
+    radial-gradient(900px 520px at 85% -6%, rgba(34, 211, 238, 0.14), transparent 70%),
+    radial-gradient(760px 520px at 0% 102%, rgba(251, 146, 60, 0.10), transparent 70%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+}
+/* Dot grid texture */
+.poster::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(167, 187, 211, 0.10) 1px, transparent 1.2px);
+  background-size: 24px 24px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.35) 70%, #000 100%);
+          mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.35) 70%, #000 100%);
+  pointer-events: none;
+}
+.poster > * { position: relative; }
+
+/* Header */
+.kicker {
+  display: flex; align-items: center; gap: 14px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 17px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--cyan);
+}
+.kicker .bar { width: 40px; height: 2px; background: var(--cyan); border-radius: 2px; }
+h1 {
+  margin-top: 32px;
+  font-family: "Outfit", sans-serif;
+  font-weight: 700;
+  font-size: 76px; line-height: 1.04; letter-spacing: -0.025em;
+  color: var(--text);
+}
+h1 .accent { color: var(--orange); }
+.subtitle {
+  margin-top: 28px;
+  display: flex; align-items: center; gap: 18px;
+  font-family: "Outfit", sans-serif; font-weight: 400;
+  font-size: 32px; line-height: 1.3; color: var(--cyan);
+}
+.subtitle .count {
+  display: inline-grid; place-items: center;
+  width: 52px; height: 52px; border-radius: 14px;
+  border: 2px solid var(--line-strong);
+  background: var(--cyan-soft);
+  font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 26px;
+}
+.rule {
+  margin: 64px 0 56px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-strong), var(--line) 60%, transparent);
+}
+
+/* Items */
+.items { list-style: none; display: grid; gap: 28px; }
+.item {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 36px;
+  padding: 40px 44px 40px 40px;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--line);
+  border-radius: 24px;
+}
+.rail { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.icon {
+  width: 112px; height: 112px; border-radius: 28px;
+  display: grid; place-items: center;
+  background: var(--cyan-soft);
+  border: 1.5px solid var(--line-strong);
+  color: var(--cyan);
+}
+.icon svg { width: 60px; height: 60px; }
+.num {
+  font-family: "JetBrains Mono", monospace; font-weight: 700;
+  font-size: 22px; letter-spacing: 0.08em;
+  color: var(--orange);
+  padding: 6px 14px; border-radius: 999px;
+  background: var(--orange-soft);
+  border: 1px solid rgba(251, 146, 60, 0.32);
+}
+.body h2 {
+  font-family: "Outfit", sans-serif; font-weight: 700;
+  font-size: 36px; line-height: 1.15; letter-spacing: -0.01em;
+  color: var(--text);
+}
+.body p {
+  margin-top: 14px;
+  font-size: 23px; line-height: 1.5; color: var(--muted);
+}
+.fix {
+  margin-top: 24px;
+  display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: start;
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: var(--green-soft);
+  border: 1px solid rgba(52, 211, 153, 0.30);
+  font-size: 22px; line-height: 1.45; color: #D7F5E9;
+}
+.fix svg { width: 30px; height: 30px; color: var(--green); margin-top: 1px; }
+.fix strong {
+  color: var(--green); font-weight: 700;
+}
+
+/* Closing */
+.closing {
+  margin-top: 64px;
+  padding: 52px 56px;
+  border-radius: 28px;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(120deg, var(--cyan), rgba(34,211,238,0.2) 45%, rgba(251,146,60,0.25) 60%, var(--orange)) border-box;
+  border: 2px solid transparent;
+  display: grid; grid-template-columns: 96px 1fr; gap: 36px; align-items: center;
+}
+.closing .seal {
+  width: 96px; height: 96px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--orange-soft);
+  border: 1.5px solid rgba(251, 146, 60, 0.45);
+  color: var(--orange);
+}
+.closing .seal svg { width: 50px; height: 50px; }
+.closing p {
+  font-family: "Outfit", sans-serif; font-weight: 400;
+  font-size: 31px; line-height: 1.4; color: var(--text);
+}
+.closing p strong { font-weight: 700; color: var(--orange); }
+.footer {
+  margin-top: 44px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: "JetBrains Mono", monospace; font-size: 15px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+}
+.footer .dots { display: flex; gap: 8px; }
+.footer .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); display: block; }
+.footer .dots i:first-child { background: var(--cyan); }
+.footer .dots i:last-child { background: var(--orange); }
+
+@media (max-width: 760px) {
+  .poster { padding: 48px 16px; }
+  h1 { font-size: 44px; }
+  .subtitle { font-size: 22px; gap: 12px; }
+  .subtitle .count { width: 40px; height: 40px; font-size: 20px; }
+  .rule { margin: 40px 0 32px; }
+  .item { grid-template-columns: 1fr; gap: 20px; padding: 28px 22px; }
+  .rail { flex-direction: row; justify-content: space-between; }
+  .icon { width: 72px; height: 72px; border-radius: 20px; }
+  .icon svg { width: 40px; height: 40px; }
+  .body h2 { font-size: 26px; }
+  .body p, .fix { font-size: 17px; }
+  .closing { grid-template-columns: 1fr; padding: 32px 24px; gap: 20px; }
+  .closing p { font-size: 22px; }
+  .footer { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<main class="poster">
+  <header>
+    <div class="kicker"><span class="bar"></span>Kvalitātes kontrole / AI izstrāde</div>
+    <h1>AI uzbūvēta lapa<br><span class="accent">nav automātiski</span><br>gatava lapa</h1>
+    <p class="subtitle"><span class="count">5</span>biežākās kļūdas un kā no tām izvairīties</p>
+  </header>
+
+  <div class="rule"></div>
+
+  <ol class="items">
+    <li class="item">
+      <div class="rail">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        </div>
+        <span class="num">01</span>
+      </div>
+      <div class="body">
+        <h2>Drošības robi</h2>
+        <p>AI bieži atstāj API atslēgas kodā, neveic ievades datu pārbaudi un neierobežo piekļuvi.</p>
+        <div class="fix">FIXICON<span><strong>Risinājums:</strong> slepenās atslēgas glabāt vides mainīgajos, pārbaudīt formu datus, veikt drošības auditu pirms publicēšanas.</span></div>
+      </div>
+    </li>
+
+    <li class="item">
+      <div class="rail">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+        </div>
+        <span class="num">02</span>
+      </div>
+      <div class="body">
+        <h2>Lēna darbība</h2>
+        <p>Neoptimizēti attēli, liekas bibliotēkas un uzblīdis kods palēnina ielādi mobilajās ierīcēs.</p>
+        <div class="fix">FIXICON<span><strong>Risinājums:</strong> saspiest attēlus, ielādēt tikai nepieciešamo, pārbaudīt ar PageSpeed Insights.</span></div>
+      </div>
+    </li>
+
+    <li class="item">
+      <div class="rail">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m21 21-5.2-5.2"/><path d="M7 8h7"/><path d="M7 11h5"/><path d="M7 14h3"/></svg>
+        </div>
+        <span class="num">03</span>
+      </div>
+      <div class="body">
+        <h2>SEO un pieejamības trūkums</h2>
+        <p>Nav pareizas virsrakstu hierarhijas, meta aprakstu, alt tekstu un pietiekama kontrasta.</p>
+        <div class="fix">FIXICON<span><strong>Risinājums:</strong> pārbaudīt struktūru, pievienot metadatus, ievērot pieejamības pamatprasības.</span></div>
+      </div>
+    </li>
+
+    <li class="item">
+      <div class="rail">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>
+        </div>
+        <span class="num">04</span>
+      </div>
+      <div class="body">
+        <h2>Netestēta loģika</h2>
+        <p>Formas, maksājumi vai pieteikšanās lūzt neparedzētos gadījumos.</p>
+        <div class="fix">FIXICON<span><strong>Risinājums:</strong> izmēģināt visus scenārijus, kļūdainus datus, dažādas ierīces un pārlūkus.</span></div>
+      </div>
+    </li>
+
+    <li class="item">
+      <div class="rail">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/><path d="M9 9h4"/><path d="M11 12h4"/><path d="M9 15h2.5"/></svg>
+        </div>
+        <span class="num">05</span>
+      </div>
+      <div class="body">
+        <h2>Haotisks un grūti uzturams kods</h2>
+        <p>Dublēts kods, nesakārtota struktūra, novecojušas vai neeksistējošas atkarības.</p>
+        <div class="fix">FIXICON<span><strong>Risinājums:</strong> pārskatīt kodu, sakārtot struktūru, pārbaudīt, vai bibliotēkas eksistē un ir aktuālas.</span></div>
+      </div>
+    </li>
+  </ol>
+
+  <section class="closing">
+    <div class="seal" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+    </div>
+    <p>AI paātrina izstrādi, bet atbildību par kvalitāti un drošību nes cilvēks.<br><strong>Vienmēr pārbaudi, pirms publicē.</strong></p>
+  </section>
+
+  <footer class="footer">
+    <span>Pārbaudi / Labo / Publicē</span>
+    <span class="dots"><i></i><i></i><i></i><i></i><i></i></span>
+  </footer>
+</main>
+</body>
+</html>
